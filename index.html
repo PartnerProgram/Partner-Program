@@ -218,10 +218,10 @@
         TIERS.forEach((t) => {
           const active = STATE.tier === t;
           let subtitle = "";
-          if (t === "Registered") subtitle = "Access & referral economics";
-          if (t === "Preferred") subtitle = "Pipeline tools, CRM access, joint motions";
-          if (t === "Premier") subtitle = "Campaigns + priority support";
-          if (t === "Other") subtitle = "Specialized partner types";
+          if (t === "Registered") subtitle = "Transactional or Rebate Partner";
+          if (t === "Preferred") subtitle = "Growth Partner with Co-Sell Access";
+          if (t === "Premier") subtitle = "Invite-Only Strategic Partner";
+          if (t === "Other") subtitle = "Specialized Partner Types";
           html += `
             <button
               class="${
