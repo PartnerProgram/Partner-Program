@@ -233,9 +233,11 @@
       function render() {
         const data = getPartnerData(STATE.partnerType);
         let html = '<div class="space-y-6">';
+        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
         html += renderDropdown();
-        html += '<div class="grid gap-4" aria-live="polite">';
         html += renderOverview(data.overview);
+        html += '</div>';
+        html += '<div class="grid gap-4" aria-live="polite">';
         html += renderRequirements(data.requirements, data.isPremier);
         html += renderBenefits(data.benefits);
         if (data.isStandard) {
