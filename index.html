@@ -36,13 +36,11 @@
     </main>
     <script>
       const STATE = {
-        tier: 'Preferred',
-        tab: 'takes',
+        partnerType: 'Preferred',
         commitment: 'Annual',
         dealType: 'Net New',
         newPartner: false,
         activeStep: 0,
-        showROE: false,
         showBusinessPlan: false,
         model: {
           tiers: {
@@ -208,96 +206,59 @@
           }
         }
       };
-      const TIERS = ["Registered", "Preferred", "Premier", "Other"];
-      function render() {
-        if (STATE.tier === "Registered") {
-          STATE.newPartner = false;
-        }
-        let html = '<div class="space-y-6">';
-        html += '<section class="grid gap-3 sm:grid-cols-4">';
-        TIERS.forEach((t) => {
-          const active = STATE.tier === t;
-          let subtitle = "";
-          if (t === "Registered") subtitle = "Transactional or Rebate Partner";
-          if (t === "Preferred") subtitle = "Growth Partner with Co-Sell Access";
-          if (t === "Premier") subtitle = "Invite-Only Strategic Partner";
-          if (t === "Other") subtitle = "Specialized Partner Types";
-          html += `
-            <button
-              class="${
-                active
-                  ? "border-[#0070F3]/25 bg-white"
-                  : "border-[#E2E8F0] bg-white hover:bg-[#F7F9FB]"
-              } relative flex flex-col items-start rounded-2xl border p-5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2 focus:ring-offset-[#F7F9FB]"
-              data-tier="${t}"
-            >
-              <div class="text-xl font-semibold">${t}</div>
-              <div class="mt-1 text-sm text-[#4A5568]">${subtitle}</div>
-              ${
-                active
-                  ? '<span class="absolute right-4 top-4 inline-flex h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>'
-                  : ""
-              }
-            </button>
-          `;
-        });
-        html += "</section>";
-        if (STATE.tier === "Other") {
-          html += renderOther();
+      const PARTNER_TYPES = ["Registered", "Preferred", "Premier", "MSP", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"];
+      function getPartnerData(type) {
+        if (["Registered", "Preferred", "Premier"].includes(type)) {
+          return {
+            overview: STATE.model.tiers[type].overview,
+            requirements: STATE.model.tiers[type].requirements,
+            benefits: STATE.model.tiers[type].benefits,
+            isStandard: true,
+            isPremier: type === "Premier",
+            specific: null
+          };
         } else {
-          html += '<nav role="tablist" aria-label="Sections" class="flex flex-wrap gap-2 rounded-full bg-white p-1 shadow-sm border border-[#E2E8F0]">';
-          const tabs = [
-            { id: "takes", label: "What it takes" },
-            { id: "gets", label: "What you get" },
-            { id: "margins", label: "Margins" },
-            { id: "onboarding", label: "Onboarding" },
-          ];
-          tabs.forEach((tabObj) => {
-            const active = STATE.tab === tabObj.id;
-            html += `
-              <button
-                role="tab"
-                aria-selected="${active}"
-                class="${
-                  active ? "bg-[#0070F3] text-white" : "hover:bg-[#F7F9FB]"
-                } rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
-                data-tab="${tabObj.id}"
-              >
-                ${tabObj.label}
-              </button>
-            `;
-          });
-          html += "</nav>";
-          html += '<div class="grid gap-4" aria-live="polite">';
-          if (STATE.tab === "takes") {
-            html += renderWhatItTakes();
-          } else if (STATE.tab === "gets") {
-            html += renderWhatYouGet();
-          } else if (STATE.tab === "margins") {
-            html += renderMargins();
-          } else if (STATE.tab === "onboarding") {
-            html += renderOnboarding();
-          }
-          html += "</div>";
+          const specific = STATE.model.other.partners.find(p => p.partnerType === type);
+          const desc = STATE.model.other.partnerTypesDescs.find(d => d.includes(type === "MSP" ? "MSP" : type));
+          return {
+            overview: STATE.model.other.overview + "\n\n" + desc,
+            requirements: STATE.model.other.requirements,
+            benefits: STATE.model.tiers.Premier.benefits,
+            isStandard: false,
+            isPremier: false,
+            specific: specific
+          };
+        }
+      }
+      function render() {
+        const data = getPartnerData(STATE.partnerType);
+        let html = '<div class="space-y-6">';
+        html += renderDropdown();
+        html += '<div class="grid gap-4" aria-live="polite">';
+        html += renderOverview(data.overview);
+        html += renderRequirements(data.requirements, data.isPremier);
+        html += renderBenefits(data.benefits);
+        if (data.isStandard) {
+          html += renderMargins();
+        } else {
+          html += renderDetails(data.specific);
+        }
+        html += '</div>';
+        html += renderROE();
+        if (STATE.partnerType !== "Registered") {
+          html += renderOnboarding();
         }
         html += '<footer class="pt-2 text-xs text-[#4A5568]">Preview purposes only. Program terms subject to agreement.</footer>';
         html += "</div>";
         document.getElementById("app").innerHTML = html;
-        document.querySelectorAll("[data-tier]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            STATE.tier = btn.dataset.tier;
-            render();
-          });
+        document.getElementById("partnerType").addEventListener("change", (e) => {
+          STATE.partnerType = e.target.value;
+          if (STATE.partnerType === "Registered") {
+            STATE.newPartner = false;
+          }
+          render();
         });
-        if (STATE.tier !== "Other") {
-          document.querySelectorAll("[data-tab]").forEach((btn) => {
-            btn.addEventListener("click", () => {
-              STATE.tab = btn.dataset.tab;
-              render();
-            });
-          });
-        }
-        if (STATE.tab === "margins" && STATE.tier !== "Other") {
+        if (data.isStandard) {
           const commitmentSelect = document.getElementById("commitment");
           if (commitmentSelect) {
             commitmentSelect.addEventListener("change", (e) => {
@@ -319,15 +280,8 @@
               render();
             });
           }
-          const roeButton = document.getElementById("roeButton");
-          if (roeButton) {
-            roeButton.addEventListener("click", () => {
-              STATE.showROE = !STATE.showROE;
-              render();
-            });
-          }
         }
-        if (STATE.tab === "onboarding" && STATE.tier !== "Other") {
+        if (STATE.partnerType !== "Registered") {
           document.querySelectorAll("[data-step]").forEach((btn) => {
             btn.addEventListener("click", () => {
               STATE.activeStep = parseInt(btn.dataset.step);
@@ -335,7 +289,7 @@
             });
           });
         }
-        if (STATE.tab === "takes" && STATE.tier === "Premier") {
+        if (data.isPremier) {
           const businessPlanButton = document.getElementById("businessPlanButton");
           if (businessPlanButton) {
             businessPlanButton.addEventListener("click", () => {
@@ -345,9 +299,29 @@
           }
         }
       }
-      function renderWhatItTakes() {
-        const overview = STATE.model.tiers[STATE.tier].overview;
-        const reqs = STATE.model.tiers[STATE.tier].requirements;
+      function renderDropdown() {
+        let options = '';
+        PARTNER_TYPES.forEach((t) => {
+          options += `<option value="${t}" ${STATE.partnerType === t ? 'selected' : ''}>${t}</option>`;
+        });
+        return `
+          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
+            <label for="partnerType" class="block text-sm font-medium mb-2">Select Partner Type</label>
+            <select id="partnerType" class="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-[#0070F3]">
+              ${options}
+            </select>
+          </div>
+        `;
+      }
+      function renderOverview(overview) {
+        return `
+          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
+            <h3 class="text-lg font-semibold">Overview</h3>
+            <p class="mt-2 text-[#4A5568] whitespace-pre-line">${overview}</p>
+          </div>
+        `;
+      }
+      function renderRequirements(reqs, isPremier) {
         let listHtml = "";
         reqs.forEach((r) => {
           listHtml += `
@@ -358,7 +332,7 @@
           `;
         });
         let businessPlanHtml = '';
-        if (STATE.tier === 'Premier') {
+        if (isPremier) {
           businessPlanHtml = `
             <div class="mt-4">
               <button id="businessPlanButton" class="rounded-full bg-[#0070F3] px-4 py-2 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
@@ -376,9 +350,182 @@
         }
         return `
           <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <h3 class="text-lg font-semibold">What it takes</h3>
-            <p class="mt-2 text-[#4A5568] whitespace-pre-line">${overview}</p>
+            <h3 class="text-lg font-semibold">Requirements</h3>
+            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
             ${businessPlanHtml}
+          </div>
+        `;
+      }
+      function renderBenefits(bens) {
+        let listHtml = "";
+        bens.forEach((b) => {
+          listHtml += `
+            <li class="flex items-start gap-2">
+              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
+              <span>${b}</span>
+            </li>
+          `;
+        });
+        return `
+          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
+            <h3 class="text-lg font-semibold">Benefits</h3>
+            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
+          </div>
+        `;
+      }
+      function renderMargins() {
+        const disabled = STATE.partnerType === "Registered";
+        const universe = STATE.model.margins[STATE.commitment][STATE.dealType];
+        const key = STATE.partnerType === "Registered" ? "Registered" : "Preferred|Premier";
+        const rules = universe[key];
+        const fullMarginValue =
+          STATE.partnerType === "Registered"
+            ? STATE.commitment === "Annual"
+              ? "5%"
+              : "5%"
+            : STATE.commitment === "Annual"
+            ? "30%"
+            : "20%";
+        let contentHtml = "";
+        if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
+          contentHtml = `
+            <div class="rounded-xl border border-[#0070F3]/30 bg-[#0070F3]/5 p-4">
+              <div class="flex items-center justify-between">
+                <div class="font-semibold">New Partner Boost — Full Margin</div>
+                <span class="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs">Up to ${fullMarginValue}</span>
+              </div>
+              <p class="mt-2 text-sm text-[#4A5568]">For your first <strong>three</strong> net-new opportunities, Recast will <strong>shadow and co-run the deal end-to-end</strong> (discovery → demo → proposal → close) while you retain <strong>full Band 1 margin</strong>.</p>
+            </div>
+          `;
+        } else {
+          let rulesHtml = "";
+          rules.forEach((r) => {
+            rulesHtml += `
+              <div class="rounded-xl border border-[#E2E8F0] bg-white p-4">
+                <div class="flex items-center justify-between">
+                  <div class="font-semibold">${r.band}</div>
+                  <span class="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs">Up to ${r.upTo}</span>
+                </div>
+                <div class="mt-2 text-sm text-[#4A5568]">${r.when}</div>
+              </div>
+            `;
+          });
+          contentHtml = `
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">${rulesHtml}</div>
+            <p class="mt-3 text-xs text-[#4A5568]">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>
+          `;
+        }
+        return `
+          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
+            <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
+              <h3 class="text-lg font-semibold">Margins</h3>
+              <div class="flex flex-wrap items-center gap-3">
+                <label class="flex items-center gap-2 text-sm ${disabled ? "opacity-60" : ""}" title="For your first 3 net-new deals, we co-sell end-to-end and you keep full margin.">
+                  <input type="checkbox" id="newPartner" class="h-4 w-4 accent-[#0070F3]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
+                  <span>New partner boost (first 3 net-new deals)</span>
+                </label>
+                <select id="commitment" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
+                  <option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>
+                  <option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>
+                </select>
+                <select id="dealType" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
+                  <option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>
+                  <option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-3">${contentHtml}</div>
+          </div>
+        `;
+      }
+      function renderDetails(specific) {
+        let tableHtml = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Tier Eligibility</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Registration</th><th class="px-6 py-3 text-left text-sm font-semibold">MDF Access</th><th class="px-6 py-3 text-left text-sm font-semibold">Enablement</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        tableHtml += `<tr><td class="px-6 py-4 text-sm font-medium">${specific.partnerType}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.tierEligibility}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.dealRegistration}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.mdfAccess}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.enablement}</td></tr>`;
+        tableHtml += '</tbody></table>';
+        return `
+          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md overflow-hidden">
+            <h3 class="text-lg font-semibold mb-4">Details</h3>
+            <div class="overflow-x-auto">${tableHtml}</div>
+          </div>
+        `;
+      }
+      function renderROE() {
+        let principlesTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Principle</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Intent</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        STATE.model.roe.principles.forEach((p) => {
+          principlesTable += `<tr><td class="px-6 py-4 text-sm font-medium">${p.principle}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.description}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.intent}</td></tr>`;
+        });
+        principlesTable += '</tbody></table>';
+        let bandsTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Qualification Criteria</th><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type Eligible</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin (up to)</th><th class="px-6 py-3 text-left text-sm font-semibold">Example Scenario</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        STATE.model.roe.bands.forEach((b) => {
+          let criteriaHtml = '<ul class="list-disc pl-5 space-y-1">';
+          b.criteria.forEach((c) => { criteriaHtml += `<li class="text-sm text-[#4A5568]">${c}</li>`; });
+          criteriaHtml += '</ul>';
+          bandsTable += `<tr><td class="px-6 py-4 text-sm font-medium">${b.band}</td><td class="px-6 py-4">${criteriaHtml}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.eligible}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.example}</td></tr>`;
+        });
+        bandsTable += '</tbody></table>';
+        let governanceTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Element</th><th class="px-6 py-3 text-left text-sm font-semibold">Definition</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        STATE.model.roe.governance.forEach((g) => {
+          governanceTable += `<tr><td class="px-6 py-4 text-sm font-medium">${g.element}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${g.definition}</td></tr>`;
+        });
+        governanceTable += '</tbody></table>';
+        let summaryTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Engagement Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Typical Recast Involvement</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Range</th><th class="px-6 py-3 text-left text-sm font-semibold">Notes</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        STATE.model.roe.summary.forEach((s) => {
+          summaryTable += `<tr><td class="px-6 py-4 text-sm font-medium">${s.tier}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.engagement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.involvement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.range}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.notes}</td></tr>`;
+        });
+        summaryTable += '</tbody></table>';
+        return `
+          <div class="mt-8 space-y-8">
+            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Rules of Engagement (ROE)</h3>
+              <div class="overflow-x-auto">${principlesTable}</div>
+            </div>
+            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Margin Bands & Definitions</h3>
+              <div class="overflow-x-auto">${bandsTable}</div>
+            </div>
+            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Partner Margin Governance</h3>
+              <div class="overflow-x-auto">${governanceTable}</div>
+            </div>
+            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Example Summary Table</h3>
+              <div class="overflow-x-auto">${summaryTable}</div>
+            </div>
+          </div>
+        `;
+      }
+      function renderOnboarding() {
+        const steps = STATE.model.onboarding.steps;
+        let buttonsHtml = "";
+        steps.forEach((s, i) => {
+          const active = STATE.activeStep === i;
+          buttonsHtml += `
+            <button
+              class="${
+                active ? "bg-[#0070F3] text-white" : "bg-white hover:bg-[#F7F9FB]"
+              } rounded-full px-3 py-1 text-sm transition"
+              data-step="${i}"
+            >
+              ${s.name}
+            </button>
+          `;
+        });
+        const items = steps[STATE.activeStep].items;
+        let listHtml = "";
+        items.forEach((item) => {
+          listHtml += `
+            <li class="flex items-start gap-2">
+              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
+              <span>${item}</span>
+            </li>
+          `;
+        });
+        return `
+          <div class="mt-8 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
+            <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
+              <h3 class="text-lg font-semibold">Onboarding Requirements</h3>
+              <div class="flex gap-2">${buttonsHtml}</div>
+            </div>
             <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
           </div>
         `;
@@ -707,217 +854,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        `;
-      }
-      function renderWhatYouGet() {
-        const bens = STATE.model.tiers[STATE.tier].benefits;
-        let listHtml = "";
-        bens.forEach((b) => {
-          listHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${b}</span>
-            </li>
-          `;
-        });
-        return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <h3 class="text-lg font-semibold">What you get</h3>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-          </div>
-        `;
-      }
-      function renderMargins() {
-        const disabled = STATE.tier === "Registered";
-        const universe = STATE.model.margins[STATE.commitment][STATE.dealType];
-        const key = STATE.tier === "Registered" ? "Registered" : "Preferred|Premier";
-        const rules = universe[key];
-        const fullMarginValue =
-          STATE.tier === "Registered"
-            ? STATE.commitment === "Annual"
-              ? "5%"
-              : "5%"
-            : STATE.commitment === "Annual"
-            ? "30%"
-            : "20%";
-        let contentHtml = "";
-        if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
-          contentHtml = `
-            <div class="rounded-xl border border-[#0070F3]/30 bg-[#0070F3]/5 p-4">
-              <div class="flex items-center justify-between">
-                <div class="font-semibold">New Partner Boost — Full Margin</div>
-                <span class="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs">Up to ${fullMarginValue}</span>
-              </div>
-              <p class="mt-2 text-sm text-[#4A5568]">For your first <strong>three</strong> net-new opportunities, Recast will <strong>shadow and co-run the deal end-to-end</strong> (discovery → demo → proposal → close) while you retain <strong>full Band 1 margin</strong>.</p>
-            </div>
-          `;
-        } else {
-          let rulesHtml = "";
-          rules.forEach((r) => {
-            rulesHtml += `
-              <div class="rounded-xl border border-[#E2E8F0] bg-white p-4">
-                <div class="flex items-center justify-between">
-                  <div class="font-semibold">${r.band}</div>
-                  <span class="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs">Up to ${r.upTo}</span>
-                </div>
-                <div class="mt-2 text-sm text-[#4A5568]">${r.when}</div>
-              </div>
-            `;
-          });
-          contentHtml = `
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">${rulesHtml}</div>
-            <p class="mt-3 text-xs text-[#4A5568]">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>
-          `;
-        }
-        let roeHtml = '';
-        if (STATE.showROE) {
-          roeHtml = renderROE();
-        }
-        return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
-              <h3 class="text-lg font-semibold">Margins</h3>
-              <div class="flex flex-wrap items-center gap-3">
-                <label class="flex items-center gap-2 text-sm ${disabled ? "opacity-60" : ""}" title="For your first 3 net-new deals, we co-sell end-to-end and you keep full margin.">
-                  <input type="checkbox" id="newPartner" class="h-4 w-4 accent-[#0070F3]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
-                  <span>New partner boost (first 3 net-new deals)</span>
-                </label>
-                <select id="commitment" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
-                  <option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>
-                  <option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>
-                </select>
-                <select id="dealType" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
-                  <option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>
-                  <option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>
-                </select>
-              </div>
-            </div>
-            <div class="mt-3">${contentHtml}</div>
-            <div class="mt-4">
-              <button id="roeButton" class="rounded-full bg-[#0070F3] px-4 py-2 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
-                ${STATE.showROE ? 'Hide' : 'Show'} Rules of Engagement
-              </button>
-            </div>
-          </div>
-          ${roeHtml}
-        `;
-      }
-      function renderROE() {
-        let principlesTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Principle</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Intent</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.principles.forEach((p) => {
-          principlesTable += `<tr><td class="px-6 py-4 text-sm font-medium">${p.principle}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.description}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.intent}</td></tr>`;
-        });
-        principlesTable += '</tbody></table>';
-        let bandsTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Qualification Criteria</th><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type Eligible</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin (up to)</th><th class="px-6 py-3 text-left text-sm font-semibold">Example Scenario</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.bands.forEach((b) => {
-          let criteriaHtml = '<ul class="list-disc pl-5 space-y-1">';
-          b.criteria.forEach((c) => { criteriaHtml += `<li class="text-sm text-[#4A5568]">${c}</li>`; });
-          criteriaHtml += '</ul>';
-          bandsTable += `<tr><td class="px-6 py-4 text-sm font-medium">${b.band}</td><td class="px-6 py-4">${criteriaHtml}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.eligible}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.example}</td></tr>`;
-        });
-        bandsTable += '</tbody></table>';
-        let governanceTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Element</th><th class="px-6 py-3 text-left text-sm font-semibold">Definition</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.governance.forEach((g) => {
-          governanceTable += `<tr><td class="px-6 py-4 text-sm font-medium">${g.element}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${g.definition}</td></tr>`;
-        });
-        governanceTable += '</tbody></table>';
-        let summaryTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Engagement Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Typical Recast Involvement</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Range</th><th class="px-6 py-3 text-left text-sm font-semibold">Notes</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.summary.forEach((s) => {
-          summaryTable += `<tr><td class="px-6 py-4 text-sm font-medium">${s.tier}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.engagement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.involvement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.range}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.notes}</td></tr>`;
-        });
-        summaryTable += '</tbody></table>';
-        return `
-          <div class="mt-4 space-y-8">
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Rules of Engagement (ROE)</h3>
-              <div class="overflow-x-auto">${principlesTable}</div>
-            </div>
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Margin Bands & Definitions</h3>
-              <div class="overflow-x-auto">${bandsTable}</div>
-            </div>
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Partner Margin Governance</h3>
-              <div class="overflow-x-auto">${governanceTable}</div>
-            </div>
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Example Summary Table</h3>
-              <div class="overflow-x-auto">${summaryTable}</div>
-            </div>
-          </div>
-        `;
-      }
-      function renderOnboarding() {
-        const steps = STATE.model.onboarding.steps;
-        let buttonsHtml = "";
-        steps.forEach((s, i) => {
-          const active = STATE.activeStep === i;
-          buttonsHtml += `
-            <button
-              class="${
-                active ? "bg-[#0070F3] text-white" : "bg-white hover:bg-[#F7F9FB]"
-              } rounded-full px-3 py-1 text-sm transition"
-              data-step="${i}"
-            >
-              ${s.name}
-            </button>
-          `;
-        });
-        const items = steps[STATE.activeStep].items;
-        let listHtml = "";
-        items.forEach((item) => {
-          listHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${item}</span>
-            </li>
-          `;
-        });
-        return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
-              <h3 class="text-lg font-semibold">Onboarding (Preferred & Premier)</h3>
-              <div class="flex gap-2">${buttonsHtml}</div>
-            </div>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-          </div>
-        `;
-      }
-      function renderOther() {
-        let descsHtml = "";
-        STATE.model.other.partnerTypesDescs.forEach((d) => {
-          descsHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${d}</span>
-            </li>
-          `;
-        });
-        let reqsHtml = "";
-        STATE.model.other.requirements.forEach((r) => {
-          reqsHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${r}</span>
-            </li>
-          `;
-        });
-        let otherTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Tier Eligibility</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Registration</th><th class="px-6 py-3 text-left text-sm font-semibold">MDF Access</th><th class="px-6 py-3 text-left text-sm font-semibold">Enablement</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.other.partners.forEach((p) => {
-          otherTable += `<tr><td class="px-6 py-4 text-sm font-medium">${p.partnerType}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.tierEligibility}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.dealRegistration}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.mdfAccess}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.enablement}</td></tr>`;
-        });
-        otherTable += '</tbody></table>';
-        return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <h3 class="text-lg font-semibold">Overview</h3>
-            <p class="mt-2 text-[#4A5568] whitespace-pre-line">${STATE.model.other.overview}</p>
-            <h3 class="mt-6 text-lg font-semibold">Partner Types</h3>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${descsHtml}</ul>
-            <h3 class="mt-6 text-lg font-semibold">What it takes</h3>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${reqsHtml}</ul>
-            <h3 class="mt-6 text-lg font-semibold">Details</h3>
-            <div class="overflow-x-auto">${otherTable}</div>
           </div>
         `;
       }
