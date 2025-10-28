@@ -45,7 +45,7 @@
         model: {
           tiers: {
             Registered: {
-              overview: "Registered partners are typically transactional resellers or LARs who help us fulfill orders or introduce Recast into unique opportunities. These partners don’t require a formal partnership agreement — we simply transact through them when the customer requests it. They may also bring Recast into a deal where we do the selling and delivery, earning up to 5% rebate at Recast’s discretion.\nThe only requirement is that the partner is set up in Salesforce with a valid bill-to address and primary finance contact. On the order form, the bill-to is the partner, and the ship-to is the customer.\nThese relationships are lightweight and transactional — low overhead, but still important when we need a resale mechanism or local presence.",
+              overview: "Registered partners are either License Added Resellers (LARs) or referral partners who help Recast reach more customers.\n\n* LARs handle the transaction — they place the order and act as the bill-to on behalf of the customer. They earn up to a 5% margin on those deals.\n\n* Referral partners introduce Recast to a customer or opportunity. If we close the deal directly, they can receive up to a 5% rebate at Recast’s discretion.\n\nThese partnerships are lightweight and transactional — no formal agreement is required. We simply set up the partner in Salesforce with valid billing information and process orders as needed.\nThey’re a low-overhead way for Recast to fulfill deals or expand into new opportunities through trusted local or resale partners.",
               requirements: [
                 "Create Salesforce account with bill-to and finance contact",
                 "No formal agreement required",
@@ -237,19 +237,19 @@
         html += renderDropdown();
         html += renderOverview(data.overview);
         html += '</div>';
-        html += '<div class="grid gap-4" aria-live="polite">';
-        html += renderRequirements(data.requirements, data.isPremier);
-        html += renderBenefits(data.benefits);
+        html += '<div class="space-y-4">';
+        html += renderRequirementsCard(data.requirements, data.isPremier);
+        html += renderBenefitsCard(data.benefits);
         if (data.isStandard) {
-          html += renderMargins();
+          html += renderMarginsCard();
         } else {
-          html += renderDetails(data.specific);
+          html += renderDetailsCard(data.specific);
+        }
+        html += renderROECard();
+        if (STATE.partnerType !== "Registered") {
+          html += renderOnboardingCard();
         }
         html += '</div>';
-        html += renderROE();
-        if (STATE.partnerType !== "Registered") {
-          html += renderOnboarding();
-        }
         html += '<footer class="pt-2 text-xs text-[#4A5568]">Preview purposes only. Program terms subject to agreement.</footer>';
         html += "</div>";
         document.getElementById("app").innerHTML = html;
@@ -304,7 +304,8 @@
       function renderDropdown() {
         let options = '';
         PARTNER_TYPES.forEach((t) => {
-          options += `<option value="${t}" ${STATE.partnerType === t ? 'selected' : ''}>${t}</option>`;
+          const display = t === "Registered" ? "Registered (LAR/Referral)" : t;
+          options += `<option value="${t}" ${STATE.partnerType === t ? 'selected' : ''}>${display}</option>`;
         });
         return `
           <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
@@ -323,7 +324,7 @@
           </div>
         `;
       }
-      function renderRequirements(reqs, isPremier) {
+      function renderRequirementsCard(reqs, isPremier) {
         let listHtml = "";
         reqs.forEach((r) => {
           listHtml += `
@@ -351,14 +352,16 @@
           }
         }
         return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <h3 class="text-lg font-semibold">Requirements</h3>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-            ${businessPlanHtml}
-          </div>
+          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Requirements</summary>
+            <div class="p-5 pt-0">
+              <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
+              ${businessPlanHtml}
+            </div>
+          </details>
         `;
       }
-      function renderBenefits(bens) {
+      function renderBenefitsCard(bens) {
         let listHtml = "";
         bens.forEach((b) => {
           listHtml += `
@@ -369,13 +372,15 @@
           `;
         });
         return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <h3 class="text-lg font-semibold">Benefits</h3>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-          </div>
+          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Benefits</summary>
+            <div class="p-5 pt-0">
+              <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
+            </div>
+          </details>
         `;
       }
-      function renderMargins() {
+      function renderMarginsCard() {
         const disabled = STATE.partnerType === "Registered";
         const universe = STATE.model.margins[STATE.commitment][STATE.dealType];
         const key = STATE.partnerType === "Registered" ? "Registered" : "Preferred|Premier";
@@ -411,40 +416,42 @@
           `;
         }
         return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
-              <h3 class="text-lg font-semibold">Margins</h3>
-              <div class="flex flex-wrap items-center gap-3">
-                <label class="flex items-center gap-2 text-sm ${disabled ? "opacity-60" : ""}" title="For your first 3 net-new deals, we co-sell end-to-end and you keep full margin.">
-                  <input type="checkbox" id="newPartner" class="h-4 w-4 accent-[#0070F3]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
-                  <span>New partner boost (first 3 net-new deals)</span>
-                </label>
-                <select id="commitment" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
-                  <option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>
-                  <option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>
-                </select>
-                <select id="dealType" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
-                  <option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>
-                  <option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>
-                </select>
+          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Margins</summary>
+            <div class="p-5 pt-0">
+              <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                  <label class="flex items-center gap-2 text-sm ${disabled ? "opacity-60" : ""}" title="For your first 3 net-new deals, we co-sell end-to-end and you keep full margin.">
+                    <input type="checkbox" id="newPartner" class="h-4 w-4 accent-[#0070F3]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
+                    <span>New partner boost (first 3 net-new deals)</span>
+                  </label>
+                  <select id="commitment" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
+                    <option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>
+                    <option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>
+                  </select>
+                  <select id="dealType" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
+                    <option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>
+                    <option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>
+                  </select>
+                </div>
               </div>
+              <div class="mt-3">${contentHtml}</div>
             </div>
-            <div class="mt-3">${contentHtml}</div>
-          </div>
+          </details>
         `;
       }
-      function renderDetails(specific) {
+      function renderDetailsCard(specific) {
         let tableHtml = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Tier Eligibility</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Registration</th><th class="px-6 py-3 text-left text-sm font-semibold">MDF Access</th><th class="px-6 py-3 text-left text-sm font-semibold">Enablement</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
         tableHtml += `<tr><td class="px-6 py-4 text-sm font-medium">${specific.partnerType}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.tierEligibility}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.dealRegistration}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.mdfAccess}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.enablement}</td></tr>`;
         tableHtml += '</tbody></table>';
         return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md overflow-hidden">
-            <h3 class="text-lg font-semibold mb-4">Details</h3>
-            <div class="overflow-x-auto">${tableHtml}</div>
-          </div>
+          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Details</summary>
+            <div class="p-5 pt-0 overflow-x-auto">${tableHtml}</div>
+          </details>
         `;
       }
-      function renderROE() {
+      function renderROECard() {
         let principlesTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Principle</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Intent</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
         STATE.model.roe.principles.forEach((p) => {
           principlesTable += `<tr><td class="px-6 py-4 text-sm font-medium">${p.principle}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.description}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.intent}</td></tr>`;
@@ -469,27 +476,30 @@
         });
         summaryTable += '</tbody></table>';
         return `
-          <div class="mt-8 space-y-8">
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Rules of Engagement (ROE)</h3>
-              <div class="overflow-x-auto">${principlesTable}</div>
+          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Rules of Engagement</summary>
+            <div class="p-5 pt-0 space-y-8">
+              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Rules of Engagement (ROE)</h3>
+                <div class="overflow-x-auto">${principlesTable}</div>
+              </div>
+              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Margin Bands & Definitions</h3>
+                <div class="overflow-x-auto">${bandsTable}</div>
+              </div>
+              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Partner Margin Governance</h3>
+                <div class="overflow-x-auto">${governanceTable}</div>
+              </div>
+              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Example Summary Table</h3>
+                <div class="overflow-x-auto">${summaryTable}</div>
+              </div>
             </div>
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Margin Bands & Definitions</h3>
-              <div class="overflow-x-auto">${bandsTable}</div>
-            </div>
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Partner Margin Governance</h3>
-              <div class="overflow-x-auto">${governanceTable}</div>
-            </div>
-            <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-              <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Example Summary Table</h3>
-              <div class="overflow-x-auto">${summaryTable}</div>
-            </div>
-          </div>
+          </details>
         `;
       }
-      function renderOnboarding() {
+      function renderOnboardingCard() {
         const steps = STATE.model.onboarding.steps;
         let buttonsHtml = "";
         steps.forEach((s, i) => {
@@ -516,13 +526,15 @@
           `;
         });
         return `
-          <div class="mt-8 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
-              <h3 class="text-lg font-semibold">Onboarding Requirements</h3>
-              <div class="flex gap-2">${buttonsHtml}</div>
+          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Onboarding Requirements</summary>
+            <div class="p-5 pt-0">
+              <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
+                <div class="flex gap-2">${buttonsHtml}</div>
+              </div>
+              <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
             </div>
-            <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-          </div>
+          </details>
         `;
       }
       function renderBusinessPlan() {
