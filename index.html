@@ -1027,7 +1027,7 @@
       function renderSalesMotionContent() {
         let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="table" class="h-6 w-6 stroke-[#2563eb]"></i>Sales Motion</h2>';
         html += '<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-4">';
-        html += '<div><p class="text-base text-gray-700 leading-relaxed mt-1">View the sales cycle matrix showing stages, ownership, support, exit criteria, and deliverables based on the selected band.</p></div>';
+        html += '<div><p class="text-base text-gray-700 leading-relaxed mt-1">See who owns each stage, who supports it, and what moves the deal forward.</p></div>';
         if (STATE.partnerType !== 'Registered') {
           html += '<select id="bandSelect" class="w-[280px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
           ['band1', 'band2', 'band3'].forEach(b => {
