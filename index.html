@@ -50,21 +50,53 @@
         band: 'band1',
         roeView: 'partner', // 'partner' | 'internal'
         defaultBandByType: { Registered:'band3', Preferred:'band2', Premier:'band1', MSP:'band1' },
+        partnerTierMeta: {
+          'Registered': {
+            defaultBand: 'band3',
+            marginCap: '5%',
+            coSellEligible: false,
+            fullCycleEligible: false,
+          },
+          'Preferred': {
+            defaultBand: 'band2',
+            marginCap: '15%',
+            coSellEligible: true,
+            fullCycleEligible: false,
+          },
+          'Premier': {
+            defaultBand: 'band1',
+            marginCap: '30%',
+            coSellEligible: true,
+            fullCycleEligible: true,
+          },
+          'MSP': {
+            defaultBand: 'band1',
+            marginCap: '30%',
+            coSellEligible: true,
+            fullCycleEligible: true,
+          },
+        },
         simpleROE: {
           Registered: {
-            summary: "You can refer and transact. Co-sell upgrades your margin; order-only stays referral.",
+            summary: "You can refer and transact. Margin capped at 5% for transactional or referral sales only.",
             sourcing: [
-              {label:"Partner Sourced", value:"You found the opp + registered it + helped close → Full margin when you drive the sale."},
-              {label:"Recast Sourced (Co-Sell)", value:"We brought the lead; you help sell → Shared margin."},
+              {label:"Partner Sourced", value:"You found the opp + registered it → Up to 5% if approved."},
               {label:"Transactional/Referral", value:"Intro or PO only → Referral margin."}
             ],
             bands: [
-              {band:"Band 2 – Co-Sell", when:["Host/lead discovery","Own next steps/MAP","Participate in demo/validation","Coordinate quote/security"], rule:"Any 2+ qualify"},
-              {band:"Band 3 – Transactional", when:["Intro only or PO processing"], rule:"Default if <2 activities above"}
+              {band:"Band 3 – Transactional", when:["Intro only or PO processing"], rule:"Default for LAR/Referral"}
             ],
             renewals:[
-              "PoR keeps renewal if active (renewal plan ≥90 days out + QBR/health checks).",
-              "If inactive or customer reassigns, Recast may reassign renewal."
+              "Renewal margin is discretionary, capped at 5%, and applies only if the LAR manages the renewal process.",
+            ],
+            roePrinciples: [
+              {principle:"Deal Registration", description:"Required only when Recast requests it for transactional tracking.", intent:"Maintain visibility into reseller-led renewals and SKUs."},
+              {principle:"Partner of Record", description:"Applies on approved transactions only; expires automatically at renewal unless partner remains active.", intent:"Simplify transactional flow; no lifetime PoR."},
+              {principle:"Sales Collaboration", description:"Optional; Recast leads the sale, LAR supports quote and PO process.", intent:"Maintain message control and accuracy."},
+              {principle:"Renewal Ownership", description:"Renewal margin is discretionary, capped at 5%, and applies only if the LAR manages the renewal process.", intent:"Protect margin integrity and ensure customer experience consistency."},
+            ],
+            marginBands: [
+              {band:"Band 3 – Transactional / Referral", criteria:"Partner identifies or processes transaction. Recast leads sales cycle and closes opportunity.", eligible:"Registered (LAR/Referral)", margin:"5% (Discretionary)", example:"LAR adds Recast SKU to renewal with minimal engagement."},
             ],
             csv: {
               blurb:"Upload event or campaign lists for fast routing. Influence ≠ margin.",
@@ -368,7 +400,7 @@
                   { band: "Band 2", upTo: "15%", when: "Recast originated/registered AND Recast approved" },
                 ],
                 Registered: [
-                  { band: "Band 3", upTo: "5%", when: "Get up 5% margin for transacting or rebated for demand gen" },
+                  { band: "Band 3", upTo: "Up to 5% (discretionary)", when: "Get up 5% margin for transacting or rebated for demand gen" },
                 ],
               },
               Renewal: {
@@ -386,7 +418,7 @@
                   { band: "Band 2", upTo: "10%", when: "Recast originated/registered AND Recast approved" },
                 ],
                 Registered: [
-                  { band: "Band 3", upTo: "5%", when: "Partner originated AND Partner registered AND Recast approved" },
+                  { band: "Band 3", upTo: "Up to 5% (discretionary)", when: "Partner originated AND Partner registered AND Recast approved" },
                 ],
               },
               Renewal: {
@@ -433,7 +465,7 @@
             ],
             bands: [
               { band: "Band 1 – Full-Cycle Ownership", criteria: ["Partner sources and registers the lead.","Drives opportunity end-to-end (qualification → demo → close).","Requires minimal Recast sales or technical support.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "30%", example: "A Premier partner identifies an opportunity with a 1,000-user customer, performs demo, and closes deal without Recast sales involvement." },
-              { band: "Band 2 – Joint Engagement", criteria: ["Partner sources or registers opportunity.","Recast supports with presales, demo, or technical validation.","Partner co-sells with Recast sales team.","Must be Registered, Preferred, or Premier tier."], eligible: "Registered, Preferred, Premier", margin: "15%", example: "Partner brings opportunity but requests Recast SE to lead demo and pricing discussion." },
+              { band: "Band 2 – Joint Engagement", criteria: ["Partner sources or registers opportunity.","Recast supports with presales, demo, or technical validation.","Partner co-sells with Recast sales team.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "15%", example: "Partner brings opportunity but requests Recast SE to lead demo and pricing discussion." },
               { band: "Band 3 – Transactional / Referral", criteria: ["Partner identifies or influences opportunity but Recast leads sale.","No significant partner engagement beyond intro or transaction.","Typically applies to LARs, transactional resellers, or referral agents.","Margin discretionary, subject to sales approval."], eligible: "Registered, LAR, Referral", margin: "5% (discretionary)", example: "Large LAR adds Recast SKU to customer renewal, minimal engagement." },
             ],
             governance: [
@@ -446,7 +478,7 @@
             summary: [
               { tier: "Premier", engagement: "Full-cycle (Band 1)", involvement: "Light-touch", range: "25–30%", notes: "Top-tier, full control of sales motion" },
               { tier: "Preferred", engagement: "Joint sale (Band 2)", involvement: "Moderate", range: "10–15%", notes: "Co-sell and presales collaboration" },
-              { tier: "Registered / LAR", engagement: "Transactional (Band 3)", involvement: "High-touch / Recast-led", range: "0–5%", notes: "Finder’s fee or referral incentive" },
+              { tier: "Registered / LAR", engagement: "Transactional (Band 3)", involvement: "Recast-led", range: "0–5%", notes: "Finder’s fee or referral incentive only." },
             ],
           },
           other: {
@@ -768,12 +800,12 @@
           `;
         } else {
           rules.forEach((r) => {
-            const rate = parseFloat(r.upTo);
+            const rate = parseFloat(r.upTo.replace(/[^\d.]/g, ''));
             const marginAmt = (rate / 100) * acv;
             const net = acv - marginAmt;
             html += `
               <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-                <h4 class="font-medium mb-2">${r.band} - Up to ${r.upTo}</h4>
+                <h4 class="font-medium mb-2">${r.band} - ${r.upTo}</h4>
                 <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
                   <li>Gross ACV: $${acv.toLocaleString()}</li>
                   <li>Margin Rate: ${rate}%</li>
@@ -823,7 +855,6 @@
         const d = STATE.simpleROE[type];
         const defBand = STATE.defaultBandByType[type] || 'band2';
         const bandMeta = STATE.salesCycle.bandMeta[defBand];
-
         const card = (title, inner) => `
           <div class="rounded-xl bg-white shadow-md hover:shadow-lg transition overflow-hidden">
             <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0] bg-gray-50 flex items-center gap-2">
@@ -831,13 +862,11 @@
             </h3>
             <div class="p-5">${inner}</div>
           </div>`;
-
         const list = (items) => `<ul class="space-y-2">${items.map(i=>`
           <li class="flex items-start gap-3">
             <span class="mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></span>
             <span class="text-gray-700 leading-relaxed">${typeof i==='string'?i:`<strong>${i.label}:</strong> ${i.value}`}</span>
           </li>`).join('')}</ul>`;
-
         const bandsTable = `
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-[#E2E8F0]">
@@ -858,7 +887,6 @@
               </tbody>
             </table>
           </div>`;
-
         const csvBlock = `
           <p class="text-gray-700 leading-relaxed mb-3">${d.csv.blurb}</p>
           <div class="grid md:grid-cols-3 gap-4">
@@ -868,18 +896,72 @@
               <button id="csvSopBtn" class="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-4 py-2 text-sm text-white shadow-sm">CSV Upload SOP</button>
             </div>
           </div>`;
-
-        return `
-          <div class="space-y-6">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="px-3 py-1 text-xs rounded-2xl ${bandMeta.color}">${bandMeta.name}</span>
-              <span class="text-xs text-gray-600">Default expectation for ${type}</span>
-            </div>
-            ${card("Sourcing & Attribution", list(d.sourcing))}
-            ${card("Registration Bands (What You Earn)", bandsTable)}
-            ${card("Renewals", list(d.renewals))}
-            ${card("Uploading Event/Co-Marketing Leads", csvBlock)}
-          </div>`;
+        if (type === 'Registered') {
+          const principlesTable = `
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-[#E2E8F0]">
+                <thead><tr>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Principle</th>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Description</th>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Intent</th>
+                </tr></thead>
+                <tbody class="divide-y divide-[#E2E8F0]">
+                  ${d.roePrinciples.map(p => `
+                    <tr>
+                      <td class="px-4 py-3 text-sm font-medium">${p.principle}</td>
+                      <td class="px-4 py-3 text-sm">${p.description}</td>
+                      <td class="px-4 py-3 text-sm">${p.intent}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>`;
+          const marginBandsTable = `
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-[#E2E8F0]">
+                <thead><tr>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Band</th>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Qualification Criteria</th>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Eligible Partner Type</th>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Margin (Up To)</th>
+                  <th class="px-4 py-2 text-left text-sm font-semibold">Example</th>
+                </tr></thead>
+                <tbody class="divide-y divide-[#E2E8F0]">
+                  ${d.marginBands.map(b => `
+                    <tr>
+                      <td class="px-4 py-3 text-sm font-medium">${b.band}</td>
+                      <td class="px-4 py-3 text-sm">${b.criteria}</td>
+                      <td class="px-4 py-3 text-sm">${b.eligible}</td>
+                      <td class="px-4 py-3 text-sm">${b.margin}</td>
+                      <td class="px-4 py-3 text-sm">${b.example}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>`;
+          return `
+            <div class="space-y-6">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-3 py-1 text-xs rounded-2xl ${bandMeta.color}">${bandMeta.name}</span>
+                <span class="text-xs text-gray-600">Default expectation for ${type}</span>
+              </div>
+              ${card("Sourcing & Attribution", list(d.sourcing))}
+              ${card("Rules of Engagement", principlesTable)}
+              ${card("Margin Band Table", marginBandsTable)}
+              ${card("Renewals", list(d.renewals))}
+              ${card("Uploading Event/Co-Marketing Leads", csvBlock)}
+            </div>`;
+        } else {
+          return `
+            <div class="space-y-6">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-3 py-1 text-xs rounded-2xl ${bandMeta.color}">${bandMeta.name}</span>
+                <span class="text-xs text-gray-600">Default expectation for ${type}</span>
+              </div>
+              ${card("Sourcing & Attribution", list(d.sourcing))}
+              ${card("Registration Bands (What You Earn)", bandsTable)}
+              ${card("Renewals", list(d.renewals))}
+              ${card("Uploading Event/Co-Marketing Leads", csvBlock)}
+            </div>`;
+        }
       }
       function renderInternalROE(){
         if (STATE.partnerType === 'MSP') {
@@ -890,7 +972,6 @@
           html += '</ol>';
           return html;
         } else {
-          // reuse existing blocks
           let html = '<div class="space-y-6">';
           html += renderROESection('Rules of Engagement (ROE)', renderPrinciplesTable());
           html += renderROESection('Margin Bands & Definitions', renderBandsTable());
@@ -947,12 +1028,18 @@
         let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="table" class="h-6 w-6 stroke-[#2563eb]"></i>Sales Motion</h2>';
         html += '<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-4">';
         html += '<div><p class="text-base text-gray-700 leading-relaxed mt-1">View the sales cycle matrix showing stages, ownership, support, exit criteria, and deliverables based on the selected band.</p></div>';
-        html += '<select id="bandSelect" class="w-[280px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
-        ['band1', 'band2', 'band3'].forEach(b => {
-          const m = STATE.salesCycle.bandMeta[b];
-          html += `<option value="${b}" ${STATE.band === b ? 'selected' : ''}>${m.name}</option>`;
-        });
-        html += '</select></div>';
+        if (STATE.partnerType !== 'Registered') {
+          html += '<select id="bandSelect" class="w-[280px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
+          ['band1', 'band2', 'band3'].forEach(b => {
+            const m = STATE.salesCycle.bandMeta[b];
+            html += `<option value="${b}" ${STATE.band === b ? 'selected' : ''}>${m.name}</option>`;
+          });
+          html += '</select>';
+        } else {
+          STATE.band = 'band3';
+          html += '<p class="text-base text-gray-700 leading-relaxed mt-1">For Registered (LAR/Referral) partners, only Band 3 (Transactional / Referral) applies.</p>';
+        }
+        html += '</div>';
         const meta = STATE.salesCycle.bandMeta[STATE.band];
         html += '<div class="flex flex-wrap items-center gap-3 mb-6">';
         html += `<span class="px-3 py-1 text-xs rounded-2xl ${meta.color}">${meta.name}</span>`;
