@@ -37,7 +37,7 @@
     </main>
     <script>
       const STATE = {
-        partnerType: 'Preferred',
+        partnerType: 'Premier',
         commitment: 'Annual',
         dealType: 'Net New',
         newPartner: false,
@@ -45,7 +45,7 @@
         showBusinessPlanModal: false,
         showEvaluationModal: false,
         activeStep: 0,
-        band: 'band2',
+        band: 'band1',
         exampleACV: 100000,
         salesCycle: {
           stages: {
@@ -159,6 +159,61 @@
             },
           },
           rows: ["PQL", "Identification", "Qualification", "Development", "Proposal", "Closing", "ClosedWon", "Onboarding"],
+        },
+        msp: {
+          overview: " MSP Partner Program - Invite Only\n\nThe Recast MSP Program is built for service providers that want to embed Recast’s solutions into their service offerings to drive recurring revenue, expand client value, and scale with predictable economics.\n\nWe support multiple MSP archetypes—from infra-focused to app-centric—with enablement tailored to each type. Whether you’re a high-touch implementation shop or a lightweight automation-led MSP, this program offers flexible models to fit your business.\n\nProgram Highlights:\n\n* Monthly point-based licensing structure for easy cost forecasting\n\n* Tiered margin bands based on deal ownership and engagement\n\n* Access to white-labeled deployment kits, SOWs, and enablement tools\n\n* Support for both application workspace and endpoint solutions\n\n* Designed to protect partner margin, loyalty, and renewal rights",
+          requirements: [
+            "Invitation and approval from Recast Channel Leadership",
+            "Executed Master Partner or OEM Agreement",
+            "Active go-to-market motion and enablement plan on file",
+            "Quarterly alignment on co-sell activity or pipeline reviews (QBRs)",
+            "Minimum monthly point commitment (entry tier: 300 points/month)",
+            "Completion of required certifications for eligible product lines",
+            "Agreement to Rules of Engagement and margin structure"
+          ],
+          benefits: [
+            "Registered deal margin (per Band definition)",
+            "Renewal margin protection with activity compliance",
+            "Monthly point-based pricing tiers with discounted rates at scale",
+            "Recast partner portal access",
+            "Prebuilt “Campaigns-in-a-Box” and brand kits",
+            "Partner services packaging playbooks (SOWs, pricing templates)",
+            "Self-service training and deployment kits",
+            "Joint lead-gen campaigns and MDF eligibility (tier-based)",
+            "Dedicated partner support lines for sales, SE, and services",
+            "Recast Account Manager for joint planning",
+            "Eligibility for Recast-sourced leads (with active plan and certs)"
+          ],
+          onboarding: {
+            steps: [
+              "Partner invitation and agreement execution",
+              "Assign internal Partner Sales Lead and Technical Lead",
+              "Complete initial certification (sales + technical track)",
+              "Define GTM and enablement plan with Recast Channel Manager",
+              "Select monthly point commitment tier",
+              "Gain access to:\n   * Partner Portal\n   * Deployment and packaging toolkits\n   * Sales motion playbooks\n   * Points-based pricing calculator",
+              "Launch your first co-sell or registered opportunity",
+              "Schedule first Quarterly Business Review (QBR)"
+            ],
+            resources: [
+              "New Partner Starter Kit",
+              "Certification path guides",
+              "Pricing and packaging calculator",
+              "Application Workspace and Right Click Tool playbooks",
+              "Partner FAQ and escalation contact list"
+            ]
+          },
+          roe: [
+            "Deal Registration is Mandatory\nAll partner-led opportunities must be registered and approved in the Partner Portal to qualify for margin and Partner of Record (PoR) status.",
+            "Partner of Record (PoR) Protection\nApproved PoR partners retain rights for the full customer lifecycle, including renewals and expansions, provided they maintain active engagement (e.g., QBRs, renewal activity).",
+            "Discount Policy\nRecast will not discount or quote any PoR-owned customer below partner pricing unless pre-approved through a formal channel escalation.",
+            "Conflict Resolution\nIn overlapping claims, Recast Channel Leadership will evaluate based on:\n* Deal registration timestamp\n* CRM activity log\n* Customer attestation (if needed)",
+            "Renewal Ownership\nPartner of Record retains renewal margin unless:\n* Customer explicitly reassigns to another partner\n* Partner has been inactive and missed renewal planning window",
+            "Sales Collaboration\nRequirements vary by Band:\n* Band 1: partner-driven\n* Band 2: co-sell required\n* Band 3: Recast-owned",
+            "Ethical Conduct\nAll partners must comply with Recast’s Code of Conduct, anti-poaching rules, and maintain professional behavior in joint accounts.",
+            "Margin Band Enforcement\n* Bands 1–3 define margin eligibility\n* Margins reset if Band criteria are not met\n* Quarterly review of Band performance and partner tiering",
+            "Governance\n* Lead registration valid for 30 days; can be renewed with pipeline activity\n* Band reviews occur quarterly\n* Escalation SLA: 5 business days to VP of Partner Programs"
+          ]
         },
         model: {
           tiers: {
@@ -339,7 +394,17 @@
         return 'band1';
       }
       function getPartnerData(type) {
-        if (["Registered", "Preferred", "Premier"].includes(type)) {
+        if (type === 'MSP') {
+          return {
+            overview: STATE.msp.overview,
+            requirements: STATE.msp.requirements,
+            benefits: STATE.msp.benefits,
+            isStandard: false,
+            isPremier: false,
+            isPreferred: false,
+            specific: STATE.model.other.partners.find(p => p.partnerType === type)
+          };
+        } else if (["Registered", "Preferred", "Premier"].includes(type)) {
           return {
             overview: STATE.model.tiers[type].overview,
             requirements: STATE.model.tiers[type].requirements,
@@ -350,7 +415,6 @@
             specific: null
           };
         } else {
-          const specific = STATE.model.other.partners.find(p => p.partnerType === type);
           const descIndex = ['MSP', 'Technology Partner (ISV)', 'OEM Partner', 'Distributor Partner'].indexOf(type);
           const desc = STATE.model.other.partnerTypesDescs[descIndex];
           return {
@@ -360,7 +424,7 @@
             isStandard: false,
             isPremier: false,
             isPreferred: false,
-            specific: specific
+            specific: STATE.model.other.partners.find(p => p.partnerType === type)
           };
         }
       }
@@ -621,14 +685,24 @@
         return html;
       }
       function renderROEContent() {
-        let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#0070F3]"></i>Rules of Engagement</h2>';
-        html += '<div class="space-y-8">';
-        html += renderROESection('Rules of Engagement (ROE)', renderPrinciplesTable());
-        html += renderROESection('Margin Bands & Definitions', renderBandsTable());
-        html += renderROESection('Partner Margin Governance', renderGovernanceTable());
-        html += renderROESection('Example Summary Table', renderSummaryTable());
-        html += '</div>';
-        return html;
+        if (STATE.partnerType === 'MSP') {
+          let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#0070F3]"></i>Rules of Engagement</h2>';
+          html += '<ol class="space-y-6 list-decimal pl-6">';
+          STATE.msp.roe.forEach(rule => {
+            html += `<li class="text-[#4A5568]">${rule.replace(/\n/g, '<br>')}</li>`;
+          });
+          html += '</ol>';
+          return html;
+        } else {
+          let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#0070F3]"></i>Rules of Engagement</h2>';
+          html += '<div class="space-y-8">';
+          html += renderROESection('Rules of Engagement (ROE)', renderPrinciplesTable());
+          html += renderROESection('Margin Bands & Definitions', renderBandsTable());
+          html += renderROESection('Partner Margin Governance', renderGovernanceTable());
+          html += renderROESection('Example Summary Table', renderSummaryTable());
+          html += '</div>';
+          return html;
+        }
       }
       function renderROESection(title, tableHtml) {
         return `
@@ -727,39 +801,63 @@
         return html;
       }
       function renderOnboardingContent() {
-        const steps = STATE.model.onboarding.steps;
-        let buttonsHtml = '<div class="flex flex-wrap gap-3 mb-6">';
-        steps.forEach((s, i) => {
-          const active = STATE.activeStep === i;
-          buttonsHtml += `
-            <button
-              data-step="${i}"
-              class="${active ? 'bg-[#0070F3] text-white' : 'bg-white text-[#4A5568] hover:bg-[#E2E8F0]'} inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2"
-            >
-              <i data-lucide="${active ? 'check-circle' : 'circle'}" class="h-4 w-4"></i>
-              ${s.name}
-            </button>
+        if (STATE.partnerType === 'MSP') {
+          let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#0070F3]"></i>Onboarding</h2>';
+          html += '<h3 class="text-xl font-semibold mb-4">Onboarding Steps:</h3>';
+          html += '<ol class="space-y-4 list-decimal pl-6">';
+          STATE.msp.onboarding.steps.forEach(s => {
+            html += `<li class="text-[#4A5568]">${s.replace(/\n/g, '<br>')}</li>`;
+          });
+          html += '</ol>';
+          html += '<h3 class="text-xl font-semibold mt-8 mb-4">Resources Provided:</h3>';
+          html += '<ul class="space-y-4">';
+          STATE.msp.onboarding.resources.forEach(r => {
+            html += `
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
+                  <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+                </div>
+                <span class="text-[#4A5568]">${r}</span>
+              </li>
+            `;
+          });
+          html += '</ul>';
+          return html;
+        } else {
+          const steps = STATE.model.onboarding.steps;
+          let buttonsHtml = '<div class="flex flex-wrap gap-3 mb-6">';
+          steps.forEach((s, i) => {
+            const active = STATE.activeStep === i;
+            buttonsHtml += `
+              <button
+                data-step="${i}"
+                class="${active ? 'bg-[#0070F3] text-white' : 'bg-white text-[#4A5568] hover:bg-[#E2E8F0]'} inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2"
+              >
+                <i data-lucide="${active ? 'check-circle' : 'circle'}" class="h-4 w-4"></i>
+                ${s.name}
+              </button>
+            `;
+          });
+          buttonsHtml += '</div>';
+          const items = steps[STATE.activeStep].items;
+          let listHtml = '<ul class="space-y-4">';
+          items.forEach((item) => {
+            listHtml += `
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
+                  <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+                </div>
+                <span class="text-[#4A5568]">${item}</span>
+              </li>
+            `;
+          });
+          listHtml += '</ul>';
+          return `
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#0070F3]"></i>Onboarding Requirements</h2>
+            ${buttonsHtml}
+            ${listHtml}
           `;
-        });
-        buttonsHtml += '</div>';
-        const items = steps[STATE.activeStep].items;
-        let listHtml = '<ul class="space-y-4">';
-        items.forEach((item) => {
-          listHtml += `
-            <li class="flex items-start gap-3">
-              <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
-                <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
-              </div>
-              <span class="text-[#4A5568]">${item}</span>
-            </li>
-          `;
-        });
-        listHtml += '</ul>';
-        return `
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#0070F3]"></i>Onboarding Requirements</h2>
-          ${buttonsHtml}
-          ${listHtml}
-        `;
+        }
       }
       function renderBusinessPlanModal() {
         return `
