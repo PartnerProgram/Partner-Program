@@ -327,10 +327,10 @@
       const TABS = [
         { id: 'overview', label: 'Overview', icon: 'book-open' },
         { id: 'requirements', label: 'Requirements & Benefits', icon: 'check-circle' },
-        { id: 'margins', label: 'Margins', icon: 'dollar-sign' },
-        { id: 'roe', label: 'Rules of Engagement', icon: 'gavel' },
+        { id: 'onboarding', label: 'Onboarding', icon: 'rocket' },
         { id: 'salesmotion', label: 'Sales Motion', icon: 'table' },
-        { id: 'onboarding', label: 'Onboarding', icon: 'rocket' }
+        { id: 'margins', label: 'Margins', icon: 'dollar-sign' },
+        { id: 'roe', label: 'Rules of Engagement', icon: 'gavel' }
       ];
       function setDefaultBand(type) {
         if (type === 'Registered') return 'band3';
@@ -426,7 +426,7 @@
         `;
       }
       function renderTabs() {
-        let tabsHtml = '<div class="flex flex-wrap gap-3 border-b border-[#E2E8F0] pb-4">';
+        let tabsHtml = '<nav class="-mb-px flex space-x-8 border-b border-[#E2E8F0] overflow-x-auto" aria-label="Tabs">';
         TABS.forEach((tab) => {
           const active = STATE.activeTab === tab.id;
           const disabled = (tab.id === 'margins' && !getPartnerData(STATE.partnerType).isStandard) ||
@@ -435,15 +435,16 @@
             tabsHtml += `
               <button
                 data-tab="${tab.id}"
-                class="${active ? 'bg-[#0070F3] text-white' : 'bg-white text-[#4A5568] hover:bg-[#E2E8F0]'} inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2"
+                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 focus:outline-none focus:border-[#0070F3]"
+                ${active ? 'border-[#0070F3] text-[#0070F3]' : 'border-transparent text-[#4A5568] hover:text-[#0A1C60] hover:border-[#E2E8F0]'}
               >
-                <i data-lucide="${tab.icon}" class="h-4 w-4 ${active ? 'stroke-white' : 'stroke-[#0070F3]'}"></i>
+                <i data-lucide="${tab.icon}" class="h-4 w-4 ${active ? 'stroke-[#0070F3]' : 'stroke-[#4A5568]'}"></i>
                 ${tab.label}
               </button>
             `;
           }
         });
-        tabsHtml += '</div>';
+        tabsHtml += '</nav>';
         return tabsHtml;
       }
       function renderOverview(overview, showEvaluation) {
@@ -837,7 +838,7 @@
         html += '<h3 class="text-xl font-semibold mb-4">7. QBR TEMPLATE</h3>';
         html += '<div class="overflow-x-auto">';
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Section</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Content Example</th></tr></thead>';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Section</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">ContentExample</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Executive Summary</td><td class="px-6 py-4 text-sm text-[#4A5568]">Pipeline, ARR growth, key wins, challenges</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Enablement Progress</td><td class="px-6 py-4 text-sm text-[#4A5568]">Certifications completed, demo environment status</td></tr>';
