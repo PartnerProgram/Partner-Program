@@ -46,6 +46,7 @@
         showEvaluationModal: false,
         activeStep: 0,
         band: 'band2',
+        exampleACV: 100000,
         salesCycle: {
           stages: {
             PQL: {
@@ -529,6 +530,7 @@
         const key = STATE.partnerType === "Registered" ? "Registered" : "Preferred|Premier";
         const rules = universe[key];
         const fullMarginValue = STATE.partnerType === "Registered" ? "5%" : STATE.commitment === "Annual" ? "30%" : "20%";
+        const fullMarginRate = parseFloat(fullMarginValue);
         let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#0070F3]"></i>Margins</h2>';
         html += '<div class="flex flex-wrap items-center gap-4 mb-6">';
         html += `<label class="flex items-center gap-3 text-sm font-medium ${disabled ? "opacity-50 cursor-not-allowed" : ""}">
@@ -565,6 +567,47 @@
           html += '</tbody></table></div>';
           html += '<p class="text-xs text-[#4A5568]">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>';
         }
+        html += '<div class="mt-8">';
+        html += '<h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i data-lucide="calculator" class="h-5 w-5 stroke-[#0070F3]"></i>Example Margin Calculation</h3>';
+        html += '<div class="flex items-center gap-4 mb-4">';
+        html += '<label for="exampleACV" class="text-sm font-medium">ACV:</label>';
+        html += `<input id="exampleACV" type="number" value="${STATE.exampleACV}" class="w-40 rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#0070F3] focus:ring-2 focus:ring-[#0070F3] focus:ring-opacity-50">`;
+        html += '</div>';
+        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+        const acv = STATE.exampleACV;
+        if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
+          const marginAmt = (fullMarginRate / 100) * acv;
+          const net = acv - marginAmt;
+          html += `
+            <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md">
+              <h4 class="font-medium mb-2">New Partner Boost - Up to ${fullMarginValue}</h4>
+              <ul class="space-y-2 text-sm text-[#4A5568]">
+                <li>Gross ACV: $${acv.toLocaleString()}</li>
+                <li>Margin Rate: ${fullMarginRate}%</li>
+                <li>Margin Amount: $${marginAmt.toLocaleString()}</li>
+                <li>Net to Recast: $${net.toLocaleString()}</li>
+              </ul>
+            </div>
+          `;
+        } else {
+          rules.forEach((r) => {
+            const rate = parseFloat(r.upTo);
+            const marginAmt = (rate / 100) * acv;
+            const net = acv - marginAmt;
+            html += `
+              <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md">
+                <h4 class="font-medium mb-2">${r.band} - Up to ${r.upTo}</h4>
+                <ul class="space-y-2 text-sm text-[#4A5568]">
+                  <li>Gross ACV: $${acv.toLocaleString()}</li>
+                  <li>Margin Rate: ${rate}%</li>
+                  <li>Margin Amount: $${marginAmt.toLocaleString()}</li>
+                  <li>Net to Recast: $${net.toLocaleString()}</li>
+                </ul>
+              </div>
+            `;
+          });
+        }
+        html += '</div></div>';
         return html;
       }
       function renderDetailsContent(specific) {
@@ -979,6 +1022,13 @@
         if (closeEvaluation) {
           closeEvaluation.addEventListener('click', () => {
             STATE.showEvaluationModal = false;
+            render();
+          });
+        }
+        const exampleACVInput = document.getElementById('exampleACV');
+        if (exampleACVInput) {
+          exampleACVInput.addEventListener('input', (e) => {
+            STATE.exampleACV = parseFloat(e.target.value) || 100000;
             render();
           });
         }
