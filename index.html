@@ -147,7 +147,7 @@
               Onboarding: { primaryOwner: "Recast CS", support: ["Partner Services"], accountable: "Recast CS Leader" },
             },
             band3: {
-              PQL: { primaryOwner: "Partner (Referral / LAR)", support: ["Recast Channel Manager"], accountable: "Recast Channel Manager" },
+              PQL: { primaryOwner: "Recast AE / Channel Manager", support: ["Partner (Referral / LAR)"], accountable: "Recast Channel Manager" },
               Identification: { primaryOwner: "Recast AE", support: ["Partner (Intro only)"], accountable: "Recast AE" },
               Qualification: { primaryOwner: "Recast AE", support: ["Recast SE"], accountable: "Recast AE" },
               Development: { primaryOwner: "Recast SE", support: ["Recast AE"], accountable: "Recast SE Lead" },
@@ -643,29 +643,29 @@
         html += '<div class="flex flex-wrap items-center gap-3 mb-6">';
         html += `<span class="px-3 py-1 text-xs rounded-2xl ${meta.color}">${meta.name}</span>`;
         html += '</div>';
-        html += '<div class="space-y-6">';
+        html += '<div class="space-y-4">';
         STATE.salesCycle.rows.forEach(key => {
           const stage = STATE.salesCycle.stages[key];
           const own = STATE.salesCycle.bands[STATE.band][key];
-          html += '<div class="rounded-2xl bg-white p-6 shadow-lg border border-[#E2E8F0] hover:shadow-xl transition-shadow duration-300">';
-          html += '<h3 class="text-xl font-semibold mb-2 text-[#0A1C60]">' + stage.label + '</h3>';
-          html += '<p class="text-sm text-[#4A5568] mb-6">' + stage.description + '</p>';
-          html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-6">';
-          html += '<div class="bg-[#F7F9FB] rounded-xl p-4">';
-          html += '<div class="font-medium mb-2 flex items-center gap-2"><i data-lucide="user-round" class="h-5 w-5 stroke-[#0070F3]"></i>Owner</div>';
-          html += '<div class="text-[#0A1C60]">' + own.primaryOwner + '</div>';
-          html += '<div class="text-xs text-[#4A5568] mt-1">Accountable: ' + own.accountable + '</div>';
+          html += '<div class="rounded-2xl bg-white p-4 shadow-md border border-[#E2E8F0] hover:shadow-lg transition-shadow duration-300">';
+          html += '<h3 class="text-lg font-semibold mb-1 text-[#0A1C60]">' + stage.label + '</h3>';
+          html += '<p class="text-xs text-[#4A5568] mb-4">' + stage.description + '</p>';
+          html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
+          html += '<div class="bg-[#F7F9FB] rounded-xl p-3">';
+          html += '<div class="font-medium text-sm mb-1 flex items-center gap-2"><i data-lucide="user-round" class="h-4 w-4 stroke-[#0070F3]"></i>Owner</div>';
+          html += '<div class="text-[#0A1C60] text-sm">' + own.primaryOwner + '</div>';
+          html += '<div class="text-[11px] text-[#4A5568] mt-0.5">Accountable: ' + own.accountable + '</div>';
           html += '</div>';
-          html += '<div class="bg-[#F7F9FB] rounded-xl p-4">';
-          html += '<div class="font-medium mb-2 flex items-center gap-2"><i data-lucide="users-round" class="h-5 w-5 stroke-[#0070F3]"></i>Support</div>';
-          html += '<div class="flex flex-wrap gap-2">';
+          html += '<div class="bg-[#F7F9FB] rounded-xl p-3">';
+          html += '<div class="font-medium text-sm mb-1 flex items-center gap-2"><i data-lucide="users-round" class="h-4 w-4 stroke-[#0070F3]"></i>Support</div>';
+          html += '<div class="flex flex-wrap gap-1">';
           own.support.forEach(s => {
-            html += '<span class="rounded-full bg-white px-3 py-1 text-xs text-[#4A5568] border border-[#E2E8F0]">' + s + '</span>';
+            html += '<span class="rounded-full bg-white px-2 py-0.5 text-xs text-[#4A5568] border border-[#E2E8F0]">' + s + '</span>';
           });
           html += '</div></div>';
-          html += '<div class="bg-[#F7F9FB] rounded-xl p-4">';
-          html += '<div class="font-medium mb-2 flex items-center gap-2"><i data-lucide="check-circle" class="h-5 w-5 stroke-[#0070F3]"></i>Exit Criteria</div>';
-          html += '<ul class="list-disc pl-4 space-y-1 text-sm text-[#4A5568]">';
+          html += '<div class="bg-[#F7F9FB] rounded-xl p-3">';
+          html += '<div class="font-medium text-sm mb-1 flex items-center gap-2"><i data-lucide="check-circle" class="h-4 w-4 stroke-[#0070F3]"></i>Exit Criteria</div>';
+          html += '<ul class="list-disc pl-4 space-y-0.5 text-xs text-[#4A5568]">';
           stage.exitCriteria.forEach(e => { html += '<li>' + e + '</li>'; });
           html += '</ul></div>';
           html += '</div></div>';
