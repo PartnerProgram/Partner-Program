@@ -41,9 +41,10 @@
         commitment: 'Annual',
         dealType: 'Net New',
         newPartner: false,
+        activeTab: 'overview',
+        showBusinessPlanModal: false,
+        showEvaluationModal: false,
         activeStep: 0,
-        showBusinessPlan: false,
-        showEvaluation: false,
         model: {
           tiers: {
             Registered: {
@@ -209,6 +210,13 @@
         }
       };
       const PARTNER_TYPES = ["Registered", "Preferred", "Premier", "MSP", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"];
+      const TABS = [
+        { id: 'overview', label: 'Overview', icon: 'book-open' },
+        { id: 'requirements', label: 'Requirements & Benefits', icon: 'check-circle' },
+        { id: 'margins', label: 'Margins', icon: 'dollar-sign' },
+        { id: 'roe', label: 'Rules of Engagement', icon: 'gavel' },
+        { id: 'onboarding', label: 'Onboarding', icon: 'rocket' }
+      ];
       function getPartnerData(type) {
         if (["Registered", "Preferred", "Premier"].includes(type)) {
           return {
@@ -217,730 +225,597 @@
             benefits: STATE.model.tiers[type].benefits,
             isStandard: true,
             isPremier: type === "Premier",
+            isPreferred: type === "Preferred",
             specific: null
           };
         } else {
           const specific = STATE.model.other.partners.find(p => p.partnerType === type);
-          const desc = STATE.model.other.partnerTypesDescs.find(d => d.includes(type === "MSP" ? "Managed Service Providers" : type === "Technology Partner (ISV)" ? "ISV partners" : type === "OEM Partner" ? "OEM partners" : "Distributors"));
+          const descIndex = ['MSP', 'Technology Partner (ISV)', 'OEM Partner', 'Distributor Partner'].indexOf(type);
+          const desc = STATE.model.other.partnerTypesDescs[descIndex];
           return {
             overview: STATE.model.other.overview + "\n\n" + desc,
             requirements: STATE.model.other.requirements,
             benefits: STATE.model.tiers.Premier.benefits,
             isStandard: false,
             isPremier: false,
+            isPreferred: false,
             specific: specific
           };
         }
       }
       function render() {
         const data = getPartnerData(STATE.partnerType);
-        let html = '<div class="space-y-6">';
-        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
-        html += renderDropdown();
-        html += renderOverview(data.overview);
-        html += '</div>';
-        html += '<div class="space-y-4">';
-        html += renderRequirementsCard(data.requirements, data.isPremier);
-        html += renderBenefitsCard(data.benefits);
-        if (data.isStandard) {
-          html += renderMarginsCard();
-        } else {
-          html += renderDetailsCard(data.specific);
-        }
-        html += renderROECard();
-        if (STATE.partnerType !== "Registered") {
-          html += renderOnboardingCard();
+        let html = '<div class="space-y-12">';
+        html += renderPartnerTypeSelector();
+        html += renderTabs();
+        html += '<div class="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-lg">';
+        switch (STATE.activeTab) {
+          case 'overview':
+            html += renderOverview(data.overview, data.isPreferred || data.isPremier);
+            break;
+          case 'requirements':
+            html += renderRequirementsAndBenefits(data.requirements, data.benefits, data.isPremier);
+            break;
+          case 'margins':
+            if (data.isStandard) {
+              html += renderMarginsContent();
+            } else {
+              html += renderDetailsContent(data.specific);
+            }
+            break;
+          case 'roe':
+            html += renderROEContent();
+            break;
+          case 'onboarding':
+            if (STATE.partnerType !== 'Registered') {
+              html += renderOnboardingContent();
+            } else {
+              html += '<p class="text-center text-[#4A5568]">Not applicable for Registered partners.</p>';
+            }
+            break;
         }
         html += '</div>';
         html += '<footer class="pt-2 text-xs text-[#4A5568]">Preview purposes only. Program terms subject to agreement.</footer>';
-        html += "</div>";
-        document.getElementById("app").innerHTML = html;
-        document.getElementById("partnerType").addEventListener("change", (e) => {
-          STATE.partnerType = e.target.value;
-          if (STATE.partnerType === "Registered") {
-            STATE.newPartner = false;
-          }
-          render();
-        });
-        if (data.isStandard) {
-          const commitmentSelect = document.getElementById("commitment");
-          if (commitmentSelect) {
-            commitmentSelect.addEventListener("change", (e) => {
-              STATE.commitment = e.target.value;
-              render();
-            });
-          }
-          const dealTypeSelect = document.getElementById("dealType");
-          if (dealTypeSelect) {
-            dealTypeSelect.addEventListener("change", (e) => {
-              STATE.dealType = e.target.value;
-              render();
-            });
-          }
-          const newPartnerCheckbox = document.getElementById("newPartner");
-          if (newPartnerCheckbox) {
-            newPartnerCheckbox.addEventListener("change", (e) => {
-              STATE.newPartner = e.target.checked;
-              render();
-            });
-          }
+        html += '</div>';
+        if (STATE.showBusinessPlanModal) {
+          html += renderBusinessPlanModal();
         }
-        if (STATE.partnerType !== "Registered") {
-          document.querySelectorAll("[data-step]").forEach((btn) => {
-            btn.addEventListener("click", () => {
-              STATE.activeStep = parseInt(btn.dataset.step);
-              render();
-            });
-          });
+        if (STATE.showEvaluationModal) {
+          html += renderEvaluationModal();
         }
-        if (data.isPremier) {
-          const businessPlanButton = document.getElementById("businessPlanButton");
-          if (businessPlanButton) {
-            businessPlanButton.addEventListener("click", () => {
-              STATE.showBusinessPlan = !STATE.showBusinessPlan;
-              render();
-            });
-          }
-          const evaluationButton = document.getElementById("evaluationButton");
-          if (evaluationButton) {
-            evaluationButton.addEventListener("click", () => {
-              STATE.showEvaluation = !STATE.showEvaluation;
-              render();
-            });
-          }
-        }
+        document.getElementById('app').innerHTML = html;
+        lucide.createIcons();
+        addEventListeners();
       }
-      function renderDropdown() {
+      function renderPartnerTypeSelector() {
         let options = '';
         PARTNER_TYPES.forEach((t) => {
           const display = t === "Registered" ? "Registered (LAR/Referral)" : t;
           options += `<option value="${t}" ${STATE.partnerType === t ? 'selected' : ''}>${display}</option>`;
         });
         return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <label for="partnerType" class="block text-sm font-medium mb-2">Select Partner Type</label>
-            <select id="partnerType" class="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-[#0070F3]">
+          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-lg">
+            <label for="partnerType" class="block text-base font-semibold mb-3 text-[#0A1C60]">Select Partner Type</label>
+            <select id="partnerType" class="w-full rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#0070F3] focus:ring-2 focus:ring-[#0070F3] focus:ring-opacity-50">
               ${options}
             </select>
           </div>
         `;
       }
-      function renderOverview(overview) {
-        let contentHtml = '';
+      function renderTabs() {
+        let tabsHtml = '<div class="flex flex-wrap gap-3 border-b border-[#E2E8F0] pb-4">';
+        TABS.forEach((tab) => {
+          const active = STATE.activeTab === tab.id;
+          const disabled = (tab.id === 'margins' && !getPartnerData(STATE.partnerType).isStandard) ||
+                           (tab.id === 'onboarding' && STATE.partnerType === 'Registered');
+          if (!disabled) {
+            tabsHtml += `
+              <button
+                data-tab="${tab.id}"
+                class="${active ? 'bg-[#0070F3] text-white' : 'bg-white text-[#4A5568] hover:bg-[#E2E8F0]'} inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2"
+              >
+                <i data-lucide="${tab.icon}" class="h-4 w-4 ${active ? 'stroke-white' : 'stroke-[#0070F3]'}"></i>
+                ${tab.label}
+              </button>
+            `;
+          }
+        });
+        tabsHtml += '</div>';
+        return tabsHtml;
+      }
+      function renderOverview(overview, showEvaluation) {
+        let contentHtml = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="book-open" class="h-6 w-6 stroke-[#0070F3]"></i>Overview</h2>';
         const paragraphs = overview.split('\n\n');
         paragraphs.forEach(para => {
           const lines = para.split('\n');
           if (lines.length > 1 && lines.every(line => line.startsWith('* '))) {
-            contentHtml += '<ul class="list-disc pl-5 space-y-2 mt-2">';
+            contentHtml += '<ul class="space-y-4 mt-4">';
             lines.forEach(line => {
-              contentHtml += `<li class="text-[#4A5568]">${line.substring(2)}</li>`;
+              contentHtml += `
+                <li class="flex items-start gap-3">
+                  <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
+                    <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+                  </div>
+                  <span class="text-[#4A5568]">${line.substring(2)}</span>
+                </li>
+              `;
             });
             contentHtml += '</ul>';
           } else {
-            contentHtml += `<p class="mt-2 text-[#4A5568]">${para.replace(/\n/g, '<br>')}</p>`;
+            contentHtml += `<p class="text-[#4A5568] leading-relaxed mb-4">${para.replace(/\n/g, '<br>')}</p>`;
           }
         });
-        let evaluationHtml = '';
-        if (STATE.partnerType === 'Premier') {
-          evaluationHtml = `
-            <div class="mt-4">
-              <button id="evaluationButton" class="rounded-full bg-[#0070F3] px-4 py-2 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
-                ${STATE.showEvaluation ? 'Hide' : 'Show'} Preferred vs. Premier Evaluation Guide
-              </button>
-            </div>
+        if (showEvaluation) {
+          contentHtml += `
+            <button id="evaluationButton" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0070F3] px-5 py-2.5 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
+              <i data-lucide="eye" class="h-4 w-4"></i>
+              View Preferred vs. Premier Evaluation Guide
+            </button>
           `;
-          if (STATE.showEvaluation) {
-            evaluationHtml += `
-              <div class="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-                ${renderEvaluationGuide()}
-              </div>
-            `;
-          }
         }
-        return `
-          <div class="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-            <h3 class="text-lg font-semibold">Overview</h3>
-            ${contentHtml}
-            ${evaluationHtml}
-          </div>
-        `;
+        return contentHtml;
       }
-      function renderEvaluationGuide() {
-        return `
-          <h3 class="text-lg font-semibold mb-4">Preferred vs. Premier Partner Evaluation Guide</h3>
-          <p class="mb-4 text-[#4A5568]">When evaluating whether a Preferred Partner is ready to advance to Premier status, Recast looks at three key areas — Focus, Capability, and Commitment.\nThese criteria ensure we’re investing in partners that can truly scale with us, represent our brand effectively, and deliver measurable revenue outcomes.</p>
-          <h4 class="text-md font-semibold mb-2">1. Focus — Are they aligned with Recast’s go-to-market direction?</h4>
-          <p class="mb-4 text-[#4A5568]">We assess whether the partner’s business focus and customer base align with the markets and segments Recast wants to grow in.</p>
-          <ul class="list-disc pl-5 mb-4 text-[#4A5568]">
-            <li>Do they specialize in the right customer segment (e.g., enterprise, mid-market, or public sector)?</li>
-            <li>Are they active in the industries or regions where Recast wants to expand?</li>
-            <li>Do they have core competencies that complement Recast’s product strengths (endpoint management, automation, workspace delivery, etc.)?</li>
-            <li>Are they targeting the functional buyers that align with Recast’s motion (IT Ops, Security, Endpoint, Workspace)?</li>
-          </ul>
-          <h4 class="text-md font-semibold mb-2">2. Capability — Do they have the structure to scale with Recast?</h4>
-          <p class="mb-4 text-[#4A5568]">We evaluate whether the partner has the resources, skills, and reach to build and grow a sustainable Recast practice.</p>
-          <ul class="list-disc pl-5 mb-4 text-[#4A5568]">
-            <li>Do they have technical resources trained or able to support Recast deployments?</li>
-            <li>Do they have a dedicated sales team capable of positioning and selling Recast solutions?</li>
-            <li>Is there a marketing function that can run co-branded or joint campaigns?</li>
-            <li>Do they have customer reach in the accounts and regions Recast wants to penetrate?</li>
-            <li>Are they geographically positioned in areas where Recast needs stronger coverage?</li>
-          </ul>
-          <h4 class="text-md font-semibold mb-2">3. Commitment — Are they invested in mutual growth and measurable results?</h4>
-          <p class="mb-4 text-[#4A5568]">We confirm that the partner isn’t just opportunistic, but strategically committed to driving joint revenue and customer success.</p>
-          <ul class="list-disc pl-5 mb-4 text-[#4A5568]">
-            <li>Have they committed to a defined revenue target or growth goal for Recast?</li>
-            <li>Are they showing year-over-year progress in pipeline creation and customer adoption?</li>
-            <li>Are they actively pursuing upsell, cross-sell, and expansion within existing customers?</li>
-            <li>Do they have joint business plans or defined KPIs aligned with Recast’s objectives?</li>
-            <li>Are they investing in training, enablement, and certification to build long-term capability?</li>
-          </ul>
-        `;
-      }
-      function renderRequirementsCard(reqs, isPremier) {
-        let listHtml = "";
+      function renderRequirementsAndBenefits(reqs, bens, isPremier) {
+        let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="check-circle" class="h-6 w-6 stroke-[#0070F3]"></i>Requirements & Benefits</h2>';
+        html += '<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">';
+        html += '<div>';
+        html += '<h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i data-lucide="list" class="h-5 w-5 stroke-[#0070F3]"></i>Requirements</h3>';
+        html += '<ul class="space-y-4">';
         reqs.forEach((r) => {
-          listHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${r}</span>
-            </li>
-          `;
-        });
-        let businessPlanHtml = '';
-        if (isPremier) {
-          businessPlanHtml = `
-            <div class="mt-4">
-              <button id="businessPlanButton" class="rounded-full bg-[#0070F3] px-4 py-2 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
-                ${STATE.showBusinessPlan ? 'Hide' : 'Show'} Business Plan
-              </button>
-            </div>
-          `;
-          if (STATE.showBusinessPlan) {
-            businessPlanHtml += `
-              <div class="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-md">
-                ${renderBusinessPlan()}
+          html += `
+            <li class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
+                <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
               </div>
-            `;
-          }
-        }
-        return `
-          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Requirements</summary>
-            <div class="p-5 pt-0">
-              <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-              ${businessPlanHtml}
-            </div>
-          </details>
-        `;
-      }
-      function renderBenefitsCard(bens) {
-        let listHtml = "";
-        bens.forEach((b) => {
-          listHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${b}</span>
+              <span class="text-[#4A5568]">${r}</span>
             </li>
           `;
         });
-        return `
-          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Benefits</summary>
-            <div class="p-5 pt-0">
-              <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
-            </div>
-          </details>
-        `;
+        html += '</ul>';
+        if (isPremier) {
+          html += `
+            <button id="businessPlanButton" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0070F3] px-5 py-2.5 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
+              <i data-lucide="file-text" class="h-4 w-4"></i>
+              View Business Plan
+            </button>
+          `;
+        }
+        html += '</div>';
+        html += '<div>';
+        html += '<h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i data-lucide="gift" class="h-5 w-5 stroke-[#0070F3]"></i>Benefits</h3>';
+        html += '<ul class="space-y-4">';
+        bens.forEach((b) => {
+          html += `
+            <li class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
+                <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+              </div>
+              <span class="text-[#4A5568]">${b}</span>
+            </li>
+          `;
+        });
+        html += '</ul>';
+        html += '</div>';
+        html += '</div>';
+        return html;
       }
-      function renderMarginsCard() {
+      function renderMarginsContent() {
         const disabled = STATE.partnerType === "Registered";
         const universe = STATE.model.margins[STATE.commitment][STATE.dealType];
         const key = STATE.partnerType === "Registered" ? "Registered" : "Preferred|Premier";
         const rules = universe[key];
-        const fullMarginValue =
-          STATE.partnerType === "Registered"
-            ? STATE.commitment === "Annual"
-              ? "5%"
-              : "5%"
-            : STATE.commitment === "Annual"
-            ? "30%"
-            : "20%";
-        let contentHtml = "";
+        const fullMarginValue = STATE.partnerType === "Registered" ? "5%" : STATE.commitment === "Annual" ? "30%" : "20%";
+        let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#0070F3]"></i>Margins</h2>';
+        html += '<div class="flex flex-wrap items-center gap-4 mb-6">';
+        html += `<label class="flex items-center gap-3 text-sm font-medium ${disabled ? "opacity-50 cursor-not-allowed" : ""}">
+          <input type="checkbox" id="newPartner" class="h-4 w-4 rounded accent-[#0070F3]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
+          New partner boost (first 3 net-new deals)
+        </label>`;
+        html += '<select id="commitment" class="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#0070F3] focus:ring-2 focus:ring-[#0070F3] focus:ring-opacity-50">';
+        html += `<option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>`;
+        html += `<option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>`;
+        html += '</select>';
+        html += '<select id="dealType" class="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#0070F3] focus:ring-2 focus:ring-[#0070F3] focus:ring-opacity-50">';
+        html += `<option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>`;
+        html += `<option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>`;
+        html += '</select>';
+        html += '</div>';
         if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
-          contentHtml = `
-            <div class="rounded-xl border border-[#0070F3]/30 bg-[#0070F3]/5 p-4">
-              <div class="flex items-center justify-between">
-                <div class="font-semibold">New Partner Boost — Full Margin</div>
-                <span class="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs">Up to ${fullMarginValue}</span>
+          html += `
+            <div class="rounded-xl bg-[#0070F3]/5 border border-[#0070F3]/20 p-6 mb-6">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold flex items-center gap-2"><i data-lucide="zap" class="h-5 w-5 stroke-[#0070F3]"></i>New Partner Boost — Full Margin</h3>
+                <span class="rounded-full bg-[#0070F3] px-3 py-1 text-xs text-white">Up to ${fullMarginValue}</span>
               </div>
-              <p class="mt-2 text-sm text-[#4A5568]">For your first <strong>three</strong> net-new opportunities, Recast will <strong>shadow and co-run the deal end-to-end</strong> (discovery → demo → proposal → close) while you retain <strong>full Band 1 margin</strong>.</p>
+              <p class="text-[#4A5568]">For your first <strong>three</strong> net-new opportunities, Recast will <strong>shadow and co-run the deal end-to-end</strong> (discovery → demo → proposal → close) while you retain <strong>full Band 1 margin</strong>.</p>
             </div>
           `;
         } else {
-          let rulesHtml = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th class="px-6 py-3 text-left text-sm font-semibold">When</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+          html += '<div class="overflow-x-auto mb-4">';
+          html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+          html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Band</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Up to</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">When</th></tr></thead>';
+          html += '<tbody class="divide-y divide-[#E2E8F0]">';
           rules.forEach((r) => {
-            rulesHtml += `<tr><td class="px-6 py-4 text-sm font-medium">${r.band}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${r.upTo}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${r.when}</td></tr>`;
+            html += `<tr><td class="px-6 py-4 text-sm font-medium">${r.band}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${r.upTo}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${r.when}</td></tr>`;
           });
-          rulesHtml += '</tbody></table>';
-          contentHtml = `
-            <div class="overflow-x-auto">${rulesHtml}</div>
-            <p class="mt-3 text-xs text-[#4A5568]">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>
-          `;
+          html += '</tbody></table></div>';
+          html += '<p class="text-xs text-[#4A5568]">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>';
         }
+        return html;
+      }
+      function renderDetailsContent(specific) {
+        let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="info" class="h-6 w-6 stroke-[#0070F3]"></i>Details</h2>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Partner Type</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Tier Eligibility</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Margin</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Deal Registration</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">MDF Access</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Enablement</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += `<tr><td class="px-6 py-4 text-sm font-medium">${specific.partnerType}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.tierEligibility}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.dealRegistration}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.mdfAccess}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.enablement}</td></tr>`;
+        html += '</tbody></table></div>';
+        return html;
+      }
+      function renderROEContent() {
+        let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#0070F3]"></i>Rules of Engagement</h2>';
+        html += '<div class="space-y-8">';
+        html += renderROESection('Rules of Engagement (ROE)', renderPrinciplesTable());
+        html += renderROESection('Margin Bands & Definitions', renderBandsTable());
+        html += renderROESection('Partner Margin Governance', renderGovernanceTable());
+        html += renderROESection('Example Summary Table', renderSummaryTable());
+        html += '</div>';
+        return html;
+      }
+      function renderROESection(title, tableHtml) {
         return `
-          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Margins</summary>
-            <div class="p-5 pt-0">
-              <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
-                <div class="flex flex-wrap items-center gap-3">
-                  <label class="flex items-center gap-2 text-sm ${disabled ? "opacity-60" : ""}" title="For your first 3 net-new deals, we co-sell end-to-end and you keep full margin.">
-                    <input type="checkbox" id="newPartner" class="h-4 w-4 accent-[#0070F3]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
-                    <span>New partner boost (first 3 net-new deals)</span>
-                  </label>
-                  <select id="commitment" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
-                    <option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>
-                    <option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>
-                  </select>
-                  <select id="dealType" class="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-sm focus:ring-2 focus:ring-[#0070F3]">
-                    <option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>
-                    <option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>
-                  </select>
-                </div>
-              </div>
-              <div class="mt-3">${contentHtml}</div>
-            </div>
-          </details>
+          <div class="rounded-xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
+            <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0] flex items-center gap-2"><i data-lucide="file-text" class="h-5 w-5 stroke-[#0070F3]"></i>${title}</h3>
+            <div class="overflow-x-auto">${tableHtml}</div>
+          </div>
         `;
       }
-      function renderDetailsCard(specific) {
-        let tableHtml = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Tier Eligibility</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Registration</th><th class="px-6 py-3 text-left text-sm font-semibold">MDF Access</th><th class="px-6 py-3 text-left text-sm font-semibold">Enablement</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        tableHtml += `<tr><td class="px-6 py-4 text-sm font-medium">${specific.partnerType}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.tierEligibility}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.dealRegistration}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.mdfAccess}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${specific.enablement}</td></tr>`;
-        tableHtml += '</tbody></table>';
-        return `
-          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Details</summary>
-            <div class="p-5 pt-0 overflow-x-auto">${tableHtml}</div>
-          </details>
-        `;
-      }
-      function renderROECard() {
-        let principlesTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Principle</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Intent</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+      function renderPrinciplesTable() {
+        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Principle</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Description</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Intent</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
         STATE.model.roe.principles.forEach((p) => {
-          principlesTable += `<tr><td class="px-6 py-4 text-sm font-medium">${p.principle}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.description}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.intent}</td></tr>`;
+          html += `<tr><td class="px-6 py-4 text-sm font-medium">${p.principle}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.description}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${p.intent}</td></tr>`;
         });
-        principlesTable += '</tbody></table>';
-        let bandsTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Qualification Criteria</th><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type Eligible</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin (up to)</th><th class="px-6 py-3 text-left text-sm font-semibold">Example Scenario</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        html += '</tbody></table>';
+        return html;
+      }
+      function renderBandsTable() {
+        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Band</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Qualification Criteria</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Partner Type Eligible</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Margin (up to)</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Example Scenario</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
         STATE.model.roe.bands.forEach((b) => {
           let criteriaHtml = '<ul class="list-disc pl-5 space-y-1">';
           b.criteria.forEach((c) => { criteriaHtml += `<li class="text-sm text-[#4A5568]">${c}</li>`; });
           criteriaHtml += '</ul>';
-          bandsTable += `<tr><td class="px-6 py-4 text-sm font-medium">${b.band}</td><td class="px-6 py-4">${criteriaHtml}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.eligible}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.example}</td></tr>`;
+          html += `<tr><td class="px-6 py-4 text-sm font-medium">${b.band}</td><td class="px-6 py-4">${criteriaHtml}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.eligible}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.margin}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${b.example}</td></tr>`;
         });
-        bandsTable += '</tbody></table>';
-        let governanceTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Element</th><th class="px-6 py-3 text-left text-sm font-semibold">Definition</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.governance.forEach((g) => {
-          governanceTable += `<tr><td class="px-6 py-4 text-sm font-medium">${g.element}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${g.definition}</td></tr>`;
-        });
-        governanceTable += '</tbody></table>';
-        let summaryTable = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Partner Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Engagement Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Typical Recast Involvement</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Range</th><th class="px-6 py-3 text-left text-sm font-semibold">Notes</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.summary.forEach((s) => {
-          summaryTable += `<tr><td class="px-6 py-4 text-sm font-medium">${s.tier}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.engagement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.involvement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.range}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.notes}</td></tr>`;
-        });
-        summaryTable += '</tbody></table>';
-        return `
-          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Rules of Engagement</summary>
-            <div class="p-5 pt-0 space-y-8">
-              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Rules of Engagement (ROE)</h3>
-                <div class="overflow-x-auto">${principlesTable}</div>
-              </div>
-              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Margin Bands & Definitions</h3>
-                <div class="overflow-x-auto">${bandsTable}</div>
-              </div>
-              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Partner Margin Governance</h3>
-                <div class="overflow-x-auto">${governanceTable}</div>
-              </div>
-              <div class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-                <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0]">Example Summary Table</h3>
-                <div class="overflow-x-auto">${summaryTable}</div>
-              </div>
-            </div>
-          </details>
-        `;
+        html += '</tbody></table>';
+        return html;
       }
-      function renderOnboardingCard() {
+      function renderGovernanceTable() {
+        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Element</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Definition</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        STATE.model.roe.governance.forEach((g) => {
+          html += `<tr><td class="px-6 py-4 text-sm font-medium">${g.element}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${g.definition}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        return html;
+      }
+      function renderSummaryTable() {
+        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Partner Tier</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Engagement Type</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Typical Recast Involvement</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Margin Range</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Notes</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
+        STATE.model.roe.summary.forEach((s) => {
+          html += `<tr><td class="px-6 py-4 text-sm font-medium">${s.tier}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.engagement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.involvement}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.range}</td><td class="px-6 py-4 text-sm text-[#4A5568]">${s.notes}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        return html;
+      }
+      function renderOnboardingContent() {
         const steps = STATE.model.onboarding.steps;
-        let buttonsHtml = "";
+        let buttonsHtml = '<div class="flex flex-wrap gap-3 mb-6">';
         steps.forEach((s, i) => {
           const active = STATE.activeStep === i;
           buttonsHtml += `
             <button
-              class="${
-                active ? "bg-[#0070F3] text-white" : "bg-white hover:bg-[#F7F9FB]"
-              } rounded-full px-3 py-1 text-sm transition"
               data-step="${i}"
+              class="${active ? 'bg-[#0070F3] text-white' : 'bg-white text-[#4A5568] hover:bg-[#E2E8F0]'} inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2"
             >
+              <i data-lucide="${active ? 'check-circle' : 'circle'}" class="h-4 w-4"></i>
               ${s.name}
             </button>
           `;
         });
+        buttonsHtml += '</div>';
         const items = steps[STATE.activeStep].items;
-        let listHtml = "";
+        let listHtml = '<ul class="space-y-4">';
         items.forEach((item) => {
           listHtml += `
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#0070F3]" aria-hidden="true"></span>
-              <span>${item}</span>
+            <li class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1">
+                <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+              </div>
+              <span class="text-[#4A5568]">${item}</span>
             </li>
           `;
         });
+        listHtml += '</ul>';
         return `
-          <details class="rounded-2xl border border-[#E2E8F0] bg-white shadow-md overflow-hidden">
-            <summary class="cursor-pointer p-5 font-semibold text-lg hover:bg-[#F7F9FB] transition-colors">Onboarding Requirements</summary>
-            <div class="p-5 pt-0">
-              <div class="flex items-start justify-between flex-col sm:flex-row gap-4">
-                <div class="flex gap-2">${buttonsHtml}</div>
-              </div>
-              <ul class="mt-3 grid gap-2 sm:grid-cols-2">${listHtml}</ul>
+          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#0070F3]"></i>Onboarding Requirements</h2>
+          ${buttonsHtml}
+          ${listHtml}
+        `;
+      }
+      function renderBusinessPlanModal() {
+        return `
+          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" role="dialog" aria-modal="true" id="businessPlanModal">
+            <div class="relative max-w-4xl w-full bg-white rounded-2xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+              <button class="absolute top-4 right-4 text-[#4A5568] hover:text-[#0A1C60] focus:outline-none" id="closeBusinessPlan">
+                <i data-lucide="x" class="h-6 w-6"></i>
+                <span class="sr-only">Close</span>
+              </button>
+              <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="file-text" class="h-6 w-6 stroke-[#0070F3]"></i>Partner Business Plan</h2>
+              <p class="text-center font-semibold mb-8 text-[#4A5568]">Recast Software + CoreSecure Systems</p>
+              ${renderBusinessPlanContent()}
             </div>
-          </details>
+          </div>
         `;
       }
-      function renderBusinessPlan() {
+      function renderEvaluationModal() {
         return `
-          <h3 class="text-lg font-semibold mb-4">PARTNER BUSINESS PLAN</h3>
-          <p class="text-center font-semibold mb-6">Recast Software + CoreSecure Systems</p>
-          <h4 class="text-md font-semibold mb-2">1. EXECUTIVE SUMMARY</h4>
-          <h5 class="text-sm font-medium mb-1">Vision</h5>
-          <p class="mb-4 text-[#4A5568]">To jointly deliver intelligent, automated application and endpoint management solutions for enterprise customers in regulated industries by integrating Recast’s Application Workspace into CoreSecure’s managed compliance platform.</p>
-          <h5 class="text-sm font-medium mb-1">Strategic Goals</h5>
-          <ul class="list-disc pl-5 mb-4 text-[#4A5568]">
-            <li>Expand joint enterprise footprint across Financial Services and Healthcare.</li>
-            <li>Increase Recast ARR by 60% year-over-year through CoreSecure-led managed services.</li>
-            <li>Position CoreSecure as a fully certified Premier MSP across Application Workspace and Access Manager.</li>
-          </ul>
-          <h5 class="text-sm font-medium mb-1">Mutual Value</h5>
-          <ul class="list-disc pl-5 mb-4 text-[#4A5568]">
-            <li>For CoreSecure: Differentiation through integrated automation and compliance reporting, driving new managed service revenue.</li>
-            <li>For Recast: Accelerated customer acquisition, deeper retention, and expansion into managed environments at scale.</li>
-          </ul>
-          <h4 class="text-md font-semibold mb-2">2. PARTNERSHIP OBJECTIVES</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Focus Area</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">FY26 Goal</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Success Metric</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Owner</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Enablement</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Complete certification program for sales and technical teams</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">4 technical + 2 sales certifications completed</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Partner Enablement Lead</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Demand Generation</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Execute two co-branded campaigns per quarter</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">8 total campaigns</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Recast & Partner Marketing</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Revenue Growth</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Build $1.2M Recast ARR pipeline</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">50% partner-led, 50% co-sell</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Partner Sales Director</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Operational Excellence</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Streamline joint onboarding and renewals</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]"><30-day deployment cycle</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Recast CS & Partner Ops</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h4 class="text-md font-semibold mb-2 mt-6">3. ENABLEMENT PLAN</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Activity</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Timing</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Notes / CTA</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Sales Certification (Recast Academy)</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">January–February</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Enroll 2 CoreSecure sales reps</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Technical Certification (Workspace Delivery)</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">February–March</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Conduct hands-on enablement with Recast SE</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Demo Environment Setup</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">March</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Deploy joint demo tenant for App Workspace</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Partner Portal Access</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">April</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Activate CoreSecure in Recast portal with CRM integration</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">QBR Framework Implementation</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">April</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Define performance metrics and success tracking</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h4 class="text-md font-semibold mb-2 mt-6">4. LEADS & DEAL REGISTRATION</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Activity</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Timing</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Notes / CTA</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Salesforce integration and Partner of Record mapping</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">January</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Confirm partner setup for deal registration</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Register 5 qualified leads per quarter</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Quarterly</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Minimum deal size $25K ACV</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Weekly pipeline sync</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Ongoing</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Partner + Recast Channel Manager review</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Pre-sales and SE support request process</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">As needed</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Submit via Partner Portal form</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h4 class="text-md font-semibold mb-2 mt-6">5. 12-MONTH PLAN: DEMAND GENERATION</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Activity</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Month</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Notes / CTA</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Anticipated Spend</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Target Leads</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Conversion Rate</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Closed Revenue Outcome</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Services Outcome</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Co-branded Webinar: “Automating Intune Compliance”</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">February</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Target Financial Services IT leaders</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$3,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">50</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">10%</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$75,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$20,000</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Customer Case Study</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">April</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">CoreSecure + BankOne success story</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$2,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">N/A</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">N/A</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$0</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Brand lift</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Regional Executive Roundtable</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">June</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Invite-only event in Chicago</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$5,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">30</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">15%</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$100,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$30,000</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">LinkedIn Ad Campaign</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">August</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">6-week campaign targeting enterprise MSPs</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$6,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">100</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">8%</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$96,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$15,000</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Year-End “Partner Powered” Webinar</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">November</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Highlight joint wins and prep renewals</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$2,500</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">40</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">10%</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$60,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$10,000</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Totals</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]"></td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]"></td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$18,500</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">220</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">11% (avg)</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$331,000</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">$75,000</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h4 class="text-md font-semibold mb-2 mt-6">6. QBR & EXECUTIVE ALIGNMENT</h4>
-          <h5 class="text-sm font-medium mb-1">Initial QBR:</h5>
-          <ul class="list-disc pl-5 mb-4 text-[#4A5568]">
-            <li>Date: January 15</li>
-            <li>Topics: FY26 enablement baseline, pipeline setup, campaign calendar</li>
-          </ul>
-          <h5 class="text-sm font-medium mb-1">Quarterly QBR Schedule:</h5>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Quarter</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Month</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Key Focus</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Q1</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">March</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Certification completion and first pipeline review</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Q2</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">June</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Marketing ROI and new logo acquisition</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Q3</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">September</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Expansion and renewals</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Q4</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">December</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Annual review and FY27 planning</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h4 class="text-md font-semibold mb-2 mt-6">7. QBR TEMPLATE</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Section</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Content Example</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Executive Summary</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Pipeline, ARR growth, key wins, challenges</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Enablement Progress</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Certifications completed, demo environment status</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Pipeline Review</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Opportunity stages, close rates, forecast accuracy</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Co-Marketing Performance</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Campaign reach, leads generated, ROI</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Customer Success</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Renewals, expansion accounts, support metrics</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Action Items</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Next steps, owners, and deadlines</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h4 class="text-md font-semibold mb-2 mt-6">8. KEY CONTACTS</h4>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Role</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">Recast Software</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold">CoreSecure Systems</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Channel Director</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Jane Smith</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Michael Reed</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Partner Manager</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Alex Nguyen</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Sarah Lopez</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Sales Engineer</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">David Patel</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Andrew Clarke</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Marketing Lead</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Laura Chen</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Olivia Ruiz</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Customer Success Manager</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Tom Williams</td>
-                  <td class="px-6 py-4 text-sm text-[#4A5568]">Rachel Kim</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" role="dialog" aria-modal="true" id="evaluationModal">
+            <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+              <button class="absolute top-4 right-4 text-[#4A5568] hover:text-[#0A1C60] focus:outline-none" id="closeEvaluation">
+                <i data-lucide="x" class="h-6 w-6"></i>
+                <span class="sr-only">Close</span>
+              </button>
+              <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="scale" class="h-6 w-6 stroke-[#0070F3]"></i>Preferred vs. Premier Partner Evaluation Guide</h2>
+              ${renderEvaluationGuideContent()}
+            </div>
           </div>
         `;
       }
-      document.addEventListener("DOMContentLoaded", () => {
-        render();
-        lucide.createIcons();
-      });
+      function renderBusinessPlanContent() {
+        let html = '';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">1. EXECUTIVE SUMMARY</h3>';
+        html += '<h4 class="text-lg font-medium mb-2">Vision</h4>';
+        html += '<p class="text-[#4A5568] mb-4">To jointly deliver intelligent, automated application and endpoint management solutions for enterprise customers in regulated industries by integrating Recast’s Application Workspace into CoreSecure’s managed compliance platform.</p>';
+        html += '<h4 class="text-lg font-medium mb-2">Strategic Goals</h4>';
+        html += '<ul class="space-y-3 mb-4">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Expand joint enterprise footprint across Financial Services and Healthcare.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Increase Recast ARR by 60% year-over-year through CoreSecure-led managed services.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Position CoreSecure as a fully certified Premier MSP across Application Workspace and Access Manager.</span></li>';
+        html += '</ul>';
+        html += '<h4 class="text-lg font-medium mb-2">Mutual Value</h4>';
+        html += '<ul class="space-y-3">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">For CoreSecure: Differentiation through integrated automation and compliance reporting, driving new managed service revenue.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">For Recast: Accelerated customer acquisition, deeper retention, and expansion into managed environments at scale.</span></li>';
+        html += '</ul>';
+        html += '</section>';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">2. PARTNERSHIP OBJECTIVES</h3>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Focus Area</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">FY26 Goal</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Success Metric</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Owner</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Enablement</td><td class="px-6 py-4 text-sm text-[#4A5568]">Complete certification program for sales and technical teams</td><td class="px-6 py-4 text-sm text-[#4A5568]">4 technical + 2 sales certifications completed</td><td class="px-6 py-4 text-sm text-[#4A5568]">Partner Enablement Lead</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Demand Generation</td><td class="px-6 py-4 text-sm text-[#4A5568]">Execute two co-branded campaigns per quarter</td><td class="px-6 py-4 text-sm text-[#4A5568]">8 total campaigns</td><td class="px-6 py-4 text-sm text-[#4A5568]">Recast & Partner Marketing</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Revenue Growth</td><td class="px-6 py-4 text-sm text-[#4A5568]">Build $1.2M Recast ARR pipeline</td><td class="px-6 py-4 text-sm text-[#4A5568]">50% partner-led, 50% co-sell</td><td class="px-6 py-4 text-sm text-[#4A5568]">Partner Sales Director</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Operational Excellence</td><td class="px-6 py-4 text-sm text-[#4A5568]">Streamline joint onboarding and renewals</td><td class="px-6 py-4 text-sm text-[#4A5568]"><30-day deployment cycle</td><td class="px-6 py-4 text-sm text-[#4A5568]">Recast CS & Partner Ops</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">3. ENABLEMENT PLAN</h3>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Activity</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Timing</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Notes / CTA</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Sales Certification (Recast Academy)</td><td class="px-6 py-4 text-sm text-[#4A5568]">January–February</td><td class="px-6 py-4 text-sm text-[#4A5568]">Enroll 2 CoreSecure sales reps</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Technical Certification (Workspace Delivery)</td><td class="px-6 py-4 text-sm text-[#4A5568]">February–March</td><td class="px-6 py-4 text-sm text-[#4A5568]">Conduct hands-on enablement with Recast SE</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Demo Environment Setup</td><td class="px-6 py-4 text-sm text-[#4A5568]">March</td><td class="px-6 py-4 text-sm text-[#4A5568]">Deploy joint demo tenant for App Workspace</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Partner Portal Access</td><td class="px-6 py-4 text-sm text-[#4A5568]">April</td><td class="px-6 py-4 text-sm text-[#4A5568]">Activate CoreSecure in Recast portal with CRM integration</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">QBR Framework Implementation</td><td class="px-6 py-4 text-sm text-[#4A5568]">April</td><td class="px-6 py-4 text-sm text-[#4A5568]">Define performance metrics and success tracking</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">4. LEADS & DEAL REGISTRATION</h3>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Activity</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Timing</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Notes / CTA</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Salesforce integration and Partner of Record mapping</td><td class="px-6 py-4 text-sm text-[#4A5568]">January</td><td class="px-6 py-4 text-sm text-[#4A5568]">Confirm partner setup for deal registration</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Register 5 qualified leads per quarter</td><td class="px-6 py-4 text-sm text-[#4A5568]">Quarterly</td><td class="px-6 py-4 text-sm text-[#4A5568]">Minimum deal size $25K ACV</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Weekly pipeline sync</td><td class="px-6 py-4 text-sm text-[#4A5568]">Ongoing</td><td class="px-6 py-4 text-sm text-[#4A5568]">Partner + Recast Channel Manager review</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Pre-sales and SE support request process</td><td class="px-6 py-4 text-sm text-[#4A5568]">As needed</td><td class="px-6 py-4 text-sm text-[#4A5568]">Submit via Partner Portal form</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">5. 12-MONTH PLAN: DEMAND GENERATION</h3>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Activity</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Month</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Notes / CTA</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Anticipated Spend</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Target Leads</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Conversion Rate</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Closed Revenue Outcome</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Services Outcome</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Co-branded Webinar: “Automating Intune Compliance”</td><td class="px-6 py-4 text-sm text-[#4A5568]">February</td><td class="px-6 py-4 text-sm text-[#4A5568]">Target Financial Services IT leaders</td><td class="px-6 py-4 text-sm text-[#4A5568]">$3,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">50</td><td class="px-6 py-4 text-sm text-[#4A5568]">10%</td><td class="px-6 py-4 text-sm text-[#4A5568]">$75,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">$20,000</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Customer Case Study</td><td class="px-6 py-4 text-sm text-[#4A5568]">April</td><td class="px-6 py-4 text-sm text-[#4A5568]">CoreSecure + BankOne success story</td><td class="px-6 py-4 text-sm text-[#4A5568]">$2,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">N/A</td><td class="px-6 py-4 text-sm text-[#4A5568]">N/A</td><td class="px-6 py-4 text-sm text-[#4A5568]">$0</td><td class="px-6 py-4 text-sm text-[#4A5568]">Brand lift</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Regional Executive Roundtable</td><td class="px-6 py-4 text-sm text-[#4A5568]">June</td><td class="px-6 py-4 text-sm text-[#4A5568]">Invite-only event in Chicago</td><td class="px-6 py-4 text-sm text-[#4A5568]">$5,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">30</td><td class="px-6 py-4 text-sm text-[#4A5568]">15%</td><td class="px-6 py-4 text-sm text-[#4A5568]">$100,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">$30,000</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">LinkedIn Ad Campaign</td><td class="px-6 py-4 text-sm text-[#4A5568]">August</td><td class="px-6 py-4 text-sm text-[#4A5568]">6-week campaign targeting enterprise MSPs</td><td class="px-6 py-4 text-sm text-[#4A5568]">$6,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">100</td><td class="px-6 py-4 text-sm text-[#4A5568]">8%</td><td class="px-6 py-4 text-sm text-[#4A5568]">$96,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">$15,000</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Year-End “Partner Powered” Webinar</td><td class="px-6 py-4 text-sm text-[#4A5568]">November</td><td class="px-6 py-4 text-sm text-[#4A5568]">Highlight joint wins and prep renewals</td><td class="px-6 py-4 text-sm text-[#4A5568]">$2,500</td><td class="px-6 py-4 text-sm text-[#4A5568]">40</td><td class="px-6 py-4 text-sm text-[#4A5568]">10%</td><td class="px-6 py-4 text-sm text-[#4A5568]">$60,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">$10,000</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm font-medium">Totals</td><td class="px-6 py-4 text-sm text-[#4A5568]"></td><td class="px-6 py-4 text-sm text-[#4A5568]"></td><td class="px-6 py-4 text-sm text-[#4A5568]">$18,500</td><td class="px-6 py-4 text-sm text-[#4A5568]">220</td><td class="px-6 py-4 text-sm text-[#4A5568]">11% (avg)</td><td class="px-6 py-4 text-sm text-[#4A5568]">$331,000</td><td class="px-6 py-4 text-sm text-[#4A5568]">$75,000</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">6. QBR & EXECUTIVE ALIGNMENT</h3>';
+        html += '<h4 class="text-lg font-medium mb-2">Initial QBR:</h4>';
+        html += '<ul class="space-y-3 mb-4">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Date: January 15</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Topics: FY26 enablement baseline, pipeline setup, campaign calendar</span></li>';
+        html += '</ul>';
+        html += '<h4 class="text-lg font-medium mb-2">Quarterly QBR Schedule:</h4>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Quarter</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Month</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Key Focus</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Q1</td><td class="px-6 py-4 text-sm text-[#4A5568]">March</td><td class="px-6 py-4 text-sm text-[#4A5568]">Certification completion and first pipeline review</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Q2</td><td class="px-6 py-4 text-sm text-[#4A5568]">June</td><td class="px-6 py-4 text-sm text-[#4A5568]">Marketing ROI and new logo acquisition</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Q3</td><td class="px-6 py-4 text-sm text-[#4A5568]">September</td><td class="px-6 py-4 text-sm text-[#4A5568]">Expansion and renewals</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Q4</td><td class="px-6 py-4 text-sm text-[#4A5568]">December</td><td class="px-6 py-4 text-sm text-[#4A5568]">Annual review and FY27 planning</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        html += '<section class="mb-8">';
+        html += '<h3 class="text-xl font-semibold mb-4">7. QBR TEMPLATE</h3>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Section</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Content Example</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Executive Summary</td><td class="px-6 py-4 text-sm text-[#4A5568]">Pipeline, ARR growth, key wins, challenges</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Enablement Progress</td><td class="px-6 py-4 text-sm text-[#4A5568]">Certifications completed, demo environment status</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Pipeline Review</td><td class="px-6 py-4 text-sm text-[#4A5568]">Opportunity stages, close rates, forecast accuracy</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Co-Marketing Performance</td><td class="px-6 py-4 text-sm text-[#4A5568]">Campaign reach, leads generated, ROI</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Customer Success</td><td class="px-6 py-4 text-sm text-[#4A5568]">Renewals, expansion accounts, support metrics</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Action Items</td><td class="px-6 py-4 text-sm text-[#4A5568]">Next steps, owners, and deadlines</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        html += '<section>';
+        html += '<h3 class="text-xl font-semibold mb-4">8. KEY CONTACTS</h3>';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Role</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Recast Software</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">CoreSecure Systems</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Channel Director</td><td class="px-6 py-4 text-sm text-[#4A5568]">Jane Smith</td><td class="px-6 py-4 text-sm text-[#4A5568]">Michael Reed</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Partner Manager</td><td class="px-6 py-4 text-sm text-[#4A5568]">Alex Nguyen</td><td class="px-6 py-4 text-sm text-[#4A5568]">Sarah Lopez</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Sales Engineer</td><td class="px-6 py-4 text-sm text-[#4A5568]">David Patel</td><td class="px-6 py-4 text-sm text-[#4A5568]">Andrew Clarke</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Marketing Lead</td><td class="px-6 py-4 text-sm text-[#4A5568]">Laura Chen</td><td class="px-6 py-4 text-sm text-[#4A5568]">Olivia Ruiz</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-[#4A5568]">Customer Success Manager</td><td class="px-6 py-4 text-sm text-[#4A5568]">Tom Williams</td><td class="px-6 py-4 text-sm text-[#4A5568]">Rachel Kim</td></tr>';
+        html += '</tbody></table></div>';
+        html += '</section>';
+        return html;
+      }
+      function renderEvaluationGuideContent() {
+        let html = '';
+        html += '<p class="text-[#4A5568] mb-6">When evaluating whether a Preferred Partner is ready to advance to Premier status, Recast looks at three key areas — Focus, Capability, and Commitment.<br>These criteria ensure we’re investing in partners that can truly scale with us, represent our brand effectively, and deliver measurable revenue outcomes.</p>';
+        html += '<section class="mb-6">';
+        html += '<h3 class="text-xl font-semibold mb-3 flex items-center gap-2"><i data-lucide="target" class="h-5 w-5 stroke-[#0070F3]"></i>1. Focus — Are they aligned with Recast’s go-to-market direction?</h3>';
+        html += '<p class="text-[#4A5568] mb-4">We assess whether the partner’s business focus and customer base align with the markets and segments Recast wants to grow in.</p>';
+        html += '<ul class="space-y-3">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Do they specialize in the right customer segment (e.g., enterprise, mid-market, or public sector)?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Are they active in the industries or regions where Recast wants to expand?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Do they have core competencies that complement Recast’s product strengths (endpoint management, automation, workspace delivery, etc.)?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Are they targeting the functional buyers that align with Recast’s motion (IT Ops, Security, Endpoint, Workspace)?</span></li>';
+        html += '</ul>';
+        html += '</section>';
+        html += '<section class="mb-6">';
+        html += '<h3 class="text-xl font-semibold mb-3 flex items-center gap-2"><i data-lucide="bar-chart" class="h-5 w-5 stroke-[#0070F3]"></i>2. Capability — Do they have the structure to scale with Recast?</h3>';
+        html += '<p class="text-[#4A5568] mb-4">We evaluate whether the partner has the resources, skills, and reach to build and grow a sustainable Recast practice.</p>';
+        html += '<ul class="space-y-3">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Do they have technical resources trained or able to support Recast deployments?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Do they have a dedicated sales team capable of positioning and selling Recast solutions?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Is there a marketing function that can run co-branded or joint campaigns?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Do they have customer reach in the accounts and regions Recast wants to penetrate?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Are they geographically positioned in areas where Recast needs stronger coverage?</span></li>';
+        html += '</ul>';
+        html += '</section>';
+        html += '<section>';
+        html += '<h3 class="text-xl font-semibold mb-3 flex items-center gap-2"><i data-lucide="handshake" class="h-5 w-5 stroke-[#0070F3]"></i>3. Commitment — Are they invested in mutual growth and measurable results?</h3>';
+        html += '<p class="text-[#4A5568] mb-4">We confirm that the partner isn’t just opportunistic, but strategically committed to driving joint revenue and customer success.</p>';
+        html += '<ul class="space-y-3">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Have they committed to a defined revenue target or growth goal for Recast?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Are they showing year-over-year progress in pipeline creation and customer adoption?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Are they actively pursuing upsell, cross-sell, and expansion within existing customers?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Do they have joint business plans or defined KPIs aligned with Recast’s objectives?</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#0070F3] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-[#4A5568]">Are they investing in training, enablement, and certification to build long-term capability?</span></li>';
+        html += '</ul>';
+        html += '</section>';
+        return html;
+      }
+      function addEventListeners() {
+        document.getElementById('partnerType').addEventListener('change', (e) => {
+          STATE.partnerType = e.target.value;
+          if (STATE.partnerType === 'Registered') {
+            STATE.newPartner = false;
+            if (['margins', 'onboarding'].includes(STATE.activeTab)) {
+              STATE.activeTab = 'overview';
+            }
+          } else if (!getPartnerData(STATE.partnerType).isStandard && STATE.activeTab === 'margins') {
+            STATE.activeTab = 'overview';
+          }
+          render();
+        });
+        document.querySelectorAll('[data-tab]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            STATE.activeTab = btn.dataset.tab;
+            render();
+          });
+        });
+        const newPartnerCheckbox = document.getElementById('newPartner');
+        if (newPartnerCheckbox) {
+          newPartnerCheckbox.addEventListener('change', (e) => {
+            STATE.newPartner = e.target.checked;
+            render();
+          });
+        }
+        const commitmentSelect = document.getElementById('commitment');
+        if (commitmentSelect) {
+          commitmentSelect.addEventListener('change', (e) => {
+            STATE.commitment = e.target.value;
+            render();
+          });
+        }
+        const dealTypeSelect = document.getElementById('dealType');
+        if (dealTypeSelect) {
+          dealTypeSelect.addEventListener('change', (e) => {
+            STATE.dealType = e.target.value;
+            render();
+          });
+        }
+        document.querySelectorAll('[data-step]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            STATE.activeStep = parseInt(btn.dataset.step);
+            render();
+          });
+        });
+        const businessPlanButton = document.getElementById('businessPlanButton');
+        if (businessPlanButton) {
+          businessPlanButton.addEventListener('click', () => {
+            STATE.showBusinessPlanModal = true;
+            render();
+          });
+        }
+        const evaluationButton = document.getElementById('evaluationButton');
+        if (evaluationButton) {
+          evaluationButton.addEventListener('click', () => {
+            STATE.showEvaluationModal = true;
+            render();
+          });
+        }
+        const closeBusinessPlan = document.getElementById('closeBusinessPlan');
+        if (closeBusinessPlan) {
+          closeBusinessPlan.addEventListener('click', () => {
+            STATE.showBusinessPlanModal = false;
+            render();
+          });
+        }
+        const closeEvaluation = document.getElementById('closeEvaluation');
+        if (closeEvaluation) {
+          closeEvaluation.addEventListener('click', () => {
+            STATE.showEvaluationModal = false;
+            render();
+          });
+        }
+        const modals = document.querySelectorAll('#businessPlanModal, #evaluationModal');
+        modals.forEach(modal => {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              STATE.showBusinessPlanModal = false;
+              STATE.showEvaluationModal = false;
+              render();
+            }
+          });
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && (STATE.showBusinessPlanModal || STATE.showEvaluationModal)) {
+            STATE.showBusinessPlanModal = false;
+            STATE.showEvaluationModal = false;
+            render();
+          }
+        });
+      }
+      document.addEventListener('DOMContentLoaded', render);
     </script>
   </body>
 </html>
