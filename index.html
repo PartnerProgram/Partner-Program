@@ -45,6 +45,120 @@
         showBusinessPlanModal: false,
         showEvaluationModal: false,
         activeStep: 0,
+        band: 'band2',
+        salesCycle: {
+          stages: {
+            PQL: {
+              label: "PQL",
+              description: "Partner Qualified Lead registered in portal. Recast approval is required to assign Partner of Record.",
+              entryCriteria: ["Partner identifies lead", "Lead submitted in Partner Portal"],
+              exitCriteria: ["Recast approves or declines within SLA", "Partner of Record set in CRM"],
+              deliverables: ["Registration form (company, domain, contacts, use case)", "Approval notification"],
+            },
+            Identification: {
+              label: "Identification (10% Pipeline)",
+              description: "Initial contact made; meeting confirmed; problem identified.",
+              entryCriteria: ["Approved lead", "Intro outreach completed"],
+              exitCriteria: ["Discovery meeting held", "Clear problem statement"],
+              deliverables: ["Discovery notes", "Next-step email / agenda"],
+            },
+            Qualification: {
+              label: "Qualification (25% Pipeline)",
+              description: "Pain and decision process validated; budget signal present; technical feasibility confirmed.",
+              entryCriteria: ["Engaged prospect", "Business + technical discovery"],
+              exitCriteria: ["Budget/timeline/authority captured", "Technical viability confirmed"],
+              deliverables: ["MEDDICC summary", "Qualified Opportunity in CRM"],
+            },
+            Development: {
+              label: "Development (50% Best Case)",
+              description: "Solutioning and validation; business case and compelling event linked to value.",
+              entryCriteria: ["Technical work started", "Solution fit agreed"],
+              exitCriteria: ["Technical Win achieved", "Budget allocated"],
+              deliverables: ["Technical validation checklist", "Mutual Action Plan (MAP)", "High-level architecture / scope"],
+            },
+            Proposal: {
+              label: "Proposal (75% Best Case)",
+              description: "Commercial alignment; quote/SOW delivered; legal/security reviews in progress.",
+              entryCriteria: ["Budget identified", "Solution design accepted"],
+              exitCriteria: ["Budget approval in progress", "Security/Legal submitted"],
+              deliverables: ["Final quote or SOW", "Security questionnaire / DPA (if required)"],
+            },
+            Closing: {
+              label: "Closing (90% Commit)",
+              description: "Signature or PO routing; go-live plan established.",
+              entryCriteria: ["Commercial terms finalized", "Redlines near completion"],
+              exitCriteria: ["Signature/PO received", "Launch date confirmed"],
+              deliverables: ["Executed order form/PO", "Launch plan"],
+            },
+            ClosedWon: {
+              label: "Closed Won (100% Closed)",
+              description: "Provisioning and fulfillment completed; CS intro scheduled.",
+              entryCriteria: ["Executed paperwork"],
+              exitCriteria: ["Software/license delivered", "CS kickoff scheduled"],
+              deliverables: ["Fulfillment confirmation", "Handoff note to CS"],
+            },
+            Onboarding: {
+              label: "Onboarding",
+              description: "Kickoff → Implementation → UAT → Launch → Enablement; drive time-to-value and adoption.",
+              entryCriteria: ["Closed-won handoff"],
+              exitCriteria: ["Go-live achieved", "Enablement milestones completed"],
+              deliverables: ["Kickoff deck", "Implementation checklist", "UAT sign-off", "Training/Certification path"],
+            },
+          },
+          bandMeta: {
+            band1: {
+              name: "Band 1 – Full-Cycle Ownership",
+              summary: "Partner leads end-to-end (lead → close). Recast provides SMEs as needed.",
+              margin: "30%",
+              color: "bg-green-100 text-green-800",
+            },
+            band2: {
+              name: "Band 2 – Joint Engagement",
+              summary: "Co-sell motion. Partner drives top/mid-funnel; Recast supports validation and close.",
+              margin: "15%",
+              color: "bg-amber-100 text-amber-800",
+            },
+            band3: {
+              name: "Band 3 – Transactional / Referral",
+              summary: "Partner sources or influences; Recast runs the sale.",
+              margin: "5% (discretionary)",
+              color: "bg-slate-200 text-slate-800",
+            },
+          },
+          bands: {
+            band1: {
+              PQL: { primaryOwner: "Partner AE", support: ["Recast Channel Manager"], accountable: "Recast Channel Manager" },
+              Identification: { primaryOwner: "Partner AE", support: ["Recast AE"], accountable: "Partner Sales Lead" },
+              Qualification: { primaryOwner: "Partner AE", support: ["Partner SE"], accountable: "Partner Sales Lead" },
+              Development: { primaryOwner: "Partner SE", support: ["Recast SE (as-needed)", "Partner AE"], accountable: "Partner SE Lead" },
+              Proposal: { primaryOwner: "Partner AE", support: ["Partner SE", "Recast AE (pricing review)", "Recast Legal/Security (as-needed)"], accountable: "Partner Sales Lead" },
+              Closing: { primaryOwner: "Partner AE", support: ["Recast AE", "Channel Ops"], accountable: "Partner Sales Lead" },
+              ClosedWon: { primaryOwner: "Partner AE", support: ["Recast AE", "Recast CS"], accountable: "Recast Sales Leader" },
+              Onboarding: { primaryOwner: "Partner Services", support: ["Recast CS", "Partner PM"], accountable: "Recast CS Leader" },
+            },
+            band2: {
+              PQL: { primaryOwner: "Partner AE", support: ["Recast Channel Manager"], accountable: "Recast Channel Manager" },
+              Identification: { primaryOwner: "Partner AE", support: ["Recast AE"], accountable: "Recast AE" },
+              Qualification: { primaryOwner: "Partner AE", support: ["Recast SE"], accountable: "Recast AE" },
+              Development: { primaryOwner: "Recast SE", support: ["Partner SE", "Partner AE"], accountable: "Recast SE Lead" },
+              Proposal: { primaryOwner: "Recast AE", support: ["Partner AE", "Recast Legal/Security"], accountable: "Recast Sales Leader" },
+              Closing: { primaryOwner: "Recast AE", support: ["Partner AE", "Channel Ops"], accountable: "Recast Sales Leader" },
+              ClosedWon: { primaryOwner: "Recast AE", support: ["Recast CS", "Partner AE"], accountable: "Recast Sales Leader" },
+              Onboarding: { primaryOwner: "Recast CS", support: ["Partner Services"], accountable: "Recast CS Leader" },
+            },
+            band3: {
+              PQL: { primaryOwner: "Partner (Referral / LAR)", support: ["Recast Channel Manager"], accountable: "Recast Channel Manager" },
+              Identification: { primaryOwner: "Recast AE", support: ["Partner (Intro only)"], accountable: "Recast AE" },
+              Qualification: { primaryOwner: "Recast AE", support: ["Recast SE"], accountable: "Recast AE" },
+              Development: { primaryOwner: "Recast SE", support: ["Recast AE"], accountable: "Recast SE Lead" },
+              Proposal: { primaryOwner: "Recast AE", support: ["Legal/Security", "Finance"], accountable: "Recast Sales Leader" },
+              Closing: { primaryOwner: "Recast AE", support: ["Channel Ops"], accountable: "Recast Sales Leader" },
+              ClosedWon: { primaryOwner: "Recast AE", support: ["CS"], accountable: "Recast Sales Leader" },
+              Onboarding: { primaryOwner: "Recast CS", support: ["Partner (as applicable)"], accountable: "Recast CS Leader" },
+            },
+          },
+          rows: ["PQL", "Identification", "Qualification", "Development", "Proposal", "Closing", "ClosedWon", "Onboarding"],
+        },
         model: {
           tiers: {
             Registered: {
@@ -215,8 +329,14 @@
         { id: 'requirements', label: 'Requirements & Benefits', icon: 'check-circle' },
         { id: 'margins', label: 'Margins', icon: 'dollar-sign' },
         { id: 'roe', label: 'Rules of Engagement', icon: 'gavel' },
+        { id: 'salesmotion', label: 'Sales Motion', icon: 'table' },
         { id: 'onboarding', label: 'Onboarding', icon: 'rocket' }
       ];
+      function setDefaultBand(type) {
+        if (type === 'Registered') return 'band3';
+        if (type === 'Preferred') return 'band2';
+        return 'band1';
+      }
       function getPartnerData(type) {
         if (["Registered", "Preferred", "Premier"].includes(type)) {
           return {
@@ -265,6 +385,9 @@
             break;
           case 'roe':
             html += renderROEContent();
+            break;
+          case 'salesmotion':
+            html += renderSalesMotionContent();
             break;
           case 'onboarding':
             if (STATE.partnerType !== 'Registered') {
@@ -506,6 +629,57 @@
         html += '</tbody></table>';
         return html;
       }
+      function renderSalesMotionContent() {
+        let html = '<h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="table" class="h-6 w-6 stroke-[#0070F3]"></i>Sales Motion</h2>';
+        html += '<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-4">';
+        html += '<div><p class="text-sm text-[#4A5568] mt-1">View the sales cycle matrix showing stages, ownership, support, exit criteria, and deliverables based on the selected band.</p></div>';
+        html += '<select id="bandSelect" class="w-[280px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#0070F3] focus:ring-2 focus:ring-[#0070F3] focus:ring-opacity-50">';
+        ['band1', 'band2', 'band3'].forEach(b => {
+          const m = STATE.salesCycle.bandMeta[b];
+          html += `<option value="${b}" ${STATE.band === b ? 'selected' : ''}>${m.name}</option>`;
+        });
+        html += '</select></div>';
+        const meta = STATE.salesCycle.bandMeta[STATE.band];
+        html += '<div class="flex flex-wrap items-center gap-3 mb-6">';
+        html += `<span class="px-3 py-1 text-xs rounded-2xl ${meta.color}">${meta.name}</span>`;
+        html += `<span class="text-xs text-[#4A5568]">${meta.summary}</span>`;
+        html += '</div>';
+        html += '<div class="overflow-x-auto rounded-2xl border border-[#E2E8F0]">';
+        html += '<table class="min-w-[920px] w-full text-sm">';
+        html += '<thead class="bg-[#F7F9FB]">';
+        html += '<tr class="text-left"><th class="p-3">Stage</th><th class="p-3">Owner</th><th class="p-3">Support</th><th class="p-3">Exit Criteria</th><th class="p-3">Deliverables</th></tr>';
+        html += '</thead><tbody>';
+        STATE.salesCycle.rows.forEach(key => {
+          const stage = STATE.salesCycle.stages[key];
+          const own = STATE.salesCycle.bands[STATE.band][key];
+          html += '<tr class="border-t border-[#E2E8F0] align-top">';
+          html += '<td class="p-3 w-[18%]"><div class="font-medium">' + stage.label + '</div><div class="text-xs text-[#4A5568] mt-1">' + stage.description + '</div></td>';
+          html += '<td class="p-3 w-[18%]"><div class="flex items-start gap-2"><i data-lucide="user-round" class="h-4 w-4 mt-0.5 stroke-[#0070F3]"></i><div><div class="font-medium">' + own.primaryOwner + '</div><div class="text-[11px] text-[#4A5568]">Accountable: ' + own.accountable + '</div></div></div></td>';
+          html += '<td class="p-3 w-[18%]"><div class="flex flex-wrap gap-2">';
+          own.support.forEach(s => {
+            html += '<span class="rounded-xl bg-[#E2E8F0] px-2 py-1 text-xs text-[#4A5568]">' + s + '</span>';
+          });
+          html += '</div></td>';
+          html += '<td class="p-3 w-[23%]"><ul class="list-disc pl-4 space-y-1">';
+          stage.exitCriteria.forEach(e => { html += '<li>' + e + '</li>'; });
+          html += '</ul></td>';
+          html += '<td class="p-3 w-[23%]"><ul class="list-disc pl-4 space-y-1">';
+          stage.deliverables.forEach(d => { html += '<li>' + d + '</li>'; });
+          html += '</ul></td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        html += '<div class="mt-6 text-xs text-[#4A5568] flex flex-wrap gap-4">';
+        html += '<span class="flex items-center gap-1"><i data-lucide="handshake" class="h-3 w-3 stroke-[#0070F3]"></i> Band 1 rewards full-cycle ownership</span>';
+        html += '<span class="flex items-center gap-1"><i data-lucide="users-round" class="h-3 w-3 stroke-[#0070F3]"></i> Band 2 is co-sell</span>';
+        html += '<span class="flex items-center gap-1"><i data-lucide="shield-check" class="h-3 w-3 stroke-[#0070F3]"></i> Band 3 is referral/transactional</span>';
+        html += '</div>';
+        html += '<div class="mt-4 rounded-2xl border border-[#E2E8F0] p-4 bg-[#F7F9FB] flex gap-3 items-start">';
+        html += '<i data-lucide="info" class="h-5 w-5 mt-0.5 stroke-[#0070F3]"></i>';
+        html += '<div><div class="font-medium">Lead Registration & Partner of Record</div><p class="text-[#4A5568] text-sm mt-1">A lead is not considered Partner of Record until approved by Recast through the Partner Portal. Margin eligibility is set at deal approval based on documented ownership and CRM evidence.</p></div>';
+        html += '</div>';
+        return html;
+      }
       function renderOnboardingContent() {
         const steps = STATE.model.onboarding.steps;
         let buttonsHtml = '<div class="flex flex-wrap gap-3 mb-6">';
@@ -726,6 +900,7 @@
       function addEventListeners() {
         document.getElementById('partnerType').addEventListener('change', (e) => {
           STATE.partnerType = e.target.value;
+          STATE.band = setDefaultBand(STATE.partnerType);
           if (STATE.partnerType === 'Registered') {
             STATE.newPartner = false;
             if (['margins', 'onboarding'].includes(STATE.activeTab)) {
@@ -760,6 +935,13 @@
         if (dealTypeSelect) {
           dealTypeSelect.addEventListener('change', (e) => {
             STATE.dealType = e.target.value;
+            render();
+          });
+        }
+        const bandSelect = document.getElementById('bandSelect');
+        if (bandSelect) {
+          bandSelect.addEventListener('change', (e) => {
+            STATE.band = e.target.value;
             render();
           });
         }
