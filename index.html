@@ -187,7 +187,7 @@
             ],
           },
           other: {
-            overview: "Other partners represent our specialized, Invite-Only tracks — including MSP, Technology Partner (ISV), OEM, and Distributor. These partners operate under the Premier tier but follow unique engagement models based on their motion (service delivery, integration, embedding, or aggregation). All follow Recast’s Band 1–3 Rules of Engagement for consistency, but their commercial structures are negotiated. They are strategically selected and managed directly by Recast’s Channel and Product teams.",
+            overview: "",
             partnerTypesDescs: [
               "Managed Service Providers (MSPs) are strategic delivery partners who package Recast’s technology into their own managed services — helping customers manage, secure, and optimize their IT environments more efficiently.\n\nMSPs think in monthly recurring revenue (MRR) — not annual contracts. They operate on predictable, consumption-based models and need software that scales with them, not against them. Recast fits perfectly into this model by being easy to deploy, multitenant, and designed for repeatable use across clients.\n\nRather than making margin on licenses, MSPs make money on the services they deliver around the software — configuration, automation, monitoring, and continuous management. Recast helps them improve their margins by reducing manual effort, increasing client coverage, and adding high-value capabilities they can bundle into existing service offerings.\n\nFor many MSPs, Recast also opens the door to application management as a service, expanding beyond traditional infrastructure or security management into new, higher-value revenue streams.\n\nMSP partners are a key part of Recast’s ecosystem — they scale our reach, drive recurring adoption, and deliver measurable customer outcomes every month.",
               "ISV partners are technology companies that package and resell Recast as part of their broader solution, creating a stronger combined offering for customers. These partners typically embed or align Recast’s capabilities with their own platform to enhance value, accelerate sales cycles, and simplify deployment for joint customers.\n\nBy partnering with Recast, ISVs can address more customer pain points, eliminate common objections around integration or workflow gaps, and bring a ready-to-deploy joint solution to market faster.\n\nISV partners typically co-sell and co-market with Recast — leveraging joint messaging, enablement, and go-to-market programs to expand reach, build credibility, and drive new revenue.\n\nTogether, we deliver a unified, higher-value solution that helps both companies win faster, sell more efficiently, and serve customers better.",
@@ -233,7 +233,7 @@
           const descIndex = ['MSP', 'Technology Partner (ISV)', 'OEM Partner', 'Distributor Partner'].indexOf(type);
           const desc = STATE.model.other.partnerTypesDescs[descIndex];
           return {
-            overview: STATE.model.other.overview + "\n\n" + desc,
+            overview: desc,
             requirements: STATE.model.other.requirements,
             benefits: STATE.model.tiers.Premier.benefits,
             isStandard: false,
