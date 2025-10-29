@@ -44,6 +44,7 @@
         activeTab: 'overview',
         showBusinessPlanModal: false,
         showEvaluationModal: false,
+        showPartnerEventsModal: false,
         activeStep: 0,
         band: 'band1',
         exampleACV: 100000,
@@ -161,7 +162,7 @@
           rows: ["PQL", "Identification", "Qualification", "Development", "Proposal", "Closing", "ClosedWon", "Onboarding"],
         },
         msp: {
-          overview: " MSP Partner Program - Invite Only\n\nThe Recast MSP Program is built for service providers that want to embed Recast’s solutions into their service offerings to drive recurring revenue, expand client value, and scale with predictable economics.\n\nWe support multiple MSP archetypes—from infra-focused to app-centric—with enablement tailored to each type. Whether you’re a high-touch implementation shop or a lightweight automation-led MSP, this program offers flexible models to fit your business.\n\nProgram Highlights:\n\n* Monthly point-based licensing structure for easy cost forecasting\n\n* Tiered margin bands based on deal ownership and engagement\n\n* Access to white-labeled deployment kits, SOWs, and enablement tools\n\n* Support for both application workspace and endpoint solutions\n\n* Designed to protect partner margin, loyalty, and renewal rights",
+          overview: "Welcome to the Recast MSP Partner Program\n\nThe Recast MSP Program is built for service providers that want to embed Recast’s solutions into their service offerings to drive recurring revenue, expand client value, and scale with predictable economics.\n\nWe support multiple MSP archetypes—from infra-focused to app-centric—with enablement tailored to each type. Whether you’re a high-touch implementation shop or a lightweight automation-led MSP, this program offers flexible models to fit your business.\n\nProgram Highlights:\n\n* Monthly point-based licensing structure for easy cost forecasting\n\n* Tiered margin bands based on deal ownership and engagement\n\n* Access to white-labeled deployment kits, SOWs, and enablement tools\n\n* Support for both application workspace and endpoint solutions\n\n* Designed to protect partner margin, loyalty, and renewal rights",
           requirements: [
             "Invitation and approval from Recast Channel Leadership",
             "Executed Master Partner or OEM Agreement",
@@ -377,6 +378,32 @@
               { partnerType: "Distributor Partner", tierEligibility: "Premier", margin: "Transactional (Band 3 equivalent, pre-negotiated)", dealRegistration: "Required", mdfAccess: "Tiered MDF by volume", enablement: "Distributor onboarding toolkit, partner training delivery" },
             ]
           }
+        },
+        partnerEvents: {
+          events: [
+            { date: "May 3", type: "Webinar", name: "“Data to Decisions: AI in Marketing”", host: "Recast", invited: 950, attended: 870, opps: 220, oppInvited: "23%", oppAttended: "25%", closed: 55, won: "25%" },
+            { date: "May 17", type: "User Group", name: "“Customer Analytics Roundtable – Boston”", host: "Recast", invited: 25, attended: 18, opps: 4, oppInvited: "16%", oppAttended: "22%", closed: 1, won: "25%" },
+            { date: "May 30", type: "Partner Event", name: "“Joint Insights with Mixpanel”", host: "Partner", invited: 300, attended: 210, opps: 45, oppInvited: "15%", oppAttended: "21%", closed: 9, won: "20%" },
+            { date: "Jun 6", type: "Webinar", name: "“Marketing Mix Modeling Deep Dive”", host: "Recast", invited: 1000, attended: 910, opps: 250, oppInvited: "25%", oppAttended: "27%", closed: 70, won: "28%" },
+            { date: "Jun 21", type: "Event", name: "“Recast Summer Data Summit”", host: "Recast", invited: 240, attended: 190, opps: 45, oppInvited: "19%", oppAttended: "24%", closed: 11, won: "24%" },
+            { date: "Jul 9", type: "User Group", name: "“Growth Marketing Leaders NYC”", host: "Recast", invited: 20, attended: 17, opps: 5, oppInvited: "25%", oppAttended: "29%", closed: 1, won: "20%" },
+            { date: "Jul 23", type: "Webinar", name: "“Forecasting for Modern Marketers”", host: "Recast", invited: 780, attended: 710, opps: 175, oppInvited: "22%", oppAttended: "25%", closed: 45, won: "26%" },
+            { date: "Aug 8", type: "Conference + HH", name: "“AdTech Connect LA”", host: "Recast", invited: 320, attended: 290, opps: 80, oppInvited: "25%", oppAttended: "28%", closed: 22, won: "27%" },
+            { date: "Aug 28", type: "Partner Event", name: "“Recast x HubSpot Insights Live”", host: "Partner", invited: 280, attended: 210, opps: 60, oppInvited: "21%", oppAttended: "29%", closed: 14, won: "23%" },
+            { date: "Sep 6", type: "Webinar", name: "“Attribution in a Cookieless Future”", host: "Recast", invited: 1050, attended: 970, opps: 280, oppInvited: "27%", oppAttended: "29%", closed: 75, won: "27%" },
+            { date: "Sep 18", type: "User Group", name: "“Recast Regional Meetup – Chicago”", host: "Recast", invited: 18, attended: 16, opps: 4, oppInvited: "22%", oppAttended: "25%", closed: 1, won: "25%" },
+            { date: "Sep 26", type: "Partner Event", name: "“Data-Driven Growth Day”", host: "Partner", invited: 260, attended: 200, opps: 52, oppInvited: "20%", oppAttended: "26%", closed: 13, won: "25%" },
+            { date: "Oct 4", type: "Webinar", name: "“ROI Modeling for CMOs”", host: "Recast", invited: 900, attended: 830, opps: 210, oppInvited: "23%", oppAttended: "25%", closed: 60, won: "29%" },
+            { date: "Oct 14", type: "User Group", name: "“Customer Insights Community – London”", host: "Recast", invited: 20, attended: 17, opps: 4, oppInvited: "20%", oppAttended: "24%", closed: 1, won: "25%" },
+            { date: "Oct 22", type: "Conference + HH", name: "“MarTech Europe”", host: "Recast", invited: 340, attended: 310, opps: 90, oppInvited: "26%", oppAttended: "29%", closed: 27, won: "30%" },
+            { date: "Nov 6", type: "Webinar", name: "“Media Spend Optimization Tactics”", host: "Recast", invited: 880, attended: 820, opps: 200, oppInvited: "23%", oppAttended: "24%", closed: 52, won: "26%" },
+          ],
+          summaries: [
+            { type: "Webinars", events: 6, avgInvited: 926, avgAttended: 853, avgOpps: 222, avgOppInvited: "24%", avgOppAttended: "26%", avgClosed: 59, win: "27%" },
+            { type: "User Groups", events: 4, avgInvited: 21, avgAttended: 17, avgOpps: 4, avgOppInvited: "21%", avgOppAttended: "25%", avgClosed: 1, win: "24%" },
+            { type: "Events (incl. Conf + HH)", events: 2, avgInvited: 330, avgAttended: 300, avgOpps: 85, avgOppInvited: "25%", avgOppAttended: "28%", avgClosed: 25, win: "28%" },
+            { type: "Partner Events", events: 3, avgInvited: 280, avgAttended: 207, avgOpps: 52, avgOppInvited: "19%", avgOppAttended: "25%", avgClosed: 12, win: "24%" },
+          ]
         }
       };
       const PARTNER_TYPES = ["Registered", "Preferred", "Premier", "MSP", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"];
@@ -471,6 +498,9 @@
         if (STATE.showEvaluationModal) {
           html += renderEvaluationModal();
         }
+        if (STATE.showPartnerEventsModal) {
+          html += renderPartnerEventsModal();
+        }
         document.getElementById('app').innerHTML = html;
         lucide.createIcons();
         addEventListeners();
@@ -563,10 +593,16 @@
         html += '</ul>';
         if (isPremier) {
           html += `
-            <button id="businessPlanButton" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0070F3] px-5 py-2.5 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
-              <i data-lucide="file-text" class="h-4 w-4"></i>
-              View Business Plan
-            </button>
+            <div class="flex flex-col gap-4 mt-6">
+              <button id="businessPlanButton" class="inline-flex items-center gap-2 rounded-full bg-[#0070F3] px-5 py-2.5 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
+                <i data-lucide="file-text" class="h-4 w-4"></i>
+                View Business Plan
+              </button>
+              <button id="partnerEventsButton" class="inline-flex items-center gap-2 rounded-full bg-[#0070F3] px-5 py-2.5 text-sm text-white hover:bg-[#005AD0] focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2">
+                <i data-lucide="calendar" class="h-4 w-4"></i>
+                View Partner Events
+              </button>
+            </div>
           `;
         }
         html += '</div>';
@@ -874,16 +910,92 @@
           </div>
         `;
       }
-      function renderEvaluationModal() {
+      function renderPartnerEventsModal() {
         return `
-          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" role="dialog" aria-modal="true" id="evaluationModal">
-            <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
-              <button class="absolute top-4 right-4 text-[#4A5568] hover:text-[#0A1C60] focus:outline-none" id="closeEvaluation">
+          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" role="dialog" aria-modal="true" id="partnerEventsModal">
+            <div class="relative max-w-5xl w-full bg-white rounded-2xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+              <button class="absolute top-4 right-4 text-[#4A5568] hover:text-[#0A1C60] focus:outline-none" id="closePartnerEvents">
                 <i data-lucide="x" class="h-6 w-6"></i>
                 <span class="sr-only">Close</span>
               </button>
-              <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="scale" class="h-6 w-6 stroke-[#0070F3]"></i>Preferred vs. Premier Partner Evaluation Guide</h2>
-              ${renderEvaluationGuideContent()}
+              <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="calendar" class="h-6 w-6 stroke-[#0070F3]"></i>Recast & Partner Marketing Events (Last 6 Months)</h2>
+              <div class="overflow-x-auto mb-8">
+                <table class="min-w-full divide-y divide-[#E2E8F0]">
+                  <thead>
+                    <tr>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Date</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Type</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Event Name</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Host</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Invited</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Attended</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Opps Created</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Opp % of Invited</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Opp % of Attended</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Closed Won</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Won % of Opps</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#E2E8F0]">
+                    ${STATE.partnerEvents.events.map(e => `
+                      <tr>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.date}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.type}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.name}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.host}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.invited}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.attended}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.opps}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.oppInvited}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.oppAttended}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.closed}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${e.won}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="text-xl font-semibold mb-4">Summary Metrics</h3>
+              <div class="overflow-x-auto mb-8">
+                <table class="min-w-full divide-y divide-[#E2E8F0]">
+                  <thead>
+                    <tr>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Type</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]"># Events</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Avg Invited</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Avg Attended</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Avg Opps</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Avg Opp % (Invited)</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Avg Opp % (Attended)</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Avg Closed Won</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-[#0A1C60]">Win %</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#E2E8F0]">
+                    ${STATE.partnerEvents.summaries.map(s => `
+                      <tr>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.type}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.events}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.avgInvited}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.avgAttended}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.avgOpps}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.avgOppInvited}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.avgOppAttended}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.avgClosed}</td>
+                        <td class="px-6 py-4 text-sm text-[#4A5568]">${s.win}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="text-xl font-semibold mb-4">Recent results:</h3>
+              <ul class="space-y-4 mb-6">
+                <li class="text-[#4A5568]">Webinars – 6 total<br>• Avg Invited: 926 | Avg Attended: 853 | Win Rate: 27%</li>
+                <li class="text-[#4A5568]">User Groups – 4 total<br>• Avg Attended: 17 | Win Rate: 24%</li>
+                <li class="text-[#4A5568]">Events (Conferences + HH) – 2 total<br>• Avg Attended: 300 | Win Rate: 28%</li>
+                <li class="text-[#4A5568]">Partner Events – 3 total<br>• Avg Attended: 207 | Win Rate: 24%</li>
+              </ul>
+              <p class="text-[#4A5568]">If we apply that same model to a Dell + Recast session post-Ignite, I’m confident we’d get strong engagement and meaningful pipeline out of it.</p>
             </div>
           </div>
         `;
@@ -1004,6 +1116,20 @@
         html += '</section>';
         return html;
       }
+      function renderEvaluationModal() {
+        return `
+          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" role="dialog" aria-modal="true" id="evaluationModal">
+            <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+              <button class="absolute top-4 right-4 text-[#4A5568] hover:text-[#0A1C60] focus:outline-none" id="closeEvaluation">
+                <i data-lucide="x" class="h-6 w-6"></i>
+                <span class="sr-only">Close</span>
+              </button>
+              <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i data-lucide="scale" class="h-6 w-6 stroke-[#0070F3]"></i>Preferred vs. Premier Partner Evaluation Guide</h2>
+              ${renderEvaluationGuideContent()}
+            </div>
+          </div>
+        `;
+      }
       function renderEvaluationGuideContent() {
         let html = '';
         html += '<p class="text-[#4A5568] mb-6">When evaluating whether a Preferred Partner is ready to advance to Premier status, Recast looks at three key areas — Focus, Capability, and Commitment.<br>These criteria ensure we’re investing in partners that can truly scale with us, represent our brand effectively, and deliver measurable revenue outcomes.</p>';
@@ -1102,6 +1228,13 @@
             render();
           });
         }
+        const partnerEventsButton = document.getElementById('partnerEventsButton');
+        if (partnerEventsButton) {
+          partnerEventsButton.addEventListener('click', () => {
+            STATE.showPartnerEventsModal = true;
+            render();
+          });
+        }
         const evaluationButton = document.getElementById('evaluationButton');
         if (evaluationButton) {
           evaluationButton.addEventListener('click', () => {
@@ -1113,6 +1246,13 @@
         if (closeBusinessPlan) {
           closeBusinessPlan.addEventListener('click', () => {
             STATE.showBusinessPlanModal = false;
+            render();
+          });
+        }
+        const closePartnerEvents = document.getElementById('closePartnerEvents');
+        if (closePartnerEvents) {
+          closePartnerEvents.addEventListener('click', () => {
+            STATE.showPartnerEventsModal = false;
             render();
           });
         }
@@ -1130,19 +1270,21 @@
             render();
           });
         }
-        const modals = document.querySelectorAll('#businessPlanModal, #evaluationModal');
+        const modals = document.querySelectorAll('#businessPlanModal, #partnerEventsModal, #evaluationModal');
         modals.forEach(modal => {
           modal.addEventListener('click', (e) => {
             if (e.target === modal) {
               STATE.showBusinessPlanModal = false;
+              STATE.showPartnerEventsModal = false;
               STATE.showEvaluationModal = false;
               render();
             }
           });
         });
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && (STATE.showBusinessPlanModal || STATE.showEvaluationModal)) {
+          if (e.key === 'Escape' && (STATE.showBusinessPlanModal || STATE.showPartnerEventsModal || STATE.showEvaluationModal)) {
             STATE.showBusinessPlanModal = false;
+            STATE.showPartnerEventsModal = false;
             STATE.showEvaluationModal = false;
             render();
           }
