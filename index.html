@@ -172,6 +172,7 @@
           }
         },
         exampleACV: 100000,
+        servicesMultiplier: 6, // New: 6:1 ratio for services
         salesCycle: {
           stages: {
             PQL: {
@@ -784,7 +785,7 @@
         }
         html += '</div>';
         html += '<div>';
-        html += '<h3 class="text-xl font-medium mb-4 flex items-center gap-2"><i data-lucide="gift" class="h-5 w-5 stroke-[#2563eb]"></i>Benefits</h3>';
+        html += '<h3 class="text-xl font-medium mb-4 flex items-center gap-2"><i data-lucide="gift" class="h-5 w--5 stroke-[#2563eb]"></i>Benefits</h3>';
         html += '<ul class="space-y-4">';
         bens.forEach((b) => {
           html += `
@@ -808,7 +809,8 @@
         const rules = universe[key];
         const fullMarginValue = STATE.partnerType === "Registered" ? "5%" : STATE.commitment === "Annual" ? "30%" : "20%";
         const fullMarginRate = parseFloat(fullMarginValue);
-        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#2563eb]"></i>Margins</h2>';
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#2563eb]"></i> Partner Margins</h2>';
+        html += '<p class="text-gray-700 mb-6">Based on your <strong>' + STATE.partnerType + '</strong> tier and Band qualification, here\'s a breakdown of your margins and potential services revenue (using a 6:1 multiplier for every $1 in licensing).</p>';
         html += '<div class="flex flex-wrap items-center gap-4 mb-6">';
         html += `<label class="flex items-center gap-3 text-sm font-medium ${disabled ? "opacity-50 cursor-not-allowed" : ""}">
           <input type="checkbox" id="newPartner" class="h-4 w-4 rounded accent-[#2563eb]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
@@ -822,47 +824,56 @@
         html += `<option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>`;
         html += `<option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>`;
         html += '</select>';
+        html += '<select id="bandSelect" class="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
+        ['band1', 'band2', 'band3'].forEach(b => {
+          const m = STATE.salesCycle.bandMeta[b];
+          html += `<option value="${b}" ${STATE.band === b ? 'selected' : ''}>${m.name}</option>`;
+        });
+        html += '</select>';
         html += '</div>';
-        if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
-          html += `
-            <div class="rounded-xl bg-[#2563eb]/5 border border-[#2563eb]/20 p-6 mb-6">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xl font-medium flex items-center gap-2"><i data-lucide="zap" class="h-5 w-5 stroke-[#2563eb]"></i>New Partner Boost — Full Margin</h3>
-                <span class="rounded-full bg-[#2563eb] px-3 py-1 text-xs text-white">Up to ${fullMarginValue}</span>
-              </div>
-              <p class="text-gray-700 leading-relaxed">For your first <strong>three</strong> net-new opportunities, Recast will <strong>shadow and co-run the deal end-to-end</strong> (discovery → demo → proposal → close) while you retain <strong>full Band 1 margin</strong>.</p>
-            </div>
-          `;
-        } else {
-          html += '<div class="overflow-x-auto mb-4">';
-          html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-          html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Band</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">When</th></tr></thead>';
-          html += '<tbody class="divide-y divide-[#E2E8F0]">';
-          rules.forEach((r) => {
-            html += `<tr><td class="px-6 py-4 text-sm font-medium">${r.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${r.upTo}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${r.when}</td></tr>`;
-          });
-          html += '</tbody></table></div>';
-          html += '<p class="text-xs text-gray-600">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>';
-        }
+        // Margin Articulation and Examples
+        html += '<div class="mb-8">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="list" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Breakdown by Band</h3>';
+        html += '<div class="overflow-x-auto mb-4">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Band</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Qualification</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Example Scenario</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        rules.forEach((r) => {
+          html += `<tr><td class="px-6 py-4 text-sm font-medium">${r.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${r.upTo}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${r.when}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">For ${STATE.partnerType}: ${r.band === 'Band 1' ? 'Full ownership yields max margin; e.g., $100K deal = $30K margin.' : r.band === 'Band 2' ? 'Co-sell support; e.g., $100K deal = $15K margin.' : 'Referral only; e.g., $100K deal = $5K margin.'}</td></tr>`;
+        });
+        html += '</tbody></table></div>';
+        html += '<p class="text-xs text-gray-600">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>';
+        html += '</div>';
+        // Calculator as Quote Template
         html += '<div class="mt-8">';
-        html += '<h3 class="text-xl font-medium mb-4 flex items-center gap-2"><i data-lucide="calculator" class="h-5 w-5 stroke-[#2563eb]"></i>Example Margin Calculation</h3>';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="calculator" class="h-5 w-5 stroke-[#2563eb]"></i>Example Quote Calculator</h3>';
         html += '<div class="flex items-center gap-4 mb-4">';
-        html += '<label for="exampleACV" class="text-sm font-medium">ACV:</label>';
+        html += '<label for="exampleACV" class="text-sm font-medium">Licensing ACV:</label>';
         html += `<input id="exampleACV" type="number" value="${STATE.exampleACV}" class="w-40 rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">`;
         html += '</div>';
         html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
         const acv = STATE.exampleACV;
+        const servicesRev = acv * STATE.servicesMultiplier;
         if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
           const marginAmt = (fullMarginRate / 100) * acv;
           const net = acv - marginAmt;
           html += `
             <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-              <h4 class="font-medium mb-2">New Partner Boost - Up to ${fullMarginValue}</h4>
+              <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="dollar-sign" class="h-4 w-4 stroke-[#2563eb]"></i>Licensing Items (New Partner Boost - Up to ${fullMarginValue})</h4>
               <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
-                <li>Gross ACV: $${acv.toLocaleString()}</li>
-                <li>Margin Rate: ${fullMarginRate}%</li>
-                <li>Margin Amount: $${marginAmt.toLocaleString()}</li>
-                <li>Net to Recast: $${net.toLocaleString()}</li>
+                <li><strong>Gross ACV:</strong> $${acv.toLocaleString()}</li>
+                <li><strong>Margin Rate:</strong> ${fullMarginRate}%</li>
+                <li><strong>Margin Amount:</strong> $${marginAmt.toLocaleString()}</li>
+                <li><strong>Net to Recast:</strong> $${net.toLocaleString()}</li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+              <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="trending-up" class="h-4 w-4 stroke-[#2563eb]"></i>Potential Services Revenue (6:1 Multiplier)</h4>
+              <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
+                <li><strong>Licensing Base:</strong> $${acv.toLocaleString()}</li>
+                <li><strong>Multiplier:</strong> 6x</li>
+                <li><strong>Total Services:</strong> $${servicesRev.toLocaleString()}</li>
+                <li><strong>Example for ${STATE.partnerType}:</strong> ${STATE.partnerType === 'Premier' ? 'High-value managed services like automation and compliance.' : STATE.partnerType === 'Preferred' ? 'Co-sell driven consulting.' : 'Transactional add-ons.'}</li>
               </ul>
             </div>
           `;
@@ -873,12 +884,21 @@
             const net = acv - marginAmt;
             html += `
               <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-                <h4 class="font-medium mb-2">${r.band} - ${r.upTo}</h4>
+                <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="dollar-sign" class="h-4 w-4 stroke-[#2563eb]"></i>Licensing Items (${r.band} - ${r.upTo})</h4>
                 <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
-                  <li>Gross ACV: $${acv.toLocaleString()}</li>
-                  <li>Margin Rate: ${rate}%</li>
-                  <li>Margin Amount: $${marginAmt.toLocaleString()}</li>
-                  <li>Net to Recast: $${net.toLocaleString()}</li>
+                  <li><strong>Gross ACV:</strong> $${acv.toLocaleString()}</li>
+                  <li><strong>Margin Rate:</strong> ${rate}%</li>
+                  <li><strong>Margin Amount:</strong> $${marginAmt.toLocaleString()}</li>
+                  <li><strong>Net to Recast:</strong> $${net.toLocaleString()}</li>
+                </ul>
+              </div>
+              <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+                <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="trending-up" class="h-4 w-4 stroke-[#2563eb]"></i>Potential Services Revenue (6:1 Multiplier)</h4>
+                <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
+                  <li><strong>Licensing Base:</strong> $${acv.toLocaleString()}</li>
+                  <li><strong>Multiplier:</strong> 6x</li>
+                  <li><strong>Total Services:</strong> $${servicesRev.toLocaleString()}</li>
+                  <li><strong>Example for ${STATE.partnerType}:</strong> ${STATE.partnerType === 'Premier' ? 'High-value managed services like automation and compliance.' : STATE.partnerType === 'Preferred' ? 'Co-sell driven consulting.' : 'Transactional add-ons.'}</li>
                 </ul>
               </div>
             `;
@@ -1139,7 +1159,7 @@
         });
         html += '</div>';
         html += '<div class="mt-6 text-xs text-gray-600 flex flex-wrap gap-4">';
-        html += '<span class="flex items-center gap-1"><i data-lucide="handshake" class="h-3 w-3 stroke-[#2563eb]"></i> Band 1 rewards full-cycle ownership</span>';
+        html += '<span class="flex items-center gap-1"><i data-lucide="handshake" class="h-3 w-3 stroke-[#2563eb]"></i>Band 1 rewards full-cycle ownership</span>';
         html += '<span class="flex items-center gap-1"><i data-lucide="users-round" class="h-3 w-3 stroke-[#2563eb]"></i> Band 2 is co-sell</span>';
         html += '<span class="flex items-center gap-1"><i data-lucide="shield-check" class="h-3 w-3 stroke-[#2563eb]"></i> Band 3 is referral/transactional</span>';
         html += '</div>';
