@@ -510,7 +510,9 @@
             { type: "Events (incl. Conf + HH)", events: 2, avgInvited: 330, avgAttended: 300, avgOpps: 85, avgOppInvited: "25%", avgOppAttended: "28%", avgClosed: 25, win: "28%" },
             { type: "Partner Events", events: 3, avgInvited: 280, avgAttended: 207, avgOpps: 52, avgOppInvited: "19%", avgOppAttended: "25%", avgClosed: 12, win: "24%" },
           ]
-        }
+        },
+        filterModalOpen: false,
+        selectedPartnerTypes: []
       };
       const PARTNER_TYPES = ["Registered", "Preferred", "Premier", "MSP", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"];
       const TABS = [
@@ -521,6 +523,26 @@
         { id: 'margins', label: 'Margins', icon: 'dollar-sign' },
         { id: 'roe', label: 'Rules of Engagement', icon: 'gavel' }
       ];
+      function initFilter() {
+        STATE.selectedPartnerTypes = PARTNER_TYPES.slice();
+        if (typeof localStorage !== 'undefined') {
+          try {
+            const saved = localStorage.getItem('recastPartnerTypeFilter');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              STATE.selectedPartnerTypes = parsed.selectedPartnerTypes.filter(t => PARTNER_TYPES.includes(t));
+            }
+          } catch (e) {
+            // fallback to default
+          }
+        }
+        if (STATE.selectedPartnerTypes.length === 0) {
+          STATE.selectedPartnerTypes = PARTNER_TYPES.slice();
+        }
+        if (!STATE.selectedPartnerTypes.includes(STATE.partnerType)) {
+          STATE.partnerType = STATE.selectedPartnerTypes[0];
+        }
+      }
       function setDefaultBand(type) {
         if (type === 'Registered') return 'band3';
         if (type === 'Preferred') return 'band2';
@@ -562,6 +584,9 @@
         }
       }
       function render() {
+        if (!STATE.selectedPartnerTypes.includes(STATE.partnerType)) {
+          STATE.partnerType = STATE.selectedPartnerTypes[0] || PARTNER_TYPES[0];
+        }
         const data = getPartnerData(STATE.partnerType);
         let html = '<div class="space-y-6">';
         html += renderPartnerTypeSelector();
@@ -589,7 +614,7 @@
             break;
           case 'onboarding':
             if (STATE.partnerType !== 'Registered') {
-              html += renderOnboardingContent();
+              html += renderOnboardingContent(data);
             } else {
               html += '<p class="text-center text-gray-700 leading-relaxed">Not applicable for Registered partners.</p>';
             }
@@ -597,6 +622,8 @@
         }
         html += '</div>';
         html += '</div>';
+        html += renderFilterTrigger();
+        if (STATE.filterModalOpen) html += renderFilterModal();
         if (STATE.showBusinessPlanModal) {
           html += renderBusinessPlanModal();
         }
@@ -611,9 +638,51 @@
         lucide.createIcons();
         addEventListeners();
       }
+      function renderFilterTrigger() {
+        return `
+          <div class="fixed bottom-4 left-4 z-50">
+            <input type="checkbox" id="filterTrigger" class="h-4 w-4 rounded accent-[#2563eb] opacity-50 focus:opacity-100" ${STATE.filterModalOpen ? 'checked' : ''} />
+          </div>
+        `;
+      }
+      function renderFilterModal() {
+        let checkboxes = '';
+        PARTNER_TYPES.forEach(t => {
+          const display = t === 'Registered' ? 'Registered (LAR/Referral)' : t;
+          const checked = STATE.selectedPartnerTypes.includes(t) ? 'checked' : '';
+          checkboxes += `
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="partner-type-checkbox h-4 w-4 rounded accent-[#2563eb]" data-type="${t}" ${checked} />
+              ${display}
+            </label>
+          `;
+        });
+        const allChecked = STATE.selectedPartnerTypes.length === PARTNER_TYPES.length ? 'checked' : '';
+        return `
+          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" role="dialog" aria-modal="true" id="filterModalBg">
+            <div class="relative max-w-md w-full bg-white rounded-xl shadow-2xl p-6">
+              <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none" id="closeFilterModal">
+                <i data-lucide="x" class="h-5 w-5"></i>
+              </button>
+              <h2 class="text-xl font-medium mb-4">Select Partner Types to Show</h2>
+              <div class="space-y-3">
+                <label class="flex items-center gap-2 font-medium">
+                  <input type="checkbox" id="selectAll" class="h-4 w-4 rounded accent-[#2563eb]" ${allChecked} />
+                  Select All
+                </label>
+                ${checkboxes}
+              </div>
+              <div class="mt-6 flex justify-end gap-3">
+                <button id="resetFilter" class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 transition-all duration-300">Reset</button>
+                <button id="saveFilter" class="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-4 py-2 text-sm text-white shadow-sm transition-all duration-300">Save</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
       function renderPartnerTypeSelector() {
         let options = '';
-        PARTNER_TYPES.forEach((t) => {
+        STATE.selectedPartnerTypes.forEach((t) => {
           const display = t === "Registered" ? "Registered (LAR/Referral)" : t;
           options += `<option value="${t}" ${STATE.partnerType === t ? 'selected' : ''}>${display}</option>`;
         });
@@ -829,9 +898,7 @@
         return html;
       }
       function renderROEContent() {
-        // MSP already has its own ROE block; keep that path
         if (STATE.partnerType === 'MSP') {
-          // Add partner/internal toggle even for MSP
           return renderROEWithToggle(renderSimpleROE(STATE.partnerType), renderInternalROE());
         }
         return renderROEWithToggle(renderSimpleROE(STATE.partnerType), renderInternalROE());
@@ -1026,7 +1093,7 @@
       function renderSalesMotionContent() {
         let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="table" class="h-6 w-6 stroke-[#2563eb]"></i>Sales Motion</h2>';
         html += '<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-4">';
-        html += '<div><p class="text-base text-gray-700 leading-relaxed mt-1">See who owns each stage, who supports it, and what moves the deal forward.</p></div>';
+        html += '<div><p class="text-base text-gray-700 leading-relaxed mt-1">View the sales cycle matrix showing stages, ownership, support, exit criteria, and deliverables based on the selected band.</p></div>';
         if (STATE.partnerType !== 'Registered') {
           html += '<select id="bandSelect" class="w-[280px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
           ['band1', 'band2', 'band3'].forEach(b => {
@@ -1082,30 +1149,24 @@
         html += '</div>';
         return html;
       }
-      function renderOnboardingContent() {
+      function renderOnboardingContent(data) {
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#2563eb]"></i>Onboarding Requirements</h2>';
+        let certHtml = '<div class="rounded-xl bg-amber-100 border border-amber-200 p-4 mb-6">';
+        certHtml += '<h3 class="text-lg font-medium mb-2 flex items-center gap-2"><i data-lucide="award" class="h-5 w-5 stroke-[#d97706]"></i>Required Certifications</h3>';
+        let certText;
         if (STATE.partnerType === 'MSP') {
-          let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#2563eb]"></i>Onboarding</h2>';
-          html += '<h3 class="text-xl font-medium mb-4">Onboarding Steps:</h3>';
-          html += '<ol class="space-y-4 list-decimal pl-6">';
-          STATE.msp.onboarding.steps.forEach(s => {
-            html += `<li class="text-gray-700 leading-relaxed">${s.replace(/\n/g, '<br>')}</li>`;
-          });
-          html += '</ol>';
-          html += '<h3 class="text-xl font-medium mt-8 mb-4">Resources Provided:</h3>';
-          html += '<ul class="space-y-4">';
-          STATE.msp.onboarding.resources.forEach(r => {
-            html += `
-              <li class="flex items-start gap-3">
-                <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
-                  <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
-                </div>
-                <span class="text-gray-700 leading-relaxed">${r}</span>
-              </li>
-            `;
-          });
-          html += '</ul>';
-          return html;
+          certText = 'Initial sales and technical certifications for eligible product lines.';
+        } else if (STATE.partnerType === 'Preferred') {
+          certText = '1 Certified Sales resource and 1 Certified Technical resource.';
+        } else if (STATE.partnerType === 'Premier') {
+          certText = 'Certified sales and technical resources (minimum 2 each recommended).';
         } else {
+          certText = 'Customized onboarding based on GTM motion; must complete GTM certification.';
+        }
+        certHtml += `<p class="text-gray-700 leading-relaxed">For ${STATE.partnerType} partners: ${certText} These must be completed during the initial onboarding phase before advancing and accessing full partner benefits, resources, and margin eligibility.</p>`;
+        certHtml += '</div>';
+        html += certHtml;
+        if (data.isStandard) {
           const steps = STATE.model.onboarding.steps;
           let buttonsHtml = '<div class="flex flex-wrap gap-3 mb-6">';
           steps.forEach((s, i) => {
@@ -1134,12 +1195,31 @@
             `;
           });
           listHtml += '</ul>';
-          return `
-            <h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#2563eb]"></i>Onboarding Requirements</h2>
-            ${buttonsHtml}
-            ${listHtml}
-          `;
+          html += buttonsHtml + listHtml;
+        } else if (STATE.partnerType === 'MSP') {
+          html += '<h3 class="text-xl font-medium mb-4">Onboarding Steps:</h3>';
+          html += '<ol class="space-y-4 list-decimal pl-6">';
+          STATE.msp.onboarding.steps.forEach(s => {
+            html += `<li class="text-gray-700 leading-relaxed">${s.replace(/\n/g, '<br>')}</li>`;
+          });
+          html += '</ol>';
+          html += '<h3 class="text-xl font-medium mt-8 mb-4">Resources Provided:</h3>';
+          html += '<ul class="space-y-4">';
+          STATE.msp.onboarding.resources.forEach(r => {
+            html += `
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
+                  <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+                </div>
+                <span class="text-gray-700 leading-relaxed">${r}</span>
+              </li>
+            `;
+          });
+          html += '</ul>';
+        } else {
+          // For OEM, ISV, Distributor - already handled in certHtml
         }
+        return html;
       }
       function renderBusinessPlanModal() {
         return `
@@ -1523,10 +1603,81 @@
             URL.revokeObjectURL(url);
           });
         }
+        const filterTrigger = document.getElementById('filterTrigger');
+        if (filterTrigger) {
+          filterTrigger.addEventListener('change', (e) => {
+            STATE.filterModalOpen = e.target.checked;
+            render();
+          });
+        }
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) {
+          selectAll.addEventListener('change', (e) => {
+            if (e.target.checked) {
+              STATE.selectedPartnerTypes = PARTNER_TYPES.slice();
+            } else {
+              STATE.selectedPartnerTypes = [];
+            }
+            render();
+          });
+        }
+        document.querySelectorAll('.partner-type-checkbox').forEach(cb => {
+          cb.addEventListener('change', (e) => {
+            const type = e.target.dataset.type;
+            if (e.target.checked) {
+              if (!STATE.selectedPartnerTypes.includes(type)) {
+                STATE.selectedPartnerTypes.push(type);
+              }
+            } else {
+              STATE.selectedPartnerTypes = STATE.selectedPartnerTypes.filter(t => t !== type);
+            }
+            render();
+          });
+        });
+        const saveFilter = document.getElementById('saveFilter');
+        if (saveFilter) {
+          saveFilter.addEventListener('click', () => {
+            if (STATE.selectedPartnerTypes.length === 0) {
+              STATE.selectedPartnerTypes = PARTNER_TYPES.slice();
+            }
+            if (typeof localStorage !== 'undefined') {
+              localStorage.setItem('recastPartnerTypeFilter', JSON.stringify({ selectedPartnerTypes: STATE.selectedPartnerTypes }));
+            }
+            STATE.filterModalOpen = false;
+            render();
+          });
+        }
+        const resetFilter = document.getElementById('resetFilter');
+        if (resetFilter) {
+          resetFilter.addEventListener('click', () => {
+            STATE.selectedPartnerTypes = PARTNER_TYPES.slice();
+            if (typeof localStorage !== 'undefined') {
+              localStorage.setItem('recastPartnerTypeFilter', JSON.stringify({ selectedPartnerTypes: STATE.selectedPartnerTypes }));
+            }
+            STATE.filterModalOpen = false;
+            render();
+          });
+        }
+        const closeFilterModal = document.getElementById('closeFilterModal');
+        if (closeFilterModal) {
+          closeFilterModal.addEventListener('click', () => {
+            STATE.filterModalOpen = false;
+            render();
+          });
+        }
+        const filterModalBg = document.getElementById('filterModalBg');
+        if (filterModalBg) {
+          filterModalBg.addEventListener('click', (e) => {
+            if (e.target === filterModalBg) {
+              STATE.filterModalOpen = false;
+              render();
+            }
+          });
+        }
         const modals = document.querySelectorAll('#businessPlanModal, #partnerEventsModal, #evaluationModal, #csvModal');
-        modals.forEach(modal => {
-          modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+        modals.forEach(m => {
+          m.addEventListener('click', (e) => {
+            if (e.target === m) {
               STATE.showBusinessPlanModal = false;
               STATE.showPartnerEventsModal = false;
               STATE.showEvaluationModal = false;
@@ -1536,16 +1687,20 @@
           });
         });
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && (STATE.showBusinessPlanModal || STATE.showPartnerEventsModal || STATE.showEvaluationModal || STATE.showCsvModal)) {
+          if (e.key === 'Escape' && (STATE.showBusinessPlanModal || STATE.showPartnerEventsModal || STATE.showEvaluationModal || STATE.showCsvModal || STATE.filterModalOpen)) {
             STATE.showBusinessPlanModal = false;
             STATE.showPartnerEventsModal = false;
             STATE.showEvaluationModal = false;
             STATE.showCsvModal = false;
+            STATE.filterModalOpen = false;
             render();
           }
         });
       }
-      document.addEventListener('DOMContentLoaded', render);
+      document.addEventListener('DOMContentLoaded', () => {
+        initFilter();
+        render();
+      });
     </script>
   </body>
 </html>
