@@ -24,8 +24,8 @@
           </div>
         </div>
         <h1 class="mt-4 text-3xl font-semibold leading-tight sm:text-4xl">
-          Join <span class="text-transparent bg-clip-text"
-                     style="background-image: linear-gradient(90deg, #2563eb, #1d4ed8);">Recast Partner Program</span>
+          <span class="text-transparent bg-clip-text"
+                style="background-image: linear-gradient(90deg, #2563eb, #1d4ed8);">Recast Partner Program</span>
         </h1>
         <p class="mt-2 max-w-3xl text-gray-700 leading-relaxed">
           We put <span class="text-[#2563eb] font-semibold">partnership</span> at the center of how we go to market.
@@ -540,7 +540,7 @@
           STATE.selectedPartnerTypes = PARTNER_TYPES.slice();
         }
         if (!STATE.selectedPartnerTypes.includes(STATE.partnerType)) {
-          STATE.partnerType = STATE.selectedPartnerTypes[0];
+          STATE.partnerType = STATE.selectedPartnerTypes[0] || PARTNER_TYPES[0];
         }
       }
       function setDefaultBand(type) {
