@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body class="bg-[#f9fafb] text-[#111827] font-['Inter',sans-serif] min-h-screen">
+  <body class="bg-[#f9fafb] text-[#111827] font-['Inter',sans-serif] min-h-screen antialiased">
     <header class="relative overflow-hidden">
       <div aria-hidden="true" class="pointer-events-none absolute inset-0 blur-3xl"
            style="background:
@@ -37,7 +37,7 @@
     </main>
     <script>
       const STATE = {
-        partnerType: 'Premier',
+        partnerType: 'Program Overview',
         commitment: 'Annual',
         dealType: 'Net New',
         newPartner: false,
@@ -48,8 +48,9 @@
         showCsvModal: false,
         activeStep: 0,
         band: 'band1',
+        activeBand: 'band1', // New for sales motion
         roeView: 'partner', // 'partner' | 'internal'
-        defaultBandByType: { Registered:'band3', Preferred:'band2', Premier:'band1', MSP:'band1' },
+        defaultBandByType: { Registered:'band3', Preferred:'band2', Premier:'band1' },
         partnerTierMeta: {
           'Registered': {
             defaultBand: 'band3',
@@ -61,7 +62,7 @@
             defaultBand: 'band2',
             marginCap: '15%',
             coSellEligible: true,
-            fullCycleEligible: false,
+            fullCycleEligible: true,
           },
           'Premier': {
             defaultBand: 'band1',
@@ -69,13 +70,8 @@
             coSellEligible: true,
             fullCycleEligible: true,
           },
-          'MSP': {
-            defaultBand: 'band1',
-            marginCap: '30%',
-            coSellEligible: true,
-            fullCycleEligible: true,
-          },
         },
+        showMspOption: false, // New state for MSP toggle
         simpleROE: {
           Registered: {
             summary: "You can refer and transact. Margin capped at 5% for transactional or referral sales only.",
@@ -160,6 +156,14 @@
               {band:"Band 2", when:["Co-sell with Recast SE/AE"], rule:"Shared margin"}
             ],
             renewals:["Incumbent MSP retains renewal if active in lifecycle reviews."],
+            roePrinciples: [
+              {principle:"Deal Registration", description:"Mandatory for all partner-led opportunities.", intent:"Protect partner investment."},
+              {principle:"Partner of Record", description:"Approved PoR retains lifecycle rights with active engagement.", intent:"Encourage long-term loyalty."},
+            ],
+            marginBands: [
+              {band:"Band 1 – MSP Driven", criteria:"MSP drives sale and delivery.", eligible:"MSP", margin:"30%", example:"MSP packages and sells Recast in managed services."},
+              {band:"Band 2 – Co-Sell", criteria:"Co-sell with Recast.", eligible:"MSP", margin:"15%", example:"Joint sale with Recast support."},
+            ],
             csv: {
               blurb:"Upload event or campaign lists for fast routing. Influence ≠ margin. Emphasize multitenant lists.",
               required:["Partner Name","Campaign Name/ID","Account Name (and Domain)","First Name","Last Name","Email","Country","Source Type","Attribution Intent","Requested PoR (Y/N)"],
@@ -172,7 +176,7 @@
           }
         },
         exampleACV: 100000,
-        servicesMultiplier: 6, // New: 6:1 ratio for services
+        servicesMultiplier: 6,
         salesCycle: {
           stages: {
             PQL: {
@@ -285,6 +289,7 @@
             },
           },
           rows: ["PQL", "Identification", "Qualification", "Development", "Proposal", "Closing", "ClosedWon", "Onboarding"],
+          activeAccordion: null,
         },
         msp: {
           overview: "Welcome to the Recast MSP Partner Program\n\nThe Recast MSP Program is built for service providers that want to embed Recast’s solutions into their service offerings to drive recurring revenue, expand client value, and scale with predictable economics.\n\nWe support multiple MSP archetypes—from infra-focused to app-centric—with enablement tailored to each type. Whether you’re a high-touch implementation shop or a lightweight automation-led MSP, this program offers flexible models to fit your business.\n\nProgram Highlights:\n\n* Monthly point-based licensing structure for easy cost forecasting\n\n* Tiered margin bands based on deal ownership and engagement\n\n* Access to white-labeled deployment kits, SOWs, and enablement tools\n\n* Support for both application workspace and endpoint solutions\n\n* Designed to protect partner margin, loyalty, and renewal rights",
@@ -346,50 +351,71 @@
             Registered: {
               overview: "Registered partners are either License Added Resellers (LARs) or referral partners who help Recast reach more customers.\n\n* LARs handle the transaction — they place the order and act as the bill-to on behalf of the customer. They earn up to a 5% margin on those deals.\n\n* Referral partners introduce Recast to a customer or opportunity. If we close the deal directly, they can receive up to a 5% rebate at Recast’s discretion.\n\nThese partnerships are lightweight and transactional — no formal agreement is required. We simply set up the partner in Salesforce with valid billing information and process orders as needed.\nThey’re a low-overhead way for Recast to fulfill deals or expand into new opportunities through trusted local or resale partners.",
               requirements: [
-                "Create Salesforce account with bill-to and finance contact",
-                "No formal agreement required",
-                "Optional referral registration (for lead-based rebates)",
-                "May transact orders directly or receive rebate",
-                "Subject to up to 5% rebate at Recast discretion"
+                "Salesforce Bill‑To Account",
               ],
               benefits: [
-                "Margin/referral on registered closed deals",
+                "Resell Licensing",
+                "Listing on Recastsoftware.com",
               ],
             },
             Preferred: {
               overview: "Preferred Partners are approved resellers or referral partners who actively collaborate with Recast on qualified opportunities and co-selling motions. They are beyond transactional resale — investing time and resources to build Recast expertise, pursue certifications, and establish repeatable sales and delivery motions.\n\nThese partners typically co-sell and co-market with Recast, leveraging our technical experts and marketing resources to expand reach, accelerate deal velocity, and build early customer success stories. They are focused on the right customer segments, maintain a defined sales presence, and often represent Recast within their regional or vertical markets.\n\nPreferred Partners demonstrate early-stage commitment through pipeline creation, deal registration, and customer enablement. They receive access to enablement, marketing funds, and field collaboration to help them grow toward Premier-level engagement.\n\nPreferred Partners are in the growth phase of the Recast ecosystem — proving alignment, building capability, and showing consistent commitment to joint success.",
               requirements: [
-                "Signed Partner Agreement",
-                "Vetted & approved by Channel team",
-                "1 Certified Sales and 1 Certified Technical resource",
-                "Active pipeline with at least one registered deal per quarter",
-                "Participation in enablement sessions or joint calls"
+                "Salesforce Bill‑To Account",
+                "Partner Agreement Signed",
+                "Partner Profile Submission",
+                "Named Recast POC Assigned",
+                "Technical Certification: 1 Individual",
+                "Sales Certification: 1 Individual",
+                "Minimum Annual Deal Volume: 4 Deals per Year"
               ],
               benefits: [
-                "Margin/referral on registered closed deals","Partner portal access","Self-service training",
-                "Program logo package + exposure on Recastsoftware.com","Campaigns-in-a-box","Quarterly roadmap updates",
-                "Partner licensing","Pipeline management tools","Field management / managed status",
-                "Enhanced CRM access (e.g., quote-to-order)","Basic joint lead-gen support","Dedicated support line",
-                "Dedicated MDF funds",
+                "Resell Licensing",
+                "Access to Partner Portal",
+                "Listing on Recastsoftware.com",
+                "Self-Service Training",
+                "Campaigns-in-a-Box",
+                "Quarterly Roadmap Updates",
+                "Partner NFR Licensing",
+                "Basic Lead-Gen Support (no funding)",
+                "Partner of Record (PoR) Eligibility",
+                "Eligible for MSP or Resell Delivery Model",
+                "Co-Sell & Expansion Support",
+                "Mutual Business Plan & GTM Alignment",
               ],
             },
             Premier: {
               overview: "Premier Partners are strategic, invite-only collaborators who represent Recast at the highest level of partnership. These partners have demonstrated sustained revenue growth, deep technical and sales capability, and a long-term commitment to joint business planning with Recast leadership.\n\nThey are fully enabled to co-sell, co-market, and co-deliver Recast solutions, often representing our brand in major enterprise environments. Premier Partners maintain certified technical resources, dedicated sales and marketing teams, and a defined customer base that aligns with Recast’s target markets and geographies.\n\nEach Premier Partner has a joint business plan with Recast — including shared revenue targets, annual growth goals, and investment commitments across enablement, customer adoption, and marketing execution. They also participate in roadmap reviews, quarterly business planning, and go-to-market alignment with Recast executives.\n\nPremier Partners are our most strategic alliances — delivering measurable impact through scale, shared investment, and sustained customer success across regions and verticals.",
               requirements: [
-                "Invite Only Tier",
-                "Invitation and signed Master Partner Agreement (MPA)",
-                "Annual joint business plan with revenue or deployment targets",
-                "Certified sales and technical resources",
-                "Quarterly Business Reviews (QBRs)",
-                "Active co-sell or co-marketing motion with Recast"
+                "Salesforce Bill‑To Account",
+                "Partner Agreement Signed",
+                "Partner Profile Submission",
+                "Named Recast POC Assigned",
+                "Technical Certification: 2 Individuals",
+                "Sales Certification: 2 Individuals",
+                "Quarterly Business Review (QBR)",
+                "Business Plan",
+                "Joint GTM Plan",
+                "Minimum Annual Deal Volume: Business plan in place"
               ],
               benefits: [
-                "Margin/referral on registered closed deals","Partner portal access","Self-service training",
-                "Program logo package + exposure on Recastsoftware.com","Campaigns-in-a-box","Quarterly roadmap updates",
-                "Partner licensing","Pipeline management tools","Field management / managed status",
-                "Enhanced CRM access (e.g., quote-to-order)","Basic joint lead-gen support","Dedicated support line",
-                "Dedicated MDF funds","Joint lead-gen campaigns","Partner support line",
-                "Recast Account Manager cross-sell engagement",
+                "Resell Licensing",
+                "Access to Partner Portal",
+                "Listing on Recastsoftware.com",
+                "Self-Service Training",
+                "Campaigns-in-a-Box",
+                "Quarterly Roadmap Updates",
+                "Partner NFR Licensing",
+                "Enhanced CRM Access (quote-to-order)",
+                "Basic Lead-Gen Support (no funding)",
+                "Partner of Record (PoR) Eligibility",
+                "Eligible for MSP or Resell Delivery Model",
+                "Dedicated Support",
+                "Joint Lead-Gen Campaigns (with MDF Funds)",
+                "Access to Services Delivery Leads",
+                "Dedicated Recast Partner Manager",
+                "Co-Sell & Expansion Support",
+                "Mutual Business Plan & GTM Alignment"
               ],
             },
           },
@@ -497,7 +523,6 @@
               "Quarterly alignment on co-sell and marketing activities"
             ],
             partners: [
-              { partnerType: "MSP", tierEligibility: "Premier", margin: "Negotiated within Band 1–3 framework", dealRegistration: "Required", mdfAccess: "Strategic MDF", enablement: "Dedicated Channel Manager, SE alignment, joint QBRs" },
               { partnerType: "Technology Partner (ISV)", tierEligibility: "Premier", margin: "Negotiated; typically Band 2 equivalent + referral incentives", dealRegistration: "Optional", mdfAccess: "Co-marketing only", enablement: "Developer enablement, API/SDK certification" },
               { partnerType: "OEM Partner", tierEligibility: "Premier", margin: "Embedded / co-sell pricing (not margin-based)", dealRegistration: "N/A", mdfAccess: "Strategic MDF", enablement: "OEM SDK, roadmap collaboration, joint solution blueprints" },
               { partnerType: "Distributor Partner", tierEligibility: "Premier", margin: "Transactional (Band 3 equivalent, pre-negotiated)", dealRegistration: "Required", mdfAccess: "Tiered MDF by volume", enablement: "Distributor onboarding toolkit, partner training delivery" },
@@ -515,7 +540,7 @@
         filterModalOpen: false,
         selectedPartnerTypes: []
       };
-      const PARTNER_TYPES = ["Registered", "Preferred", "Premier", "MSP", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"];
+      const PARTNER_TYPES = ["Program Overview", "Registered", "Preferred", "Premier", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"]; // Removed MSP from dropdown
       const TABS = [
         { id: 'overview', label: 'Overview', icon: 'book-open' },
         { id: 'requirements', label: 'Requirements & Benefits', icon: 'check-circle' },
@@ -550,17 +575,18 @@
         return 'band1';
       }
       function getPartnerData(type) {
-        if (type === 'MSP') {
+        if (type === "Program Overview") {
           return {
-            overview: STATE.msp.overview,
-            requirements: STATE.msp.requirements,
-            benefits: STATE.msp.benefits,
+            overview: '',
+            requirements: [],
+            benefits: [],
             isStandard: false,
             isPremier: false,
             isPreferred: false,
-            specific: STATE.model.other.partners.find(p => p.partnerType === type)
+            specific: null
           };
-        } else if (["Registered", "Preferred", "Premier"].includes(type)) {
+        }
+        if (["Registered", "Preferred", "Premier"].includes(type)) {
           return {
             overview: STATE.model.tiers[type].overview,
             requirements: STATE.model.tiers[type].requirements,
@@ -571,7 +597,7 @@
             specific: null
           };
         } else {
-          const descIndex = ['MSP', 'Technology Partner (ISV)', 'OEM Partner', 'Distributor Partner'].indexOf(type);
+          const descIndex = ['Technology Partner (ISV)', 'OEM Partner', 'Distributor Partner'].indexOf(type) + 1; // Adjusted index since MSP is 0 but removed
           const desc = STATE.model.other.partnerTypesDescs[descIndex];
           return {
             overview: desc,
@@ -595,10 +621,10 @@
         html += '<div class="rounded-xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">';
         switch (STATE.activeTab) {
           case 'overview':
-            html += renderOverview(data.overview, data.isPreferred || data.isPremier);
+            html += renderOverview(STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? STATE.msp.overview : data.overview, data.isPreferred || data.isPremier);
             break;
           case 'requirements':
-            html += renderRequirementsAndBenefits(data.requirements, data.benefits, data.isPremier);
+            html += renderRequirementsAndBenefits(STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? STATE.msp.requirements : data.requirements, STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? STATE.msp.benefits : data.benefits, data.isPremier);
             break;
           case 'margins':
             if (data.isStandard) {
@@ -615,7 +641,7 @@
             break;
           case 'onboarding':
             if (STATE.partnerType !== 'Registered') {
-              html += renderOnboardingContent(data);
+              html += renderOnboardingContent(STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? { ...data, overview: STATE.msp.overview, requirements: STATE.msp.requirements, benefits: STATE.msp.benefits, onboarding: STATE.msp.onboarding } : data);
             } else {
               html += '<p class="text-center text-gray-700 leading-relaxed">Not applicable for Registered partners.</p>';
             }
@@ -674,8 +700,8 @@
                 ${checkboxes}
               </div>
               <div class="mt-6 flex justify-end gap-3">
-                <button id="resetFilter" class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 transition-all duration-300">Reset</button>
-                <button id="saveFilter" class="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-4 py-2 text-sm text-white shadow-sm transition-all duration-300">Save</button>
+                <button id="resetFilter" class="rounded-full border border-[#E2E8F0] px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300">Reset</button>
+                <button id="saveFilter" class="rounded-full bg-[#2563eb] text-white px-4 py-2 text-sm hover:bg-[#1d4ed8] transition-colors duration-300">Save</button>
               </div>
             </div>
           </div>
@@ -683,481 +709,441 @@
       }
       function renderPartnerTypeSelector() {
         let options = '';
-        STATE.selectedPartnerTypes.forEach((t) => {
-          const display = t === "Registered" ? "Registered (LAR/Referral)" : t;
-          options += `<option value="${t}" ${STATE.partnerType === t ? 'selected' : ''}>${display}</option>`;
+        STATE.selectedPartnerTypes.forEach(type => {
+          options += `<option value="${type}" ${STATE.partnerType === type ? 'selected' : ''}>${type === 'Registered' ? 'Registered (LAR/Referral)' : type}</option>`;
         });
         return `
-          <div class="rounded-xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <label for="partnerType" class="block text-base font-semibold mb-3">Select Partner Type</label>
-            <select id="partnerType" class="w-full rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">
+          <div class="flex items-center gap-4">
+            <label for="partnerType" class="sr-only">Partner Type</label>
+            <select id="partnerType" class="rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300">
               ${options}
             </select>
           </div>
         `;
       }
       function renderTabs() {
-        let tabsHtml = '<div class="overflow-x-auto"><div class="flex space-x-1 rounded-full bg-gray-50 p-1" role="tablist" aria-label="Tabs">';
-        TABS.forEach((tab) => {
+        let tabsHtml = '<div class="flex flex-wrap gap-2 mb-6 overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide">';
+        let tabsToShow = TABS;
+        if (STATE.partnerType === 'Program Overview') {
+          tabsToShow = [TABS[0]]; // Only Overview
+        }
+        tabsToShow.forEach(tab => {
           const active = STATE.activeTab === tab.id;
-          const disabled = (tab.id === 'margins' && !getPartnerData(STATE.partnerType).isStandard) ||
-                           (tab.id === 'onboarding' && STATE.partnerType === 'Registered');
-          if (!disabled) {
-            tabsHtml += `
-              <button
-                data-tab="${tab.id}"
-                class="flex-1 min-w-[120px] whitespace-nowrap py-2 px-4 rounded-full font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300"
-                role="tab"
-                aria-selected="${active}"
-                ${active ? 'bg-[#2563eb] text-white' : 'text-gray-700 hover:bg-gray-200'}
-              >
-                <i data-lucide="${tab.icon}" class="h-4 w-4 ${active ? 'stroke-white' : 'stroke-gray-600'}"></i>
-                ${tab.label}
-              </button>
-            `;
-          }
-        });
-        tabsHtml += '</div></div>';
-        return tabsHtml;
-      }
-      function renderOverview(overview, showEvaluation) {
-        let contentHtml = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="book-open" class="h-6 w-6 stroke-[#2563eb]"></i>Overview</h2>';
-        const paragraphs = overview.split('\n\n');
-        paragraphs.forEach(para => {
-          const lines = para.split('\n');
-          if (lines.length > 1 && lines.every(line => line.startsWith('* '))) {
-            contentHtml += '<ul class="space-y-4 mt-4">';
-            lines.forEach(line => {
-              contentHtml += `
-                <li class="flex items-start gap-3">
-                  <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
-                    <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
-                  </div>
-                  <span class="text-gray-700 leading-relaxed">${line.substring(2)}</span>
-                </li>
-              `;
-            });
-            contentHtml += '</ul>';
-          } else {
-            contentHtml += `<p class="text-gray-700 leading-relaxed mb-4">${para.replace(/\n/g, '<br>')}</p>`;
-          }
-        });
-        if (showEvaluation) {
-          contentHtml += `
-            <button id="evaluationButton" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-6 py-2 text-sm text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300">
-              <i data-lucide="eye" class="h-4 w-4"></i>
-              View Preferred vs. Premier Evaluation Guide
+          const disabled = (tab.id === 'margins' && !getPartnerData(STATE.partnerType).isStandard) || (tab.id === 'onboarding' && STATE.partnerType === 'Registered');
+          tabsHtml += `
+            <button
+              data-tab="${tab.id}"
+              class="${active ? 'bg-[#2563eb] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"
+              ${disabled ? 'disabled' : ''}
+            >
+              <i data-lucide="${tab.icon}" class="h-4 w-4"></i>
+              ${tab.label}
             </button>
           `;
-        }
-        return contentHtml;
+        });
+        tabsHtml += '</div>';
+        return tabsHtml;
       }
-      function renderRequirementsAndBenefits(reqs, bens, isPremier) {
-        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="check-circle" class="h-6 w-6 stroke-[#2563eb]"></i>Requirements & Benefits</h2>';
-        html += '<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">';
-        html += '<div>';
-        html += '<h3 class="text-xl font-medium mb-4 flex items-center gap-2"><i data-lucide="list" class="h-5 w-5 stroke-[#2563eb]"></i>Requirements</h3>';
-        html += '<ul class="space-y-4">';
-        reqs.forEach((r) => {
-          html += `
-            <li class="flex items-start gap-3">
-              <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
-                <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
-              </div>
-              <span class="text-gray-700 leading-relaxed">${r}</span>
-            </li>
-          `;
-        });
-        html += '</ul>';
-        if (isPremier) {
-          html += `
-            <div class="flex flex-col gap-4 mt-6">
-              <button id="businessPlanButton" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-6 py-2 text-sm text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300">
-                <i data-lucide="file-text" class="h-4 w-4"></i>
-                Mutual Business Plan
-              </button>
-              <button id="partnerEventsButton" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-6 py-2 text-sm text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300">
-                <i data-lucide="calendar" class="h-4 w-4"></i>
-                MDF | Joint lead-Gen Example
-              </button>
-            </div>
-          `;
+      function renderOverview(overview, showButtons) {
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="book-open" class="h-6 w-6 stroke-[#2563eb]"></i>Overview</h2>';
+        if (STATE.partnerType === 'Program Overview') {
+          html += renderProgramOverviewMatrix();
+        } else {
+          html += `<p class="text-gray-700 leading-relaxed whitespace-pre-line transition-opacity duration-300">${overview}</p>`;
         }
-        html += '</div>';
+        if (showButtons && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier')) {
+          html += '<div class="mt-6 flex flex-col sm:flex-row gap-4">';
+          html += `<label for="mspToggle" class="relative inline-flex cursor-pointer items-center">
+            <input type="checkbox" id="mspToggle" class="sr-only peer" ${STATE.showMspOption ? 'checked' : ''}>
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#2563eb] peer-focus:ring-offset-2 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all duration-300 peer-checked:bg-[#2563eb]"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900">View MSP Partnership Option</span>
+          </label>`;
+          html += '</div>';
+        }
+        if (showButtons && STATE.partnerType !== 'Program Overview') {
+          html += '<div class="mt-6 flex flex-col sm:flex-row gap-4">';
+          html += '<button id="evaluationButton" class="rounded-full border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"><i data-lucide="scale" class="h-4 w-4"></i>Preferred to Premier Evaluation</button>';
+          html += '</div>';
+        }
+        return html;
+      }
+      function renderProgramOverviewMatrix() {
+        let html = '<div class="overflow-x-auto">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th class="px-4 py-2 text-left text-xs font-semibold">Benefit</th><th class="px-4 py-2 text-left text-xs font-semibold">Registered</th><th class="px-4 py-2 text-left text-xs font-semibold">Preferred</th><th class="px-4 py-2 text-left text-xs font-semibold">Premier</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr class="bg-gray-50"><td colspan="4" class="px-4 py-2 text-xs font-medium">Core Access</td></tr>';
+        html += renderBenefitRow("Resell Licensing", '✓', '✓', '✓');
+        html += renderBenefitRow("Access to Partner Portal", '✗', '✓', '✓');
+        html += renderBenefitRow("Listing on RecastSoftware.com", '✓', '✓', '✓');
+        html += renderBenefitRow("Self-Service Training", '✗', '✓', '✓');
+        html += '<tr class="bg-gray-50"><td colspan="4" class="px-4 py-2 text-xs font-medium">Marketing & GTM Support</td></tr>';
+        html += renderBenefitRow("Campaigns-in-a-Box", '✗', '✓', '✓');
+        html += renderBenefitRow("Quarterly Roadmap Updates", '✗', '✓', '✓');
+        html += renderBenefitRow("Basic Lead-Gen Support (no funding)", '✗', '✓', '✓');
+        html += renderBenefitRow("Joint Lead-Gen Campaigns (with MDF Funds)", '✗', '✗', '✓');
+        html += renderBenefitRow("Mutual Business Plan & GTM Alignment", '✗', '✓', '✓');
+        html += '<tr class="bg-gray-50"><td colspan="4" class="px-4 py-2 text-xs font-medium">Sales & Deal Support</td></tr>';
+        html += renderBenefitRow("Partner NFR Licensing", '✗', '✓', '✓');
+        html += renderBenefitRow("Enhanced CRM Access (quote-to-order)", '✗', '✗', '✓');
+        html += renderBenefitRow("Partner of Record (PoR) Eligibility", '✗', '✓', '✓');
+        html += renderBenefitRow("Co-Sell & Expansion Support", '✗', '✓', '✓');
+        html += '<tr class="bg-gray-50"><td colspan="4" class="px-4 py-2 text-xs font-medium">Delivery Enablement</td></tr>';
+        html += renderBenefitRow("Eligible for MSP or Resell Delivery Model", '✗', '✓', '✓');
+        html += renderBenefitRow("Access to Services Delivery Leads", '✗', '✗', '✓');
+        html += '<tr class="bg-gray-50"><td colspan="4" class="px-4 py-2 text-xs font-medium">Strategic Engagement</td></tr>';
+        html += renderBenefitRow("Dedicated Support", '✗', '✗', '✓');
+        html += renderBenefitRow("Dedicated Recast Partner Manager", '✗', '✗', '✓');
+        html += '</tbody></table></div>';
+        return html;
+      }
+      function renderBenefitRow(benefit, reg, pref, prem) {
+        return `<tr><td class="px-4 py-2 text-xs text-gray-700 leading-relaxed">${benefit}</td><td class="px-4 py-2 text-xs text-gray-700 leading-relaxed">${reg}</td><td class="px-4 py-2 text-xs text-gray-700 leading-relaxed">${pref}</td><td class="px-4 py-2 text-xs text-gray-700 leading-relaxed">${prem}</td></tr>`;
+      }
+      function renderRequirementsAndBenefits(requirements, benefits, isPremier) {
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="check-circle" class="h-6 w-6 stroke-[#2563eb]"></i>Requirements & Benefits</h2>';
+        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
         html += '<div>';
-        html += '<h3 class="text-xl font-medium mb-4 flex items-center gap-2"><i data-lucide="gift" class="h-5 w--5 stroke-[#2563eb]"></i>Benefits</h3>';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="list-checks" class="h-5 w-5 stroke-[#2563eb]"></i>Requirements</h3>';
         html += '<ul class="space-y-4">';
-        bens.forEach((b) => {
+        requirements.forEach(req => {
           html += `
             <li class="flex items-start gap-3">
               <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
                 <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
               </div>
-              <span class="text-gray-700 leading-relaxed">${b}</span>
+              <span class="text-gray-700 leading-relaxed">${req}</span>
+            </li>
+          `;
+        });
+        html += '</ul>';
+        html += '</div>';
+        html += '<div>';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="award" class="h-5 w-5 stroke-[#2563eb]"></i>Benefits</h3>';
+        html += '<ul class="space-y-4">';
+        benefits.forEach(ben => {
+          html += `
+            <li class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
+                <i data-lucide="check" class="h-3 w-3 stroke-white"></i>
+              </div>
+              <span class="text-gray-700 leading-relaxed">${ben}</span>
             </li>
           `;
         });
         html += '</ul>';
         html += '</div>';
         html += '</div>';
+        if (isPremier) {
+          html += '<div class="mt-8 rounded-xl border border-[#E2E8F0] p-4 bg-gray-50 flex gap-3 items-start">';
+          html += '<i data-lucide="info" class="h-5 w-5 mt-0.5 stroke-[#2563eb]"></i>';
+          html += '<div><div class="font-medium">Premier Tier Note</div><p class="text-gray-700 leading-relaxed text-sm mt-1">Premier partners receive enhanced MDF and joint planning. Schedule a QBR to discuss advancement.</p></div>';
+          html += '</div>';
+          html += '<div class="mt-6 flex flex-col sm:flex-row gap-4">';
+          html += '<button id="businessPlanButton" class="rounded-full bg-[#2563eb] text-white px-6 py-3 text-sm font-medium hover:bg-[#1d4ed8] transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"><i data-lucide="file-text" class="h-4 w-4"></i>View Sample Business Plan</button>';
+          html += '<button id="partnerEventsButton" class="rounded-full border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"><i data-lucide="calendar" class="h-4 w-4"></i>Partner Events & Campaigns</button>';
+          html += '</div>';
+        }
         return html;
       }
       function renderMarginsContent() {
-        const disabled = STATE.partnerType === "Registered";
-        const universe = STATE.model.margins[STATE.commitment][STATE.dealType];
-        const key = STATE.partnerType === "Registered" ? "Registered" : "Preferred|Premier";
-        const rules = universe[key];
-        const fullMarginValue = STATE.partnerType === "Registered" ? "5%" : STATE.commitment === "Annual" ? "30%" : "20%";
-        const fullMarginRate = parseFloat(fullMarginValue);
-        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#2563eb]"></i> Partner Margins</h2>';
-        html += '<p class="text-gray-700 mb-6">Based on your <strong>' + STATE.partnerType + '</strong> tier and Band qualification, here\'s a breakdown of your margins and potential services revenue (using a 6:1 multiplier for every $1 in licensing).</p>';
-        html += '<div class="flex flex-wrap items-center gap-4 mb-6">';
-        html += `<label class="flex items-center gap-3 text-sm font-medium ${disabled ? "opacity-50 cursor-not-allowed" : ""}">
-          <input type="checkbox" id="newPartner" class="h-4 w-4 rounded accent-[#2563eb]" ${disabled ? "disabled" : ""} ${STATE.newPartner ? "checked" : ""} />
-          New partner boost (first 3 net-new deals)
-        </label>`;
-        html += '<select id="commitment" class="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
-        html += `<option ${STATE.commitment === "Annual" ? "selected" : ""}>Annual</option>`;
-        html += `<option ${STATE.commitment === "Monthly" ? "selected" : ""}>Monthly</option>`;
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#2563eb]"></i>Margins</h2>';
+        html += '<div class="rounded-xl bg-white p-6 shadow-md mb-6">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="filter" class="h-5 w-5 stroke-[#2563eb]"></i>Filters</h3>';
+        html += '<div class="flex flex-col sm:flex-row gap-4 rounded-full border border-[#E2E8F0] p-1 bg-white mb-4">';
+        html += '<select id="commitment" class="flex-1 rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none">';
+        html += `<option value="Annual" ${STATE.commitment === 'Annual' ? 'selected' : ''}>Annual</option>`;
+        html += `<option value="Monthly" ${STATE.commitment === 'Monthly' ? 'selected' : ''}>Monthly</option>`;
         html += '</select>';
-        html += '<select id="dealType" class="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
-        html += `<option ${STATE.dealType === "Net New" ? "selected" : ""}>Net New</option>`;
-        html += `<option ${STATE.dealType === "Renewal" ? "selected" : ""}>Renewal</option>`;
+        html += '<select id="dealType" class="flex-1 rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none">';
+        html += `<option value="Net New" ${STATE.dealType === 'Net New' ? 'selected' : ''}>Net New</option>`;
+        html += `<option value="Renewal" ${STATE.dealType === 'Renewal' ? 'selected' : ''}>Renewal</option>`;
         html += '</select>';
-        html += '<select id="bandSelect" class="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
-        ['band1', 'band2', 'band3'].forEach(b => {
-          const m = STATE.salesCycle.bandMeta[b];
-          html += `<option value="${b}" ${STATE.band === b ? 'selected' : ''}>${m.name}</option>`;
-        });
-        html += '</select>';
-        html += '</div>';
-        // Margin Articulation and Examples
-        html += '<div class="mb-8">';
-        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="list" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Breakdown by Band</h3>';
-        html += '<div class="overflow-x-auto mb-4">';
-        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Band</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Qualification</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Example Scenario</th></tr></thead>';
-        html += '<tbody class="divide-y divide-[#E2E8F0]">';
-        rules.forEach((r) => {
-          html += `<tr><td class="px-6 py-4 text-sm font-medium">${r.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${r.upTo}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${r.when}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">For ${STATE.partnerType}: ${r.band === 'Band 1' ? 'Full ownership yields max margin; e.g., $100K deal = $30K margin.' : r.band === 'Band 2' ? 'Co-sell support; e.g., $100K deal = $15K margin.' : 'Referral only; e.g., $100K deal = $5K margin.'}</td></tr>`;
-        });
-        html += '</tbody></table></div>';
-        html += '<p class="text-xs text-gray-600">“Up to” indicates the maximum eligible margin given qualifiers & program standing.</p>';
-        html += '</div>';
-        // Calculator as Quote Template
-        html += '<div class="mt-8">';
-        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="calculator" class="h-5 w-5 stroke-[#2563eb]"></i>Example Quote Calculator</h3>';
-        html += '<div class="flex items-center gap-4 mb-4">';
-        html += '<label for="exampleACV" class="text-sm font-medium">Licensing ACV:</label>';
-        html += `<input id="exampleACV" type="number" value="${STATE.exampleACV}" class="w-40 rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">`;
-        html += '</div>';
-        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
-        const acv = STATE.exampleACV;
-        const servicesRev = acv * STATE.servicesMultiplier;
-        if (STATE.newPartner && STATE.dealType === "Net New" && !disabled) {
-          const marginAmt = (fullMarginRate / 100) * acv;
-          const net = acv - marginAmt;
-          html += `
-            <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-              <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="dollar-sign" class="h-4 w-4 stroke-[#2563eb]"></i>Licensing Items (New Partner Boost - Up to ${fullMarginValue})</h4>
-              <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
-                <li><strong>Gross ACV:</strong> $${acv.toLocaleString()}</li>
-                <li><strong>Margin Rate:</strong> ${fullMarginRate}%</li>
-                <li><strong>Margin Amount:</strong> $${marginAmt.toLocaleString()}</li>
-                <li><strong>Net to Recast:</strong> $${net.toLocaleString()}</li>
-              </ul>
-            </div>
-            <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-              <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="trending-up" class="h-4 w-4 stroke-[#2563eb]"></i>Potential Services Revenue (6:1 Multiplier)</h4>
-              <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
-                <li><strong>Licensing Base:</strong> $${acv.toLocaleString()}</li>
-                <li><strong>Multiplier:</strong> 6x</li>
-                <li><strong>Total Services:</strong> $${servicesRev.toLocaleString()}</li>
-                <li><strong>Example for ${STATE.partnerType}:</strong> ${STATE.partnerType === 'Premier' ? 'High-value managed services like automation and compliance.' : STATE.partnerType === 'Preferred' ? 'Co-sell driven consulting.' : 'Transactional add-ons.'}</li>
-              </ul>
-            </div>
-          `;
-        } else {
-          rules.forEach((r) => {
-            const rate = parseFloat(r.upTo.replace(/[^\d.]/g, ''));
-            const marginAmt = (rate / 100) * acv;
-            const net = acv - marginAmt;
-            html += `
-              <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-                <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="dollar-sign" class="h-4 w-4 stroke-[#2563eb]"></i>Licensing Items (${r.band} - ${r.upTo})</h4>
-                <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
-                  <li><strong>Gross ACV:</strong> $${acv.toLocaleString()}</li>
-                  <li><strong>Margin Rate:</strong> ${rate}%</li>
-                  <li><strong>Margin Amount:</strong> $${marginAmt.toLocaleString()}</li>
-                  <li><strong>Net to Recast:</strong> $${net.toLocaleString()}</li>
-                </ul>
-              </div>
-              <div class="rounded-xl border border-[#E2E8F0] p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-                <h4 class="font-medium mb-2 flex items-center gap-2"><i data-lucide="trending-up" class="h-4 w-4 stroke-[#2563eb]"></i>Potential Services Revenue (6:1 Multiplier)</h4>
-                <ul class="space-y-2 text-sm text-gray-700 leading-relaxed">
-                  <li><strong>Licensing Base:</strong> $${acv.toLocaleString()}</li>
-                  <li><strong>Multiplier:</strong> 6x</li>
-                  <li><strong>Total Services:</strong> $${servicesRev.toLocaleString()}</li>
-                  <li><strong>Example for ${STATE.partnerType}:</strong> ${STATE.partnerType === 'Premier' ? 'High-value managed services like automation and compliance.' : STATE.partnerType === 'Preferred' ? 'Co-sell driven consulting.' : 'Transactional add-ons.'}</li>
-                </ul>
-              </div>
-            `;
+        html += '</div></div>';
+        const isRegistered = STATE.partnerType === 'Registered';
+        const tierKey = isRegistered ? 'Registered' : 'Preferred|Premier';
+        let margins = STATE.model.margins[STATE.commitment][STATE.dealType][tierKey];
+        if (!isRegistered) {
+          margins = [...margins]; // copy to avoid modifying original
+          margins.push({
+            band: "Band 3",
+            upTo: STATE.dealType === 'Renewal' ? "0%" : "Up to 5% (discretionary)",
+            when: STATE.dealType === 'Renewal' ? "NA" : "Intro or PO only → Referral margin."
           });
         }
+        html += '<div class="rounded-xl bg-white p-6 shadow-md mb-6">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="table" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Bands</h3>';
+        html += '<div class="overflow-x-auto mb-6">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th class="px-6 py-3 text-left text-sm font-semibold">When</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        margins.forEach(m => {
+          html += `<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${m.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${m.upTo}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${m.when}</td></tr>`;
+        });
+        html += '</tbody></table></div></div>';
+        html += '<div class="rounded-xl bg-white p-6 shadow-md mb-6">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="calculator" class="h-5 w-5 stroke-[#2563eb]"></i>Example Calculation</h3>';
+        if (isRegistered) {
+          STATE.band = 'band3';
+        }
+        const availableBands = isRegistered ? ['band3'] : (STATE.partnerTierMeta[STATE.partnerType].fullCycleEligible ? ['band1', 'band2', 'band3'] : ['band2', 'band3']);
+        html += '<div class="flex flex-wrap gap-4 mb-4">';
+        availableBands.forEach(band => {
+          html += `
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="band" value="${band}" ${STATE.band === band ? 'checked' : ''} class="form-radio h-4 w-4 text-[#2563eb] focus:ring-[#2563eb]">
+              <span class="text-sm font-medium">${STATE.salesCycle.bandMeta[band].name.split(' – ')[0]}</span>
+            </label>
+          `;
+        });
+        html += '</div>';
+        html += '<div class="mt-4">';
+        html += '<label for="exampleACV" class="block text-sm font-medium mb-1">Example ACV ($)</label>';
+        html += '<input type="number" id="exampleACV" value="' + STATE.exampleACV + '" min="0" step="1000" class="rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300 w-full max-w-xs" />';
+        html += '</div>';
+        const upTo = margins.find(m => m.band.toLowerCase().replace(/\s/g, '') === STATE.band.toLowerCase().replace(/\s/g, ''))?.upTo;
+        const marginPercentStr = upTo.replace(/[^0-9.]/g, '');
+        const marginPercent = parseFloat(marginPercentStr) / 100 || 0;
+        const acv = STATE.exampleACV;
+        const margin = acv * marginPercent;
+        const services = margin * STATE.servicesMultiplier;
+        html += '<div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">';
+        html += `<div class="rounded-xl bg-gray-50 p-4"><div class="text-sm font-medium mb-1">Software Margin</div><div class="text-2xl font-semibold">$${margin.toLocaleString()}</div></div>`;
+        html += `<div class="rounded-xl bg-gray-50 p-4"><div class="text-sm font-medium mb-1">Est. Services Revenue</div><div class="text-2xl font-semibold">$${services.toLocaleString()}</div></div>`;
+        html += `<div class="rounded-xl bg-gray-50 p-4"><div class="text-sm font-medium mb-1">Total Partner Value</div><div class="text-2xl font-semibold">$${(margin + services).toLocaleString()}</div></div>`;
         html += '</div></div>';
         return html;
       }
       function renderDetailsContent(specific) {
-        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="info" class="h-6 w-6 stroke-[#2563eb]"></i>Details</h2>';
-        html += '<div class="overflow-x-auto">';
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="dollar-sign" class="h-6 w-6 stroke-[#2563eb]"></i>Partner Details</h2>';
+        if (specific) {
+          html += '<div class="space-y-4">';
+          html += `<div><span class="font-medium">Tier Eligibility:</span> ${specific.tierEligibility}</div>`;
+          html += `<div><span class="font-medium">Margin:</span> ${specific.margin}</div>`;
+          html += `<div><span class="font-medium">Deal Registration:</span> ${specific.dealRegistration}</div>`;
+          html += `<div><span class="font-medium">MDF Access:</span> ${specific.mdfAccess}</div>`;
+          html += `<div><span class="font-medium">Enablement:</span> ${specific.enablement}</div>`;
+          html += '</div>';
+        } else {
+          html += '<p class="text-gray-700 leading-relaxed">Details not available for this partner type.</p>';
+        }
+        return html;
+      }
+      function renderNewROE() {
+        let html = '';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="users" class="h-5 w-5 stroke-[#2563eb]"></i>Tier Overview & Primary Role</h3>';
+        html += '<div class="overflow-x-auto mb-6">';
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Partner Type</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Tier Eligibility</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Deal Registration</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">MDF Access</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Enablement</th></tr></thead>';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Primary Role</th><th class="px-6 py-3 text-left text-sm font-semibold">Partner Type(s)</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
-        html += `<tr><td class="px-6 py-4 text-sm font-medium">${specific.partnerType}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${specific.tierEligibility}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${specific.margin}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${specific.dealRegistration}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${specific.mdfAccess}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${specific.enablement}</td></tr>`;
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">Entry-level: referral or transactional resellers</td><td class="px-6 py-4 text-sm text-gray-700">VAR, LAR, Referral</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Mid-tier: delivers projects, sells Recast, some managed services</td><td class="px-6 py-4 text-sm text-gray-700">MSP, SI, Hybrid</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Strategic: sells, delivers, operates, markets</td><td class="px-6 py-4 text-sm text-gray-700">MSP, SI, Hybrid, ISV</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">Embeds Recast in their platform</td><td class="px-6 py-4 text-sm text-gray-700">ISV only</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Routes-to-market; enablement and logistics only Not delivery-focused</td><td class="px-6 py-4 text-sm text-gray-700"></td></tr>';
         html += '</tbody></table></div>';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="clipboard-check" class="h-5 w-5 stroke-[#2563eb]"></i>Deal Registration & Partner of Record (PoR)</h3>';
+        html += '<p class="text-gray-700 leading-relaxed mb-4">All partner tiers must register deals to gain Partner of Record status and protect opportunities. Two supported registration methods:</p>';
+        html += '<div class="overflow-x-auto mb-6">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Method</th><th class="px-6 py-3 text-left text-sm font-semibold">Use Case</th><th class="px-6 py-3 text-left text-sm font-semibold">Available To</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Portal Form (Individual)</td><td class="px-6 py-4 text-sm text-gray-700">Single deal submission</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">CSV Upload (Campaign)</td><td class="px-6 py-4 text-sm text-gray-700">Lists from webinars, tradeshows, MDF events</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td></tr>';
+        html += '</tbody></table></div>';
+        html += '<ul class="space-y-3 mb-6">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="alert-circle" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Registered partners may not submit deals for PoR protection unless upgraded.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="alert-circle" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Premier deals are excluded from Recast SDR and marketing sequences once submitted.</span></li>';
+        html += '</ul>';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="dollar-sign" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Eligibility by Tier</h3>';
+        html += '<div class="overflow-x-auto mb-6">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">How Margin is Earned</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">Band 3 only — referral or PO processing (no deal support required)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Band 2 or Band 1 — must co-sell or fully own sales cycle</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Eligible for all bands — strategic role expected (source, support, expand, renew)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">OEM pricing structure — not motion-based; no bands</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Wholesale margins; no direct sales motions; supports sub-partner enablement</td></tr>';
+        html += '</tbody></table></div>';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="users-round" class="h-5 w-5 stroke-[#2563eb]"></i>Engagement Expectations by Tier</h3>';
+        html += '<div class="overflow-x-auto mb-6">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Sales Role</th><th class="px-6 py-3 text-left text-sm font-semibold">Delivery Role</th><th class="px-6 py-3 text-left text-sm font-semibold">PoR Eligible?</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Protection?</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">None or transactional</td><td class="px-6 py-4 text-sm text-gray-700">None</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Shared or own the sales motion</td><td class="px-6 py-4 text-sm text-gray-700">Deliver PS or manage Recast environment</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">Partial (based on Band)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Own full-cycle or co-sell strategically</td><td class="px-6 py-4 text-sm text-gray-700">Sell, deliver, support, expand</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">✅</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">N/A</td><td class="px-6 py-4 text-sm text-gray-700">Embeds Recast in own platform</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Indirect support only</td><td class="px-6 py-4 text-sm text-gray-700">N/A</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
+        html += '</tbody></table></div>';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="search" class="h-5 w-5 stroke-[#2563eb]"></i>Sourcing Types & Band Rules</h3>';
+        html += '<div class="overflow-x-auto mb-6">';
+        html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Sourcing Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Available To</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Band</th></tr></thead>';
+        html += '<tbody class="divide-y divide-[#E2E8F0]">';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Partner Sourced</td><td class="px-6 py-4 text-sm text-gray-700">Partner finds, registers, and supports close.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Band 1</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Recast Sourced / Co-Sell</td><td class="px-6 py-4 text-sm text-gray-700">Recast provides lead; partner assists in sales cycle.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Band 2</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Referral / Transactional</td><td class="px-6 py-4 text-sm text-gray-700">Partner provides intro or PO, but no sales engagement.</td><td class="px-6 py-4 text-sm text-gray-700">Registered, Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Band 3</td></tr>';
+        html += '</tbody></table></div>';
+        html += '<p class="text-gray-700 leading-relaxed mb-2">PoR Qualification Requires:</p>';
+        html += '<ul class="space-y-3 mb-6">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Timely registration (deal must not be known internally)</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Active participation in sales process</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Partner involvement validated by Partner team</span></li>';
+        html += '</ul>';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="refresh-cw" class="h-5 w-5 stroke-[#2563eb]"></i>Renewal & Expansion Rules</h3>';
+        html += '<ul class="space-y-3">';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Premier partners retain PoR and margin rights on renewals if they stay active.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Preferred partners must show engagement in customer lifecycle to retain renewal credit.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Registered partners have no renewal rights.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">PoR can be reassigned if partner becomes inactive or is removed by Recast due to non-engagement.</span></li>';
+        html += '</ul>';
         return html;
       }
       function renderROEContent() {
-        if (STATE.partnerType === 'MSP') {
-          return renderROEWithToggle(renderSimpleROE(STATE.partnerType), renderInternalROE());
+        let effectiveType = STATE.partnerType;
+        if (STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier')) {
+          effectiveType = 'MSP';
         }
-        return renderROEWithToggle(renderSimpleROE(STATE.partnerType), renderInternalROE());
-      }
-      function renderROEWithToggle(partnerHtml, internalHtml){
-        const toggle = `
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-medium flex items-center gap-3">
-              <i data-lucide="gavel" class="h-6 w-6 stroke-[#2563eb]"></i>Rules of Engagement
-            </h2>
-            <div class="inline-flex rounded-full bg-gray-100 p-1">
-              <button data-roeview="partner" class="px-3 py-1 text-sm rounded-full ${STATE.roeView==='partner'?'bg-white shadow':''}">Partner-facing</button>
-              <button data-roeview="internal" class="px-3 py-1 text-sm rounded-full ${STATE.roeView==='internal'?'bg-white shadow':''}">Internal</button>
-            </div>
-          </div>`;
-        const body = STATE.roeView==='partner' ? partnerHtml : internalHtml;
-        return toggle + body;
-      }
-      function renderSimpleROE(type){
-        const d = STATE.simpleROE[type];
-        const defBand = STATE.defaultBandByType[type] || 'band2';
-        const bandMeta = STATE.salesCycle.bandMeta[defBand];
-        const card = (title, inner) => `
-          <div class="rounded-xl bg-white shadow-md hover:shadow-lg transition overflow-hidden">
-            <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0] bg-gray-50 flex items-center gap-2">
-              <i data-lucide="file-text" class="h-5 w-5 stroke-[#2563eb]"></i>${title}
-            </h3>
-            <div class="p-5">${inner}</div>
-          </div>`;
-        const list = (items) => `<ul class="space-y-2">${items.map(i=>`
-          <li class="flex items-start gap-3">
-            <span class="mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></span>
-            <span class="text-gray-700 leading-relaxed">${typeof i==='string'?i:`<strong>${i.label}:</strong> ${i.value}`}</span>
-          </li>`).join('')}</ul>`;
-        const bandsTable = `
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[#E2E8F0]">
-              <thead><tr>
-                <th class="px-4 py-2 text-left text-sm font-semibold">Band</th>
-                <th class="px-4 py-2 text-left text-sm font-semibold">When</th>
-                <th class="px-4 py-2 text-left text-sm font-semibold">Rule</th>
-              </tr></thead>
-              <tbody class="divide-y divide-[#E2E8F0]">
-                ${d.bands.map(b => `
-                  <tr>
-                    <td class="px-4 py-3 text-sm font-medium">${b.band}</td>
-                    <td class="px-4 py-3 text-sm">
-                      <ul class="list-disc pl-5 space-y-1">${(b.when||[]).map(w=>`<li>${w}</li>`).join('')}</ul>
-                    </td>
-                    <td class="px-4 py-3 text-sm">${b.rule||''}</td>
-                  </tr>`).join('')}
-              </tbody>
-            </table>
-          </div>`;
-        const csvBlock = `
-          <p class="text-gray-700 leading-relaxed mb-3">${d.csv.blurb}</p>
-          <div class="grid md:grid-cols-3 gap-4">
-            <div><div class="font-medium mb-1">Required Columns</div>${list(d.csv.required)}</div>
-            <div><div class="font-medium mb-1">What Happens</div>${list(d.csv.flow)}</div>
-            <div class="flex items-start">
-              <button id="csvSopBtn" class="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] px-4 py-2 text-sm text-white shadow-sm">CSV Upload SOP</button>
-            </div>
-          </div>`;
-        if (type === 'Registered') {
-          const principlesTable = `
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-[#E2E8F0]">
-                <thead><tr>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Principle</th>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Description</th>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Intent</th>
-                </tr></thead>
-                <tbody class="divide-y divide-[#E2E8F0]">
-                  ${d.roePrinciples.map(p => `
-                    <tr>
-                      <td class="px-4 py-3 text-sm font-medium">${p.principle}</td>
-                      <td class="px-4 py-3 text-sm">${p.description}</td>
-                      <td class="px-4 py-3 text-sm">${p.intent}</td>
-                    </tr>`).join('')}
-                </tbody>
-              </table>
-            </div>`;
-          const marginBandsTable = `
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-[#E2E8F0]">
-                <thead><tr>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Band</th>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Qualification Criteria</th>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Eligible Partner Type</th>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Margin (Up To)</th>
-                  <th class="px-4 py-2 text-left text-sm font-semibold">Example</th>
-                </tr></thead>
-                <tbody class="divide-y divide-[#E2E8F0]">
-                  ${d.marginBands.map(b => `
-                    <tr>
-                      <td class="px-4 py-3 text-sm font-medium">${b.band}</td>
-                      <td class="px-4 py-3 text-sm">${b.criteria}</td>
-                      <td class="px-4 py-3 text-sm">${b.eligible}</td>
-                      <td class="px-4 py-3 text-sm">${b.margin}</td>
-                      <td class="px-4 py-3 text-sm">${b.example}</td>
-                    </tr>`).join('')}
-                </tbody>
-              </table>
-            </div>`;
-          return `
-            <div class="space-y-6">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="px-3 py-1 text-xs rounded-2xl ${bandMeta.color}">${bandMeta.name}</span>
-                <span class="text-xs text-gray-600">Default expectation for ${type}</span>
-              </div>
-              ${card("Sourcing & Attribution", list(d.sourcing))}
-              ${card("Rules of Engagement", principlesTable)}
-              ${card("Margin Band Table", marginBandsTable)}
-              ${card("Renewals", list(d.renewals))}
-              ${card("Uploading Event/Co-Marketing Leads", csvBlock)}
-            </div>`;
-        } else {
-          return `
-            <div class="space-y-6">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="px-3 py-1 text-xs rounded-2xl ${bandMeta.color}">${bandMeta.name}</span>
-                <span class="text-xs text-gray-600">Default expectation for ${type}</span>
-              </div>
-              ${card("Sourcing & Attribution", list(d.sourcing))}
-              ${card("Registration Bands (What You Earn)", bandsTable)}
-              ${card("Renewals", list(d.renewals))}
-              ${card("Uploading Event/Co-Marketing Leads", csvBlock)}
-            </div>`;
-        }
-      }
-      function renderInternalROE(){
-        if (STATE.partnerType === 'MSP') {
-          let html = '<ol class="space-y-6 list-decimal pl-6">';
-          STATE.msp.roe.forEach(rule => {
-            html += `<li class="text-gray-700 leading-relaxed">${rule.replace(/\n/g, '<br>')}</li>`;
-          });
-          html += '</ol>';
-          return html;
-        } else {
-          let html = '<div class="space-y-6">';
-          html += renderROESection('Rules of Engagement (ROE)', renderPrinciplesTable());
-          html += renderROESection('Margin Bands & Definitions', renderBandsTable());
-          html += renderROESection('Partner Margin Governance', renderGovernanceTable());
-          html += renderROESection('Example Summary Table', renderSummaryTable());
+        const roeData = effectiveType === 'MSP' ? STATE.msp.roe : STATE.model.roe;
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#2563eb]"></i>Rules of Engagement</h2>';
+        const roeView = STATE.roeView;
+        html += '<div class="flex gap-3 mb-6">';
+        html += `<button data-roeview="partner" class="rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${roeView === 'partner' ? 'bg-[#2563eb] text-white' : 'bg-white text-gray-700 border border-[#E2E8F0] hover:bg-gray-50'} focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2">Partner View</button>`;
+        html += `<button data-roeview="internal" class="rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${roeView === 'internal' ? 'bg-[#2563eb] text-white' : 'bg-white text-gray-700 border border-[#E2E8F0] hover:bg-gray-50'} focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2">Internal View</button>`;
+        html += '</div>';
+        if (roeView === 'partner') {
+          html += '<div class="space-y-6">';
+          if (effectiveType === 'MSP') {
+            html += '<ul class="space-y-4">';
+            roeData.forEach(rule => {
+              html += `<li class="text-gray-700 leading-relaxed whitespace-pre-line">${rule}</li>`;
+            });
+            html += '</ul>';
+          } else {
+            html += renderNewROE();
+          }
           html += '</div>';
-          return html;
+        } else {
+          html += '<div class="space-y-6">';
+          if (effectiveType === 'MSP') {
+            html += '<ul class="space-y-4">';
+            roeData.forEach(rule => {
+              html += `<li class="text-gray-700 leading-relaxed whitespace-pre-line">${rule}</li>`;
+            });
+            html += '</ul>';
+          } else {
+            html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="gavel" class="h-5 w-5 stroke-[#2563eb]"></i>Principles</h3>';
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+            roeData.principles.forEach(p => {
+              html += `<div class="rounded-xl border border-[#E2E8F0] p-4"><h4 class="font-medium mb-2">${p.principle}</h4><p class="text-sm text-gray-700 leading-relaxed mb-2">${p.description}</p><p class="text-xs text-gray-500">Intent: ${p.intent}</p></div>`;
+            });
+            html += '</div>';
+            html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="layers" class="h-5 w-5 stroke-[#2563eb]"></i>Bands</h3>';
+            html += '<div class="overflow-x-auto">';
+            html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+            html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Criteria</th><th class="px-6 py-3 text-left text-sm font-semibold">Eligible</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Example</th></tr></thead>';
+            html += '<tbody class="divide-y divide-[#E2E8F0]">';
+            roeData.bands.forEach(b => {
+              html += `<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.criteria.join('<br>')}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.eligible}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.margin}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.example}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="shield" class="h-5 w-5 stroke-[#2563eb]"></i>Governance</h3>';
+            html += '<ul class="space-y-3">';
+            roeData.governance.forEach(g => {
+              html += `<li class="flex items-start gap-3"><span class="font-medium">${g.element}:</span> <span class="text-gray-700 leading-relaxed">${g.definition}</span></li>`;
+            });
+            html += '</ul>';
+            html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="bar-chart" class="h-5 w-5 stroke-[#2563eb]"></i>Summary</h3>';
+            html += '<div class="overflow-x-auto">';
+            html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
+            html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Engagement</th><th class="px-6 py-3 text-left text-sm font-semibold">Involvement</th><th class="px-6 py-3 text-left text-sm font-semibold">Range</th><th class="px-6 py-3 text-left text-sm font-semibold">Notes</th></tr></thead>';
+            html += '<tbody class="divide-y divide-[#E2E8F0]">';
+            roeData.summary.forEach(s => {
+              html += `<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.tier}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.engagement}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.involvement}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.range}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.notes}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+          }
+          html += '</div>';
         }
-      }
-      function renderROESection(title, tableHtml) {
-        return `
-          <div class="rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <h3 class="text-lg font-semibold p-5 border-b border-[#E2E8F0] flex items-center gap-2 bg-gray-50"><i data-lucide="file-text" class="h-5 w-5 stroke-[#2563eb]"></i>${title}</h3>
-            <div class="overflow-x-auto">${tableHtml}</div>
-          </div>
-        `;
-      }
-      function renderPrinciplesTable() {
-        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Principle</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Description</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Intent</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.principles.forEach((p) => {
-          html += `<tr><td class="px-6 py-4 text-sm font-medium">${p.principle}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${p.description}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${p.intent}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        return html;
-      }
-      function renderBandsTable() {
-        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Band</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Qualification Criteria</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Partner Type Eligible</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Margin (up to)</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Example Scenario</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.bands.forEach((b) => {
-          let criteriaHtml = '<ul class="list-disc pl-5 space-y-1">';
-          b.criteria.forEach((c) => { criteriaHtml += `<li class="text-sm text-gray-700 leading-relaxed">${c}</li>`; });
-          criteriaHtml += '</ul>';
-          html += `<tr><td class="px-6 py-4 text-sm font-medium">${b.band}</td><td class="px-6 py-4">${criteriaHtml}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.eligible}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.margin}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.example}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        return html;
-      }
-      function renderGovernanceTable() {
-        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Element</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Definition</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.governance.forEach((g) => {
-          html += `<tr><td class="px-6 py-4 text-sm font-medium">${g.element}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${g.definition}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        return html;
-      }
-      function renderSummaryTable() {
-        let html = '<table class="min-w-full divide-y divide-[#E2E8F0]"><thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Partner Tier</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Engagement Type</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Typical Recast Involvement</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Margin Range</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Notes</th></tr></thead><tbody class="divide-y divide-[#E2E8F0]">';
-        STATE.model.roe.summary.forEach((s) => {
-          html += `<tr><td class="px-6 py-4 text-sm font-medium">${s.tier}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.engagement}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.involvement}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.range}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${s.notes}</td></tr>`;
-        });
-        html += '</tbody></table>';
         return html;
       }
       function renderSalesMotionContent() {
+        const isRegistered = STATE.partnerType === 'Registered';
         let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="table" class="h-6 w-6 stroke-[#2563eb]"></i>Sales Motion</h2>';
-        html += '<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-4">';
-        html += '<div><p class="text-base text-gray-700 leading-relaxed mt-1">View the sales cycle matrix showing stages, ownership, support, exit criteria, and deliverables based on the selected band.</p></div>';
-        if (STATE.partnerType !== 'Registered') {
-          html += '<select id="bandSelect" class="w-[280px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb] focus:ring-opacity-50">';
-          ['band1', 'band2', 'band3'].forEach(b => {
-            const m = STATE.salesCycle.bandMeta[b];
-            html += `<option value="${b}" ${STATE.band === b ? 'selected' : ''}>${m.name}</option>`;
-          });
-          html += '</select>';
-        } else {
-          STATE.band = 'band3';
-          html += '<p class="text-base text-gray-700 leading-relaxed mt-1">For Registered (LAR/Referral) partners, only Band 3 (Transactional / Referral) applies.</p>';
-        }
-        html += '</div>';
-        const meta = STATE.salesCycle.bandMeta[STATE.band];
-        html += '<div class="flex flex-wrap items-center gap-3 mb-6">';
-        html += `<span class="px-3 py-1 text-xs rounded-2xl ${meta.color}">${meta.name}</span>`;
-        html += '</div>';
-        html += '<div class="space-y-4">';
-        STATE.salesCycle.rows.forEach(key => {
-          const stage = STATE.salesCycle.stages[key];
-          const own = STATE.salesCycle.bands[STATE.band][key];
-          html += '<div class="rounded-xl bg-white p-4 shadow-md border border-[#E2E8F0] hover:shadow-lg transition-shadow duration-300">';
-          html += '<h3 class="text-lg font-semibold mb-1">' + stage.label + '</h3>';
-          html += '<p class="text-xs text-gray-700 leading-relaxed mb-4">' + stage.description + '</p>';
-          html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
-          html += '<div class="bg-gray-50 rounded-xl p-3">';
-          html += '<div class="font-medium text-sm mb-1 flex items-center gap-2"><i data-lucide="user-round" class="h-4 w-4 stroke-[#2563eb]"></i>Owner</div>';
-          html += '<div class="text-sm">' + own.primaryOwner + '</div>';
-          html += '<div class="text-[11px] text-gray-600 mt-0.5">Accountable: ' + own.accountable + '</div>';
-          html += '</div>';
-          html += '<div class="bg-gray-50 rounded-xl p-3">';
-          html += '<div class="font-medium text-sm mb-1 flex items-center gap-2"><i data-lucide="users-round" class="h-4 w-4 stroke-[#2563eb]"></i>Support</div>';
-          html += '<div class="flex flex-wrap gap-1">';
-          own.support.forEach(s => {
-            html += '<span class="rounded-full bg-white px-2 py-0.5 text-xs text-gray-600 border border-[#E2E8F0]">' + s + '</span>';
-          });
-          html += '</div></div>';
-          html += '<div class="bg-gray-50 rounded-xl p-3">';
-          html += '<div class="font-medium text-sm mb-1 flex items-center gap-2"><i data-lucide="check-circle" class="h-4 w-4 stroke-[#2563eb]"></i>Exit Criteria</div>';
-          html += '<ul class="list-disc pl-4 space-y-0.5 text-xs text-gray-700 leading-relaxed">';
-          stage.exitCriteria.forEach(e => { html += '<li>' + e + '</li>'; });
-          html += '</ul></div>';
-          html += '</div></div>';
+        html += '<div class="mb-6 rounded-xl bg-white p-6 shadow-md">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="workflow" class="h-5 w-5 stroke-[#2563eb]"></i>Sales Cycle Stages</h3>';
+        html += '<div class="space-y-2">';
+        STATE.salesCycle.rows.forEach((row, index) => {
+          const active = STATE.salesCycle.activeAccordion === index;
+          const stage = STATE.salesCycle.stages[row];
+          html += `
+            <div class="border border-[#E2E8F0] rounded-xl overflow-hidden">
+              <button data-accordion="${index}" class="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
+                <span>${stage.label}</span>
+                <i data-lucide="${active ? 'chevron-up' : 'chevron-down'}" class="h-4 w-4"></i>
+              </button>
+              <div class="${active ? '' : 'hidden'} px-4 py-3 text-sm text-gray-700 space-y-2">
+                <p><strong>Description:</strong> ${stage.description}</p>
+                <p><strong>Entry Criteria:</strong> ${stage.entryCriteria.join(', ')}</p>
+                <p><strong>Exit Criteria:</strong> ${stage.exitCriteria.join(', ')}</p>
+                <p><strong>Deliverables:</strong> ${stage.deliverables.join(', ')}</p>
+              </div>
+            </div>
+          `;
         });
-        html += '</div>';
+        html += '</div></div>';
+        html += '<div class="mb-6 rounded-xl bg-white p-6 shadow-md">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="layers" class="h-5 w-5 stroke-[#2563eb]"></i>Band Overviews</h3>';
+        html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
+        if (isRegistered) {
+          const meta = STATE.salesCycle.bandMeta.band3;
+          html += `<div class="rounded-xl ${meta.color} p-4"><h4 class="font-medium mb-2">${meta.name}</h4><p class="text-sm leading-relaxed">${meta.summary}</p><p class="text-sm font-medium mt-2">Margin: ${meta.margin}</p></div>`;
+        } else {
+          Object.keys(STATE.salesCycle.bandMeta).forEach(band => {
+            const meta = STATE.salesCycle.bandMeta[band];
+            html += `<div class="rounded-xl ${meta.color} p-4"><h4 class="font-medium mb-2">${meta.name}</h4><p class="text-sm leading-relaxed">${meta.summary}</p><p class="text-sm font-medium mt-2">Margin: ${meta.margin}</p></div>`;
+          });
+        }
+        html += '</div></div>';
+        html += '<div class="rounded-xl bg-white p-6 shadow-md">';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="users-round" class="h-5 w-5 stroke-[#2563eb]"></i>Ownership by Band</h3>';
+        if (isRegistered) {
+          STATE.activeBand = 'band3';
+        } else {
+          html += '<div class="flex flex-col sm:flex-row gap-2 mb-4 rounded-full border border-[#E2E8F0] p-1 bg-white">';
+          Object.keys(STATE.salesCycle.bandMeta).forEach(band => {
+            const active = STATE.activeBand === band;
+            html += `<button data-band="${band}" class="flex-1 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${active ? 'bg-[#2563eb] text-white' : 'text-gray-700 hover:bg-gray-100'} focus:outline-none">${STATE.salesCycle.bandMeta[band].name.split(' – ')[0]}</button>`;
+          });
+          html += '</div>';
+        }
+        html += '<div class="space-y-4">';
+        STATE.salesCycle.rows.forEach(row => {
+          const own = STATE.salesCycle.bands[STATE.activeBand][row];
+          html += '<div class="rounded-xl border border-[#E2E8F0] p-4 bg-white">';
+          html += `<h4 class="font-medium text-sm mb-3">${row}</h4>`;
+          html += '<div class="space-y-3">';
+          html += '<div>';
+          html += '<div class="font-medium text-xs mb-1 text-gray-600 uppercase">Primary Owner</div>';
+          html += '<div class="text-sm">' + own.primaryOwner + '</div>';
+          html += '</div>';
+          html += '<div>';
+          html += '<div class="font-medium text-xs mb-1 text-gray-600 uppercase">Support</div>';
+          html += '<div class="flex flex-wrap gap-2">';
+          own.support.forEach(s => {
+            html += '<span class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">' + s + '</span>';
+          });
+          html += '</div></div>';
+          html += '<div>';
+          html += '<div class="font-medium text-xs mb-1 text-gray-600 uppercase">Accountable</div>';
+          html += '<div class="text-sm">' + own.accountable + '</div>';
+          html += '</div>';
+          html += '</div>';
+          html += '</div>';
+        });
+        html += '</div></div>';
         html += '<div class="mt-6 text-xs text-gray-600 flex flex-wrap gap-4">';
         html += '<span class="flex items-center gap-1"><i data-lucide="handshake" class="h-3 w-3 stroke-[#2563eb]"></i>Band 1 rewards full-cycle ownership</span>';
         html += '<span class="flex items-center gap-1"><i data-lucide="users-round" class="h-3 w-3 stroke-[#2563eb]"></i> Band 2 is co-sell</span>';
@@ -1170,11 +1156,11 @@
         return html;
       }
       function renderOnboardingContent(data) {
-        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#2563eb]"></i>Onboarding Requirements</h2>';
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="rocket" class="h-6 w-6 stroke-[#2563eb]"></i>Onboarding</h2>';
         let certHtml = '<div class="rounded-xl bg-amber-100 border border-amber-200 p-4 mb-6">';
         certHtml += '<h3 class="text-lg font-medium mb-2 flex items-center gap-2"><i data-lucide="award" class="h-5 w-5 stroke-[#d97706]"></i>Required Certifications</h3>';
         let certText;
-        if (STATE.partnerType === 'MSP') {
+        if (STATE.partnerType === 'MSP' || STATE.showMspOption) {
           certText = 'Initial sales and technical certifications for eligible product lines.';
         } else if (STATE.partnerType === 'Preferred') {
           certText = '1 Certified Sales resource and 1 Certified Technical resource.';
@@ -1216,16 +1202,16 @@
           });
           listHtml += '</ul>';
           html += buttonsHtml + listHtml;
-        } else if (STATE.partnerType === 'MSP') {
+        } else if (STATE.partnerType === 'MSP' || STATE.showMspOption) {
           html += '<h3 class="text-xl font-medium mb-4">Onboarding Steps:</h3>';
           html += '<ol class="space-y-4 list-decimal pl-6">';
-          STATE.msp.onboarding.steps.forEach(s => {
+          data.onboarding.steps.forEach(s => {
             html += `<li class="text-gray-700 leading-relaxed">${s.replace(/\n/g, '<br>')}</li>`;
           });
           html += '</ol>';
           html += '<h3 class="text-xl font-medium mt-8 mb-4">Resources Provided:</h3>';
           html += '<ul class="space-y-4">';
-          STATE.msp.onboarding.resources.forEach(r => {
+          data.onboarding.resources.forEach(r => {
             html += `
               <li class="flex items-start gap-3">
                 <div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1">
@@ -1393,7 +1379,7 @@
         html += '<h3 class="text-xl font-medium mb-4">7. QBR TEMPLATE</h3>';
         html += '<div class="overflow-x-auto">';
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Section</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">ContentExample</th></tr></thead>';
+        html += '<thead><tr><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Section</th><th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Content/Example</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">Executive Summary</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">Pipeline, ARR growth, key wins, challenges</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">Enablement Progress</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">Certifications completed, demo environment status</td></tr>';
@@ -1470,7 +1456,7 @@
         return html;
       }
       function renderCsvModal(){
-        const sample = "Partner Name,Campaign Name,Account Name,Domain,First Name,Last Name,Email,Country,Source Type,Attribution Intent,Requested PoR\nAcme Partner,2025-03 Webinar,Contoso,contoso.com,Jane,Doe,jane@contoso.com,US,Webinar,Partner Sourced,Yes";
+        const sample = "Partner Name,Campaign Name,ID,Account Name,Domain,First Name,Last Name,Email,Country,Source Type,Attribution Intent,Requested PoR\nAcme Partner,2025-03 Webinar,Contoso,contoso.com,Jane,Doe,jane@contoso.com,US,Webinar,Partner Sourced,Yes";
         return `
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" id="csvModal">
           <div class="relative max-w-3xl w-full bg-white rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
@@ -1496,6 +1482,11 @@
         document.getElementById('partnerType').addEventListener('change', (e) => {
           STATE.partnerType = e.target.value;
           STATE.band = setDefaultBand(STATE.partnerType);
+          STATE.activeBand = setDefaultBand(STATE.partnerType);
+          STATE.showMspOption = false; // Reset MSP toggle on type change
+          if (STATE.partnerType === 'Program Overview') {
+            STATE.activeTab = 'overview';
+          }
           if (STATE.partnerType === 'Registered') {
             STATE.newPartner = false;
             if (['margins', 'onboarding'].includes(STATE.activeTab)) {
@@ -1506,19 +1497,12 @@
           }
           render();
         });
-        document.querySelectorAll('[data-tab]').forEach((btn) => {
+        document.querySelectorAll('[data-tab]:not([disabled])').forEach((btn) => {
           btn.addEventListener('click', () => {
             STATE.activeTab = btn.dataset.tab;
             render();
           });
         });
-        const newPartnerCheckbox = document.getElementById('newPartner');
-        if (newPartnerCheckbox) {
-          newPartnerCheckbox.addEventListener('change', (e) => {
-            STATE.newPartner = e.target.checked;
-            render();
-          });
-        }
         const commitmentSelect = document.getElementById('commitment');
         if (commitmentSelect) {
           commitmentSelect.addEventListener('change', (e) => {
@@ -1533,13 +1517,12 @@
             render();
           });
         }
-        const bandSelect = document.getElementById('bandSelect');
-        if (bandSelect) {
-          bandSelect.addEventListener('change', (e) => {
+        document.querySelectorAll('input[name="band"]').forEach(radio => {
+          radio.addEventListener('change', (e) => {
             STATE.band = e.target.value;
             render();
           });
-        }
+        });
         document.querySelectorAll('[data-step]').forEach((btn) => {
           btn.addEventListener('click', () => {
             STATE.activeStep = parseInt(btn.dataset.step);
@@ -1616,7 +1599,7 @@
         const dl = document.getElementById('downloadCsvTpl');
         if (dl){
           dl.addEventListener('click',()=>{
-            const csv = `Partner Name,Campaign Name,Account Name,Domain,First Name,Last Name,Email,Country,Source Type,Attribution Intent,Requested PoR\n`;
+            const csv = `Partner Name,Campaign Name,ID,Account Name,Domain,First Name,Last Name,Email,Country,Source Type,Attribution Intent,Requested PoR\n`;
             const blob = new Blob([csv], {type:'text/csv'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href=url; a.download='recast_partner_upload_template.csv'; a.click();
@@ -1685,15 +1668,35 @@
             render();
           });
         }
-        const filterModalBg = document.getElementById('filterModalBg');
-        if (filterModalBg) {
-          filterModalBg.addEventListener('click', (e) => {
-            if (e.target === filterModalBg) {
+        const closeFilterModalBg = document.getElementById('filterModalBg');
+        if (closeFilterModalBg) {
+          closeFilterModalBg.addEventListener('click', (e) => {
+            if (e.target === closeFilterModalBg) {
               STATE.filterModalOpen = false;
               render();
             }
           });
         }
+        const mspToggle = document.getElementById('mspToggle');
+        if (mspToggle) {
+          mspToggle.addEventListener('change', (e) => {
+            STATE.showMspOption = e.target.checked;
+            render();
+          });
+        }
+        document.querySelectorAll('[data-band]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            STATE.activeBand = btn.dataset.band;
+            render();
+          });
+        });
+        document.querySelectorAll('[data-accordion]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const index = parseInt(btn.dataset.accordion);
+            STATE.salesCycle.activeAccordion = STATE.salesCycle.activeAccordion === index ? null : index;
+            render();
+          });
+        });
         const modals = document.querySelectorAll('#businessPlanModal, #partnerEventsModal, #evaluationModal, #csvModal');
         modals.forEach(m => {
           m.addEventListener('click', (e) => {
