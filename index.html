@@ -52,7 +52,7 @@
         tier: 'tier1',
         activeTier: 'tier1',
         roeView: 'partner',
-        defaultTierByType: { Registered:'tier3', Preferred:'tier2', Premier:'tier1' },
+        defaultTierByType: { Registered:'tier3', 'Value/Preferred':'tier2', 'Strategic/Premier':'tier1' },
         partnerTierMeta: {
           'Registered': {
             defaultTier: 'tier3',
@@ -60,13 +60,13 @@
             coSellEligible: false,
             fullCycleEligible: false,
           },
-          'Preferred': {
+          'Value/Preferred': {
             defaultTier: 'tier2',
             marginCap: '15%',
             coSellEligible: true,
             fullCycleEligible: true,
           },
-          'Premier': {
+          'Strategic/Premier': {
             defaultTier: 'tier1',
             marginCap: '25%',
             coSellEligible: true,
@@ -106,7 +106,7 @@
               ]
             }
           },
-          Preferred: {
+          'Value/Preferred': {
             summary:"You co-sell with us; consistent activity earns Tier 2. Own full cycle → Tier 1.",
             sourcing: [
               {label:"Partner Sourced", value:"You found the opp + registered it + helped close → Full margin when you drive the sale."},
@@ -128,7 +128,7 @@
               ]
             }
           },
-          Premier: {
+          'Strategic/Premier': {
             summary:"Strategic partner. Default expectation is Tier 1 unless co-sell is requested.",
             sourcing: [
               {label:"Partner Sourced", value:"You found the opp + registered it + helped close → Full margin when you drive the sale."},
@@ -361,8 +361,8 @@
                 "Listing on Recastsoftware.com",
               ],
             },
-            Preferred: {
-              overview: "Preferred Partners are approved resellers or referral partners who actively collaborate with Recast on qualified opportunities and co-selling motions. They are beyond transactional resale — investing time and resources to build Recast expertise, pursue certifications, and establish repeatable sales and delivery motions.\n\nThese partners typically co-sell and co-market with Recast, leveraging our technical experts and marketing resources to expand reach, accelerate deal velocity, and build early customer success stories. They are focused on the right customer segments, maintain a defined sales presence, and often represent Recast within their regional or vertical markets.\n\nPreferred Partners demonstrate early-stage commitment through pipeline creation, deal registration, and customer enablement. They receive access to enablement, marketing funds, and field collaboration to help them grow toward Premier-level engagement.\n\nPreferred Partners are in the growth phase of the Recast ecosystem — proving alignment, building capability, and showing consistent commitment to joint success.",
+            'Value/Preferred': {
+              overview: "Value/Preferred Partners are approved resellers or referral partners who actively collaborate with Recast on qualified opportunities and co-selling motions. They are beyond transactional resale — investing time and resources to build Recast expertise, pursue certifications, and establish repeatable sales and delivery motions.\n\nThese partners typically co-sell and co-market with Recast, leveraging our technical experts and marketing resources to expand reach, accelerate deal velocity, and build early customer success stories. They are focused on the right customer segments, maintain a defined sales presence, and often represent Recast within their regional or vertical markets.\n\nValue/Preferred Partners demonstrate early-stage commitment through pipeline creation, deal registration, and customer enablement. They receive access to enablement, marketing funds, and field collaboration to help them grow toward Strategic/Premier-level engagement.\n\nValue/Preferred Partners are in the growth phase of the Recast ecosystem — proving alignment, building capability, and showing consistent commitment to joint success.",
               requirements: [
                 "Partner Agreement Signed",
                 "Partner Profile Submission",
@@ -381,8 +381,8 @@
                 "Eligible for MSP or Resell Delivery Model",
               ],
             },
-            Premier: {
-              overview: "Premier Partners are strategic, invite-only collaborators who represent Recast at the highest level of partnership. These partners have demonstrated sustained revenue growth, deep technical and sales capability, and a long-term commitment to joint business planning with Recast leadership.\n\nThey are fully enabled to co-sell, co-market, and co-deliver Recast solutions, often representing our brand in major enterprise environments. Premier Partners maintain certified technical resources, dedicated sales and marketing teams, and a defined customer base that aligns with Recast’s target markets and geographies.\n\nEach Premier Partner has a joint business plan with Recast — including shared revenue targets, annual growth goals, and investment commitments across enablement, customer adoption, and marketing execution. They also participate in roadmap reviews, quarterly business planning, and go-to-market alignment with Recast executives.\n\nPremier Partners are our most strategic alliances — delivering measurable impact through scale, shared investment, and sustained customer success across regions and verticals.",
+            'Strategic/Premier': {
+              overview: "Strategic/Premier Partners are strategic, invite-only collaborators who represent Recast at the highest level of partnership. These partners have demonstrated sustained revenue growth, deep technical and sales capability, and a long-term commitment to joint business planning with Recast leadership.\n\nThey are fully enabled to co-sell, co-market, and co-deliver Recast solutions, often representing our brand in major enterprise environments. Strategic/Premier Partners maintain certified technical resources, dedicated sales and marketing teams, and a defined customer base that aligns with Recast’s target markets and geographies.\n\nEach Strategic/Premier Partner has a joint business plan with Recast — including shared revenue targets, annual growth goals, and investment commitments across enablement, customer adoption, and marketing execution. They also participate in roadmap reviews, quarterly business planning, and go-to-market alignment with Recast executives.\n\nStrategic/Premier Partners are our most strategic alliances — delivering measurable impact through scale, shared investment, and sustained customer success across regions and verticals.",
               requirements: [
                 "Partner Agreement Signed",
                 "Partner Profile Submission",
@@ -413,7 +413,7 @@
           margins: {
             Annual: {
               "Net New": {
-                "Preferred|Premier": [
+                "Value/Preferred|Strategic/Premier": [
                   { band: "Tier 1", upTo: "25%", when: "Partner originated AND Partner registered AND Recast approved" },
                   { band: "Tier 2", upTo: "15%", when: "Recast originated/registered AND Recast approved" },
                 ],
@@ -422,7 +422,7 @@
                 ],
               },
               Renewal: {
-                "Preferred|Premier": [
+                "Value/Preferred|Strategic/Premier": [
                   { band: "Tier 1", upTo: "5%", when: "Partner of Record OR Incumbent" },
                   { band: "Tier 2", upTo: "5%", when: "Non-incumbent" },
                 ],
@@ -431,7 +431,7 @@
             },
             Monthly: {
               "Net New": {
-                "Preferred|Premier": [
+                "Value/Preferred|Strategic/Premier": [
                   { band: "Tier 1", upTo: "20%", when: "Partner originated AND Partner registered AND Recast approved" },
                   { band: "Tier 2", upTo: "10%", when: "Recast originated/registered AND Recast approved" },
                 ],
@@ -440,7 +440,7 @@
                 ],
               },
               Renewal: {
-                "Preferred|Premier": [
+                "Value/Preferred|Strategic/Premier": [
                   { band: "Tier 1", upTo: "5%", when: "Partner of Record OR Incumbent" },
                   { band: "Tier 2", upTo: "5%", when: "Non-incumbent" },
                 ],
@@ -482,8 +482,8 @@
               { principle: "Renewal Ownership", description: "Partner of Record retains renewal rights unless customer explicitly reassigns.", intent: "Encourage customer retention and lifecycle focus." },
             ],
             bands: [
-              { band: "Tier 1 – Full-Cycle Ownership", criteria: ["Partner sources and registers the lead.","Drives opportunity end-to-end (qualification → demo → close).","Requires minimal Recast sales or technical support.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "25%", example: "A Premier partner identifies an opportunity with a 1,000-user customer, performs demo, and closes deal without Recast sales involvement." },
-              { band: "Tier 2 – Joint Engagement", criteria: ["Partner sources or registers opportunity.","Recast supports with presales, demo, or technical validation.","Partner co-sells with Recast sales team.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "15%", example: "Partner brings opportunity but requests Recast SE to lead demo and pricing discussion." },
+              { band: "Tier 1 – Full-Cycle Ownership", criteria: ["Partner sources and registers the lead.","Drives opportunity end-to-end (qualification → demo → close).","Requires minimal Recast sales or technical support.","Must be Value/Preferred or Strategic/Premier tier."], eligible: "Value/Preferred, Strategic/Premier", margin: "25%", example: "A Strategic/Premier partner identifies an opportunity with a 1,000-user customer, performs demo, and closes deal without Recast sales involvement." },
+              { band: "Tier 2 – Joint Engagement", criteria: ["Partner sources or registers opportunity.","Recast supports with presales, demo, or technical validation.","Partner co-sells with Recast sales team.","Must be Value/Preferred or Strategic/Premier tier."], eligible: "Value/Preferred, Strategic/Premier", margin: "15%", example: "Partner brings opportunity but requests Recast SE to lead demo and pricing discussion." },
               { band: "Tier 3 – Transactional / Referral", criteria: ["Partner identifies or influences opportunity but Recast leads sale.","No significant partner engagement beyond intro or transaction.","Typically applies to LARs, transactional resellers, or referral agents.","Margin discretionary, subject to sales approval."], eligible: "Registered, LAR, Referral", margin: "5% (discretionary)", example: "Large LAR adds Recast SKU to customer renewal, minimal engagement." },
             ],
             governance: [
@@ -494,8 +494,8 @@
               { element: "Escalation Path", definition: "Channel disputes escalated to VP of Partner Programs within 5 business days." },
             ],
             summary: [
-              { tier: "Premier", engagement: "Full-cycle (Tier 1)", involvement: "Light-touch", range: "25%", notes: "Top-tier, full control of sales motion" },
-              { tier: "Preferred", engagement: "Joint sale (Tier 2)", involvement: "Moderate", range: "10–15%", notes: "Co-sell and presales collaboration" },
+              { tier: "Strategic/Premier", engagement: "Full-cycle (Tier 1)", involvement: "Light-touch", range: "25%", notes: "Top-tier, full control of sales motion" },
+              { tier: "Value/Preferred", engagement: "Joint sale (Tier 2)", involvement: "Moderate", range: "10–15%", notes: "Co-sell and presales collaboration" },
               { tier: "Registered / LAR", engagement: "Transactional (Tier 3)", involvement: "Recast-led", range: "0–5%", notes: "Finder’s fee or referral incentive only." },
             ],
           },
@@ -514,9 +514,9 @@
               "Quarterly alignment on co-sell and marketing activities"
             ],
             partners: [
-              { partnerType: "Technology Partner (ISV)", tierEligibility: "Premier", margin: "Negotiated; typically Tier 2 equivalent + referral incentives", dealRegistration: "Optional", mdfAccess: "Co-marketing only", enablement: "Developer enablement, API/SDK certification" },
-              { partnerType: "OEM Partner", tierEligibility: "Premier", margin: "Embedded / co-sell pricing (not margin-based)", dealRegistration: "N/A", mdfAccess: "Strategic MDF", enablement: "OEM SDK, roadmap collaboration, joint solution blueprints" },
-              { partnerType: "Distributor Partner", tierEligibility: "Premier", margin: "Transactional (Tier 3 equivalent, pre-negotiated)", dealRegistration: "Required", mdfAccess: "Tiered MDF by volume", enablement: "Distributor onboarding toolkit, partner training delivery" },
+              { partnerType: "Technology Partner (ISV)", tierEligibility: "Strategic/Premier", margin: "Negotiated; typically Tier 2 equivalent + referral incentives", dealRegistration: "Optional", mdfAccess: "Co-marketing only", enablement: "Developer enablement, API/SDK certification" },
+              { partnerType: "OEM Partner", tierEligibility: "Strategic/Premier", margin: "Embedded / co-sell pricing (not margin-based)", dealRegistration: "N/A", mdfAccess: "Strategic MDF", enablement: "OEM SDK, roadmap collaboration, joint solution blueprints" },
+              { partnerType: "Distributor Partner", tierEligibility: "Strategic/Premier", margin: "Transactional (Tier 3 equivalent, pre-negotiated)", dealRegistration: "Required", mdfAccess: "Tiered MDF by volume", enablement: "Distributor onboarding toolkit, partner training delivery" },
             ]
           }
         },
@@ -531,7 +531,7 @@
         filterModalOpen: false,
         selectedPartnerTypes: []
       };
-      const PARTNER_TYPES = ["Program Overview", "Registered", "Preferred", "Premier", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"]; // Removed MSP from dropdown
+      const PARTNER_TYPES = ["Program Overview", "Registered", "Value/Preferred", "Strategic/Premier", "Technology Partner (ISV)", "OEM Partner", "Distributor Partner"]; // Removed MSP from dropdown
       const TABS = [
         { id: 'overview', label: 'Overview', icon: 'book-open' },
         { id: 'requirements', label: 'Requirements & Benefits', icon: 'check-circle' },
@@ -562,7 +562,7 @@
       }
       function setDefaultTier(type) {
         if (type === 'Registered') return 'tier3';
-        if (type === 'Preferred') return 'tier2';
+        if (type === 'Value/Preferred') return 'tier2';
         return 'tier1';
       }
       function getPartnerData(type) {
@@ -577,14 +577,14 @@
             specific: null
           };
         }
-        if (["Registered", "Preferred", "Premier"].includes(type)) {
+        if (["Registered", "Value/Preferred", "Strategic/Premier"].includes(type)) {
           return {
             overview: STATE.model.tiers[type].overview,
             requirements: STATE.model.tiers[type].requirements,
             benefits: STATE.model.tiers[type].benefits,
             isStandard: true,
-            isPremier: type === "Premier",
-            isPreferred: type === "Preferred",
+            isPremier: type === "Strategic/Premier",
+            isPreferred: type === "Value/Preferred",
             specific: null
           };
         } else {
@@ -593,7 +593,7 @@
           return {
             overview: desc,
             requirements: STATE.model.other.requirements,
-            benefits: STATE.model.tiers.Premier.benefits,
+            benefits: STATE.model.tiers['Strategic/Premier'].benefits,
             isStandard: false,
             isPremier: false,
             isPreferred: false,
@@ -612,10 +612,10 @@
         html += '<div class="rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">';
         switch (STATE.activeTab) {
           case 'overview':
-            html += renderOverview(STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? STATE.msp.overview : data.overview, data.isPreferred || data.isPremier);
+            html += renderOverview(STATE.showMspOption && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier') ? STATE.msp.overview : data.overview, data.isPreferred || data.isPremier);
             break;
           case 'requirements':
-            html += renderRequirementsAndBenefits(STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? STATE.msp.requirements : data.requirements, STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? STATE.msp.benefits : data.benefits, data.isPremier);
+            html += renderRequirementsAndBenefits(STATE.showMspOption && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier') ? STATE.msp.requirements : data.requirements, STATE.showMspOption && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier') ? STATE.msp.benefits : data.benefits, data.isPremier);
             break;
           case 'margins':
             if (data.isStandard) {
@@ -632,7 +632,7 @@
             break;
           case 'onboarding':
             if (STATE.partnerType !== 'Registered') {
-              html += renderOnboardingContent(STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier') ? { ...data, overview: STATE.msp.overview, requirements: STATE.msp.requirements, benefits: STATE.msp.benefits, onboarding: STATE.msp.onboarding } : data);
+              html += renderOnboardingContent(STATE.showMspOption && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier') ? { ...data, overview: STATE.msp.overview, requirements: STATE.msp.requirements, benefits: STATE.msp.benefits, onboarding: STATE.msp.onboarding } : data);
             } else {
               html += '<p class="text-center text-gray-700 leading-relaxed">Not applicable for Registered partners.</p>';
             }
@@ -756,7 +756,7 @@
         } else {
           html += `<p class="text-gray-700 leading-relaxed whitespace-pre-line transition-opacity duration-300">${overview}</p>`;
         }
-        if (showButtons && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier')) {
+        if (showButtons && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier')) {
           html += '<div class="mt-6 flex flex-col sm:flex-row gap-4">';
           html += `<label for="mspToggle" class="relative inline-flex cursor-pointer items-center">
             <input type="checkbox" id="mspToggle" class="sr-only peer" ${STATE.showMspOption ? 'checked' : ''}>
@@ -767,7 +767,7 @@
         }
         if (showButtons && STATE.partnerType !== 'Program Overview') {
           html += '<div class="mt-6 flex flex-col sm:flex-row gap-4">';
-          html += '<button id="evaluationButton" class="rounded-full border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"><i data-lucide="scale" class="h-4 w-4"></i>Preferred to Premier Evaluation</button>';
+          html += '<button id="evaluationButton" class="rounded-full border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"><i data-lucide="scale" class="h-4 w-4"></i>Value/Preferred to Strategic/Premier Evaluation</button>';
           html += '</div>';
         }
         return html;
@@ -775,7 +775,7 @@
       function renderProgramOverviewMatrix() {
         let html = '<div class="overflow-x-auto">';
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th class="px-4 py-2 text-left text-xs font-semibold">Benefit</th><th class="px-4 py-2 text-left text-xs font-semibold">Registered</th><th class="px-4 py-2 text-left text-xs font-semibold">Preferred</th><th class="px-4 py-2 text-left text-xs font-semibold">Premier</th></tr></thead>';
+        html += '<thead><tr><th class="px-4 py-2 text-left text-xs font-semibold">Benefit</th><th class="px-4 py-2 text-left text-xs font-semibold">Registered</th><th class="px-4 py-2 text-left text-xs font-semibold">Value/Preferred</th><th class="px-4 py-2 text-left text-xs font-semibold">Strategic/Premier</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         html += '<tr class="bg-gray-50"><td colspan="4" class="px-4 py-2 text-xs font-medium">Core Access</td></tr>';
         html += renderBenefitRow("Resell Licensing", '✓', '✓', '✓');
@@ -842,7 +842,7 @@
         if (isPremier) {
           html += '<div class="mt-8 rounded-2xl border border-[#E2E8F0] p-6 bg-gray-50 flex gap-3 items-start">';
           html += '<i data-lucide="info" class="h-5 w-5 mt-0.5 stroke-[#2563eb]"></i>';
-          html += '<div><div class="font-medium">Premier Tier Note</div><p class="text-gray-700 leading-relaxed text-sm mt-1">Premier partners receive enhanced MDF and joint planning. Schedule a QBR to discuss advancement.</p></div>';
+          html += '<div><div class="font-medium">Strategic/Premier Tier Note</div><p class="text-gray-700 leading-relaxed text-sm mt-1">Strategic/Premier partners receive enhanced MDF and joint planning. Schedule a QBR to discuss advancement.</p></div>';
           html += '</div>';
           html += '<div class="mt-6 flex flex-col sm:flex-row gap-4">';
           html += '<button id="businessPlanButton" class="rounded-full bg-[#2563eb] text-white px-6 py-3 text-sm font-medium hover:bg-[#1d4ed8] transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2"><i data-lucide="file-text" class="h-4 w-4"></i>View Sample Business Plan</button>';
@@ -866,7 +866,7 @@
         html += '</select>';
         html += '</div></div>';
         const isRegistered = STATE.partnerType === 'Registered';
-        const tierKey = isRegistered ? 'Registered' : 'Preferred|Premier';
+        const tierKey = isRegistered ? 'Registered' : 'Value/Preferred|Strategic/Premier';
         let margins = STATE.model.margins[STATE.commitment][STATE.dealType][tierKey];
         if (!isRegistered) {
           margins = [...margins]; // copy to avoid modifying original
@@ -939,8 +939,8 @@
         html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="users" class="h-5 w-5 stroke-[#2563eb]"></i>Tier Overview & Primary Role</h3>';
         html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">';
         html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">Registered</h4><p>Entry-level: referral or transactional resellers</p><p>Partner Type(s): VAR, LAR, Referral</p></div>';
-        html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">Preferred</h4><p>Mid-tier: delivers projects, sells Recast, some managed services</p><p>Partner Type(s): MSP, SI, Hybrid</p></div>';
-        html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">Premier</h4><p>Strategic: sells, delivers, operates, markets</p><p>Partner Type(s): MSP, SI, Hybrid, ISV</p></div>';
+        html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">Value/Preferred</h4><p>Mid-tier: delivers projects, sells Recast, some managed services</p><p>Partner Type(s): MSP, SI, Hybrid</p></div>';
+        html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">Strategic/Premier</h4><p>Strategic: sells, delivers, operates, markets</p><p>Partner Type(s): MSP, SI, Hybrid, ISV</p></div>';
         html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">OEM</h4><p>Embeds Recast in their platform</p><p>Partner Type(s): ISV only</p></div>';
         html += '<div class="rounded-2xl border p-4"><h4 class="font-medium mb-2">Distributor</h4><p>Routes-to-market; enablement and logistics only Not delivery-focused</p><p>Partner Type(s): </p></div>';
         html += '</div>';
@@ -950,15 +950,15 @@
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
         html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Method</th><th class="px-6 py-3 text-left text-sm font-semibold">Use Case</th><th class="px-6 py-3 text-left text-sm font-semibold">Available To</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Portal Form (Individual)</td><td class="px-6 py-4 text-sm text-gray-700">Single deal submission</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">CSV Upload (Campaign)</td><td class="px-6 py-4 text-sm text-gray-700">Lists from webinars, tradeshows, MDF events</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Portal Form (Individual)</td><td class="px-6 py-4 text-sm text-gray-700">Single deal submission</td><td class="px-6 py-4 text-sm text-gray-700">Value/Preferred, Strategic/Premier</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">CSV Upload (Campaign)</td><td class="px-6 py-4 text-sm text-gray-700">Lists from webinars, tradeshows, MDF events</td><td class="px-6 py-4 text-sm text-gray-700">Value/Preferred, Strategic/Premier</td></tr>';
         html += '</tbody></table></div>';
         html += '<ul class="space-y-3 mb-6">';
         html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="alert-circle" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Registered partners may not submit deals for PoR protection unless upgraded.</span></li>';
-        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="alert-circle" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Premier deals are excluded from Recast SDR and marketing sequences once submitted.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="alert-circle" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Strategic/Premier deals are excluded from Recast SDR and marketing sequences once submitted.</span></li>';
         html += '</ul>';
         html += '<button id="csvSopBtn" class="rounded-full bg-[#2563eb] text-white px-4 py-2 text-sm hover:bg-[#1d4ed8] transition-colors duration-300 flex items-center gap-2"><i data-lucide="upload" class="h-4 w-4"></i>View CSV Upload SOP</button>';
-        if (['Preferred', 'Premier'].includes(STATE.partnerType)) {
+        if (['Value/Preferred', 'Strategic/Premier'].includes(STATE.partnerType)) {
           html += '<button id="leadsGuideBtn" class="ml-4 rounded-full bg-[#2563eb] text-white px-4 py-2 text-sm hover:bg-[#1d4ed8] transition-colors duration-300 flex items-center gap-2"><i data-lucide="file-text" class="h-4 w-4"></i>Submit Leads Guide</button>';
         }
         html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2 mt-6"><i data-lucide="dollar-sign" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Eligibility by Tier</h3>';
@@ -967,8 +967,8 @@
         html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">How Margin is Earned</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">Tier 3 only — referral or PO processing (no deal support required)</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Tier 2 or Tier 1 — must co-sell or fully own sales cycle</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Eligible for all tiers — strategic role expected (source, support, expand, renew)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Value/Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Tier 2 or Tier 1 — must co-sell or fully own sales cycle</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Strategic/Premier</td><td class="px-6 py-4 text-sm text-gray-700">Eligible for all tiers — strategic role expected (source, support, expand, renew)</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">OEM pricing structure — not motion-based; no tiers</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Wholesale margins; no direct sales motions; supports sub-partner enablement</td></tr>';
         html += '</tbody></table></div>';
@@ -978,8 +978,8 @@
         html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Sales Role</th><th class="px-6 py-3 text-left text-sm font-semibold">Delivery Role</th><th class="px-6 py-3 text-left text-sm font-semibold">PoR Eligible?</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Protection?</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">None or transactional</td><td class="px-6 py-4 text-sm text-gray-700">None</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Shared or own the sales motion</td><td class="px-6 py-4 text-sm text-gray-700">Deliver PS or manage Recast environment</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">Partial (based on Tier)</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Own full-cycle or co-sell strategically</td><td class="px-6 py-4 text-sm text-gray-700">Sell, deliver, support, expand</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">✅</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Value/Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Shared or own the sales motion</td><td class="px-6 py-4 text-sm text-gray-700">Deliver PS or manage Recast environment</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">Partial (based on Tier)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Strategic/Premier</td><td class="px-6 py-4 text-sm text-gray-700">Own full-cycle or co-sell strategically</td><td class="px-6 py-4 text-sm text-gray-700">Sell, deliver, support, expand</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">✅</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">N/A</td><td class="px-6 py-4 text-sm text-gray-700">Embeds Recast in own platform</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Indirect support only</td><td class="px-6 py-4 text-sm text-gray-700">N/A</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
         html += '</tbody></table></div>';
@@ -988,9 +988,9 @@
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
         html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Sourcing Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Available To</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Tier</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Partner Sourced</td><td class="px-6 py-4 text-sm text-gray-700">Partner finds, registers, and supports close.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Tier 1</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Recast Sourced / Co-Sell</td><td class="px-6 py-4 text-sm text-gray-700">Recast provides lead; partner assists in sales cycle.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Tier 2</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Referral / Transactional</td><td class="px-6 py-4 text-sm text-gray-700">Partner provides intro or PO, but no sales engagement.</td><td class="px-6 py-4 text-sm text-gray-700">Registered, Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Tier 3</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Partner Sourced</td><td class="px-6 py-4 text-sm text-gray-700">Partner finds, registers, and supports close.</td><td class="px-6 py-4 text-sm text-gray-700">Value/Preferred, Strategic/Premier</td><td class="px-6 py-4 text-sm text-gray-700">Tier 1</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Recast Sourced / Co-Sell</td><td class="px-6 py-4 text-sm text-gray-700">Recast provides lead; partner assists in sales cycle.</td><td class="px-6 py-4 text-sm text-gray-700">Value/Preferred, Strategic/Premier</td><td class="px-6 py-4 text-sm text-gray-700">Tier 2</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Referral / Transactional</td><td class="px-6 py-4 text-sm text-gray-700">Partner provides intro or PO, but no sales engagement.</td><td class="px-6 py-4 text-sm text-gray-700">Registered, Value/Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Tier 3</td></tr>';
         html += '</tbody></table></div>';
         html += '<p class="text-gray-700 leading-relaxed mb-2">PoR Qualification Requires:</p>';
         html += '<ul class="space-y-3 mb-6">';
@@ -1000,8 +1000,8 @@
         html += '</ul>';
         html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="refresh-cw" class="h-5 w-5 stroke-[#2563eb]"></i>Renewal & Expansion Rules</h3>';
         html += '<ul class="space-y-3">';
-        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Premier partners retain PoR and margin rights on renewals if they stay active.</span></li>';
-        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Preferred partners must show engagement in customer lifecycle to retain renewal credit.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Strategic/Premier partners retain PoR and margin rights on renewals if they stay active.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Value/Preferred partners must show engagement in customer lifecycle to retain renewal credit.</span></li>';
         html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Registered partners have no renewal rights.</span></li>';
         html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">PoR can be reassigned if partner becomes inactive or is removed by Recast due to non-engagement.</span></li>';
         html += '</ul>';
@@ -1009,7 +1009,7 @@
       }
       function renderROEContent() {
         let effectiveType = STATE.partnerType;
-        if (STATE.showMspOption && (STATE.partnerType === 'Preferred' || STATE.partnerType === 'Premier')) {
+        if (STATE.showMspOption && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier')) {
           effectiveType = 'MSP';
         }
         const roeData = effectiveType === 'MSP' ? STATE.msp.roe : STATE.model.roe;
@@ -1160,9 +1160,9 @@
         let certText;
         if (STATE.partnerType === 'MSP' || STATE.showMspOption) {
           certText = 'Initial sales and technical certifications for eligible product lines.';
-        } else if (STATE.partnerType === 'Preferred') {
+        } else if (STATE.partnerType === 'Value/Preferred') {
           certText = '1 Certified Sales resource and 1 Certified Technical resource.';
-        } else if (STATE.partnerType === 'Premier') {
+        } else if (STATE.partnerType === 'Strategic/Premier') {
           certText = 'Certified sales and technical resources (minimum 2 each recommended).';
         } else {
           certText = 'Customized onboarding based on GTM motion; must complete GTM certification.';
@@ -1287,7 +1287,7 @@
         html += '<ul class="space-y-3 mb-4">';
         html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Expand joint enterprise footprint across Financial Services and Healthcare.</span></li>';
         html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Increase Recast ARR by 60% year-over-year through CoreSecure-led managed services.</span></li>';
-        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Position CoreSecure as a fully certified Premier MSP across Application Workspace and Access Manager.</span></li>';
+        html += '<li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Position CoreSecure as a fully certified Strategic/Premier MSP across Application Workspace and Access Manager.</span></li>';
         html += '</ul>';
         html += '<h4 class="text-lg font-medium mb-2">Mutual Value</h4>';
         html += '<ul class="space-y-3">';
@@ -1401,7 +1401,7 @@
                 <i data-lucide="x" class="h-6 w-6"></i>
                 <span class="sr-only">Close</span>
               </button>
-              <h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="scale" class="h-6 w-6 stroke-[#2563eb]"></i>Preferred to Premier Partner Evaluation Guide</h2>
+              <h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="scale" class="h-6 w-6 stroke-[#2563eb]"></i>Value/Preferred to Strategic/Premier Partner Evaluation Guide</h2>
               ${renderEvaluationGuideContent()}
             </div>
           </div>
@@ -1409,7 +1409,7 @@
       }
       function renderEvaluationGuideContent() {
         let html = '';
-        html += '<p class="text-gray-700 leading-relaxed mb-6">When evaluating whether a Preferred Partner is ready to advance to Premier status, Recast looks at three key areas — Focus, Capability, and Commitment.<br>These criteria ensure we’re investing in partners that can truly scale with us, represent our brand effectively, and deliver measurable revenue outcomes.</p>';
+        html += '<p class="text-gray-700 leading-relaxed mb-6">When evaluating whether a Value/Preferred Partner is ready to advance to Strategic/Premier status, Recast looks at three key areas — Focus, Capability, and Commitment.<br>These criteria ensure we’re investing in partners that can truly scale with us, represent our brand effectively, and deliver measurable revenue outcomes.</p>';
         html += '<section class="mb-6">';
         html += '<h3 class="text-xl font-medium mb-3 flex items-center gap-2"><i data-lucide="target" class="h-5 w-5 stroke-[#2563eb]"></i>1. Focus — Are they aligned with Recast’s go-to-market direction?</h3>';
         html += '<p class="text-gray-700 leading-relaxed mb-4">We assess whether the partner’s business focus and customer base align with the markets and segments Recast wants to grow in.</p>';
@@ -1488,7 +1488,7 @@
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed"><strong>Required:</strong> First Name, Last Name, Business Email, Company Name, Country, Campaign Source (defaults to “Salesperson”)</span></li>
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">(Optional: Lead Notes or BANT)</span></li>
                   </ul>
-                  <h4 class="text-lg font-medium mb-2">What You Get:</h4>
+                  <h4 class="text-lg font-medium mb-2">What to Get:</h4>
                   <ul class="space-y-3">
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Your lead is protected and entered into Salesforce</span></li>
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">You’re tagged as Partner of Record (POR) if it qualifies</span></li>
@@ -1506,11 +1506,11 @@
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">(Optional: Lead Notes / BANT, Lead Owner, Lead Status, Date Created)</span></li>
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Submit via the upload tool</span></li>
                   </ul>
-                  <h4 class="text-lg font-medium mb-2">What You Get:</h4>
+                  <h4 class="text-lg font-medium mb-2">What to Get:</h4>
                   <ul class="space-y-3">
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Your leads are attributed to your partner account and campaign</span></li>
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Qualified leads convert to opportunities with POR credit</span></li>
-                    <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Leads from Premier/Strategic partners are never routed to direct sales</span></li>
+                    <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Leads from Strategic/Premier/Strategic partners are never routed to direct sales</span></li>
                     <li class="flex items-start gap-3"><div class="flex-shrink-0 mt-1 bg-[#2563eb] rounded-full p-1"><i data-lucide="check" class="h-3 w-3 stroke-white"></i></div><span class="text-gray-700 leading-relaxed">Event performance is tracked in Salesforce for visibility</span></li>
                   </ul>
                 </section>
