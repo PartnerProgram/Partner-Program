@@ -49,26 +49,26 @@
         showLeadsGuideModal: false,
         showPartnersHelpModal: false,
         activeStep: 0,
-        band: 'band1',
-        activeBand: 'band1',
+        tier: 'tier1',
+        activeTier: 'tier1',
         roeView: 'partner',
-        defaultBandByType: { Registered:'band3', Preferred:'band2', Premier:'band1' },
+        defaultTierByType: { Registered:'tier3', Preferred:'tier2', Premier:'tier1' },
         partnerTierMeta: {
           'Registered': {
-            defaultBand: 'band3',
+            defaultTier: 'tier3',
             marginCap: '5%',
             coSellEligible: false,
             fullCycleEligible: false,
           },
           'Preferred': {
-            defaultBand: 'band2',
+            defaultTier: 'tier2',
             marginCap: '15%',
             coSellEligible: true,
             fullCycleEligible: true,
           },
           'Premier': {
-            defaultBand: 'band1',
-            marginCap: '30%',
+            defaultTier: 'tier1',
+            marginCap: '25%',
             coSellEligible: true,
             fullCycleEligible: true,
           },
@@ -82,7 +82,7 @@
               {label:"Transactional/Referral", value:"Intro or PO only → Referral margin."}
             ],
             bands: [
-              {band:"Band 3 – Transactional", when:["Intro only or PO processing"], rule:"Default for LAR/Referral"}
+              {band:"Tier 3 – Transactional", when:["Intro only or PO processing"], rule:"Default for LAR/Referral"}
             ],
             renewals:[
               "Renewal margin is discretionary, capped at 5%, and applies only if the LAR manages the renewal process.",
@@ -94,7 +94,7 @@
               {principle:"Renewal Ownership", description:"Renewal margin is discretionary, capped at 5%, and applies only if the LAR manages the renewal process.", intent:"Protect margin integrity and ensure customer experience consistency."},
             ],
             marginBands: [
-              {band:"Band 3 – Transactional / Referral", criteria:"Partner identifies or processes transaction. Recast leads sales cycle and closes opportunity.", eligible:"Registered (LAR/Referral)", margin:"5% (Discretionary)", example:"LAR adds Recast SKU to renewal with minimal engagement."},
+              {band:"Tier 3 – Transactional / Referral", criteria:"Partner identifies or processes transaction. Recast leads sales cycle and closes opportunity.", eligible:"Registered (LAR/Referral)", margin:"5% (Discretionary)", example:"LAR adds Recast SKU to renewal with minimal engagement."},
             ],
             csv: {
               blurb:"Upload event or campaign lists for fast routing. Influence ≠ margin.",
@@ -107,15 +107,15 @@
             }
           },
           Preferred: {
-            summary:"You co-sell with us; consistent activity earns Band 2. Own full cycle → Band 1.",
+            summary:"You co-sell with us; consistent activity earns Tier 2. Own full cycle → Tier 1.",
             sourcing: [
               {label:"Partner Sourced", value:"You found the opp + registered it + helped close → Full margin when you drive the sale."},
               {label:"Recast Sourced (Co-Sell)", value:"We brought the lead; you help sell → Shared margin."},
               {label:"Transactional/Referral", value:"Intro or PO only → Referral margin."}
             ],
             bands:[
-              {band:"Band 1 – Full-Cycle", when:["Sourced + registered","Owns qual→close with light Recast support"], rule:"Full margin"},
-              {band:"Band 2 – Co-Sell", when:["Shared discovery/demo/pricing; active MAP"], rule:"Shared margin"}
+              {band:"Tier 1 – Full-Cycle", when:["Sourced + registered","Owns qual→close with light Recast support"], rule:"Full margin"},
+              {band:"Tier 2 – Co-Sell", when:["Shared discovery/demo/pricing; active MAP"], rule:"Shared margin"}
             ],
             renewals:["PoR retains renewal with activity compliance; else may be reassigned."],
             csv: {
@@ -129,17 +129,17 @@
             }
           },
           Premier: {
-            summary:"Strategic partner. Default expectation is Band 1 unless co-sell is requested.",
+            summary:"Strategic partner. Default expectation is Tier 1 unless co-sell is requested.",
             sourcing: [
               {label:"Partner Sourced", value:"You found the opp + registered it + helped close → Full margin when you drive the sale."},
               {label:"Recast Sourced (Co-Sell)", value:"We brought the lead; you help sell → Shared margin."},
               {label:"Transactional/Referral", value:"Intro or PO only → Referral margin."}
             ],
             bands:[
-              {band:"Band 1 – Full-Cycle", when:["Sourced + end-to-end ownership"], rule:"Full margin"},
-              {band:"Band 2 – Co-Sell", when:["Recast Sourced or heavier presales help"], rule:"Shared margin"}
+              {band:"Tier 1 – Full-Cycle", when:["Sourced + end-to-end ownership"], rule:"Full margin"},
+              {band:"Tier 2 – Co-Sell", when:["Recast Sourced or heavier presales help"], rule:"Shared margin"}
             ],
-            renewals:["PoR renewal protection with activity; expansions follow Bands."],
+            renewals:["PoR renewal protection with activity; expansions follow Tiers."],
             csv: {
               blurb:"Upload event or campaign lists for fast routing. Influence ≠ margin.",
               required:["Partner Name","Campaign Name/ID","Account Name (and Domain)","First Name","Last Name","Email","Country","Source Type","Attribution Intent","Requested PoR (Y/N)"],
@@ -154,8 +154,8 @@
             summary:"Managed service delivery; monthly economics; PoR protections per MSP ROE.",
             sourcing:[{label:"MSP Motion", value:"You package Recast in services; co-sell on net-new logos."}],
             bands:[
-              {band:"Band 1", when:["MSP drives sale and delivery"], rule:"Programmed in MSP price book"},
-              {band:"Band 2", when:["Co-sell with Recast SE/AE"], rule:"Shared margin"}
+              {band:"Tier 1", when:["MSP drives sale and delivery"], rule:"Programmed in MSP price book"},
+              {band:"Tier 2", when:["Co-sell with Recast SE/AE"], rule:"Shared margin"}
             ],
             renewals:["Incumbent MSP retains renewal if active in lifecycle reviews."],
             roePrinciples: [
@@ -163,8 +163,8 @@
               {principle:"Partner of Record", description:"Approved PoR retains lifecycle rights with active engagement.", intent:"Encourage long-term loyalty."},
             ],
             marginBands: [
-              {band:"Band 1 – MSP Driven", criteria:"MSP drives sale and delivery.", eligible:"MSP", margin:"30%", example:"MSP packages and sells Recast in managed services."},
-              {band:"Band 2 – Co-Sell", criteria:"Co-sell with Recast.", eligible:"MSP", margin:"15%", example:"Joint sale with Recast support."},
+              {band:"Tier 1 – MSP Driven", criteria:"MSP drives sale and delivery.", eligible:"MSP", margin:"25%", example:"MSP packages and sells Recast in managed services."},
+              {band:"Tier 2 – Co-Sell", criteria:"Co-sell with Recast.", eligible:"MSP", margin:"15%", example:"Joint sale with Recast support."},
             ],
             csv: {
               blurb:"Upload event or campaign lists for fast routing. Influence ≠ margin. Emphasize multitenant lists.",
@@ -238,28 +238,28 @@
               deliverables: ["Kickoff deck", "Implementation checklist", "UAT sign-off", "Training/Certification path"],
             },
           },
-          bandMeta: {
-            band1: {
-              name: "Band 1 – Full-Cycle Ownership",
+          tierMeta: {
+            tier1: {
+              name: "Tier 1 – Full-Cycle Ownership",
               summary: "Partner leads end-to-end (lead → close). Recast provides SMEs as needed.",
-              margin: "30%",
+              margin: "25%",
               color: "bg-green-100 text-green-800",
             },
-            band2: {
-              name: "Band 2 – Joint Engagement",
+            tier2: {
+              name: "Tier 2 – Joint Engagement",
               summary: "Co-sell motion. Partner drives top/mid-funnel; Recast supports validation and close.",
               margin: "15%",
               color: "bg-amber-100 text-amber-800",
             },
-            band3: {
-              name: "Band 3 – Transactional / Referral",
+            tier3: {
+              name: "Tier 3 – Transactional / Referral",
               summary: "Partner sources or influences; Recast runs the sale.",
               margin: "5% (discretionary)",
               color: "bg-slate-200 text-slate-800",
             },
           },
-          bands: {
-            band1: {
+          tiers: {
+            tier1: {
               PQL: { primaryOwner: "Partner AE", support: ["Recast Channel Manager"], accountable: "Recast Channel Manager" },
               Identification: { primaryOwner: "Partner AE", support: ["Recast AE"], accountable: "Partner Sales Lead" },
               Qualification: { primaryOwner: "Partner AE", support: ["Partner SE"], accountable: "Partner Sales Lead" },
@@ -269,7 +269,7 @@
               ClosedWon: { primaryOwner: "Partner AE", support: ["Recast AE", "Recast CS"], accountable: "Recast Sales Leader" },
               Onboarding: { primaryOwner: "Partner Services", support: ["Recast CS", "Partner PM"], accountable: "Recast CS Leader" },
             },
-            band2: {
+            tier2: {
               PQL: { primaryOwner: "Partner AE", support: ["Recast Channel Manager"], accountable: "Recast Channel Manager" },
               Identification: { primaryOwner: "Partner AE", support: ["Recast AE"], accountable: "Recast AE" },
               Qualification: { primaryOwner: "Partner AE", support: ["Recast SE"], accountable: "Recast AE" },
@@ -279,7 +279,7 @@
               ClosedWon: { primaryOwner: "Recast AE", support: ["Recast CS", "Partner AE"], accountable: "Recast Sales Leader" },
               Onboarding: { primaryOwner: "Recast CS", support: ["Partner Services"], accountable: "Recast CS Leader" },
             },
-            band3: {
+            tier3: {
               PQL: { primaryOwner: "Recast AE / Channel Manager", support: ["Partner (Referral / LAR)"], accountable: "Recast Channel Manager" },
               Identification: { primaryOwner: "Recast AE", support: ["Partner (Intro only)"], accountable: "Recast AE" },
               Qualification: { primaryOwner: "Recast AE", support: ["Recast SE"], accountable: "Recast AE" },
@@ -295,7 +295,7 @@
           showStageModal: false,
         },
         msp: {
-          overview: "Welcome to the Recast MSP Partner Program\n\nThe Recast MSP Program is built for service providers that want to embed Recast’s solutions into their service offerings to drive recurring revenue, expand client value, and scale with predictable economics.\n\nWe support multiple MSP archetypes—from infra-focused to app-centric—with enablement tailored to each type. Whether you’re a high-touch implementation shop or a lightweight automation-led MSP, this program offers flexible models to fit your business.\n\nProgram Highlights:\n\n* Monthly point-based licensing structure for easy cost forecasting\n\n* Tiered margin bands based on deal ownership and engagement\n\n* Access to white-labeled deployment kits, SOWs, and enablement tools\n\n* Support for both application workspace and endpoint solutions\n\n* Designed to protect partner margin, loyalty, and renewal rights",
+          overview: "Welcome to the Recast MSP Partner Program\n\nThe Recast MSP Program is built for service providers that want to embed Recast’s solutions into their service offerings to drive recurring revenue, expand client value, and scale with predictable economics.\n\nWe support multiple MSP archetypes—from infra-focused to app-centric—with enablement tailored to each type. Whether you’re a high-touch implementation shop or a lightweight automation-led MSP, this program offers flexible models to fit your business.\n\nProgram Highlights:\n\n* Monthly point-based licensing structure for easy cost forecasting\n\n* Tiered margin tiers based on deal ownership and engagement\n\n* Access to white-labeled deployment kits, SOWs, and enablement tools\n\n* Support for both application workspace and endpoint solutions\n\n* Designed to protect partner margin, loyalty, and renewal rights",
           requirements: [
             "Invitation and approval from Recast Channel Leadership",
             "Executed Master Partner or OEM Agreement",
@@ -306,7 +306,7 @@
             "Agreement to Rules of Engagement and margin structure"
           ],
           benefits: [
-            "Registered deal margin (per Band definition)",
+            "Registered deal margin (per Tier definition)",
             "Renewal margin protection with activity compliance",
             "Monthly point-based pricing tiers with discounted rates at scale",
             "Recast partner portal access",
@@ -343,10 +343,10 @@
             "Discount Policy\nRecast will not discount or quote any PoR-owned customer below partner pricing unless pre-approved through a formal channel escalation.",
             "Conflict Resolution\nIn overlapping claims, Recast Channel Leadership will evaluate based on:\n* Deal registration timestamp\n* CRM activity log\n* Customer attestation (if needed)",
             "Renewal Ownership\nPartner of Record retains renewal margin unless:\n* Customer explicitly reassigns to another partner\n* Partner has been inactive and missed renewal planning window",
-            "Sales Collaboration\nRequirements vary by Band:\n* Band 1: partner-driven\n* Band 2: co-sell required\n* Band 3: Recast-owned",
+            "Sales Collaboration\nRequirements vary by Tier:\n* Tier 1: partner-driven\n* Tier 2: co-sell required\n* Tier 3: Recast-owned",
             "Ethical Conduct\nAll partners must comply with Recast’s Code of Conduct, anti-poaching rules, and maintain professional behavior in joint accounts.",
-            "Margin Band Enforcement\n* Bands 1–3 define margin eligibility\n* Margins reset if Band criteria are not met\n* Quarterly review of Band performance and partner tiering",
-            "Governance\n* Lead registration valid for 30 days; can be renewed with pipeline activity\n* Band reviews occur quarterly\n* Escalation SLA: 5 business days to VP of Partner Programs"
+            "Margin Tier Enforcement\n* Tiers 1–3 define margin eligibility\n* Margins reset if Tier criteria are not met\n* Quarterly review of Tier performance and partner tiering",
+            "Governance\n* Lead registration valid for 30 days; can be renewed with pipeline activity\n* Tier reviews occur quarterly\n* Escalation SLA: 5 business days to VP of Partner Programs"
           ]
         },
         model: {
@@ -414,37 +414,37 @@
             Annual: {
               "Net New": {
                 "Preferred|Premier": [
-                  { band: "Band 1", upTo: "30%", when: "Partner originated AND Partner registered AND Recast approved" },
-                  { band: "Band 2", upTo: "15%", when: "Recast originated/registered AND Recast approved" },
+                  { band: "Tier 1", upTo: "25%", when: "Partner originated AND Partner registered AND Recast approved" },
+                  { band: "Tier 2", upTo: "15%", when: "Recast originated/registered AND Recast approved" },
                 ],
                 Registered: [
-                  { band: "Band 3", upTo: "Up to 5% (discretionary)", when: "Get up 5% margin for transacting or rebated for demand gen" },
+                  { band: "Tier 3", upTo: "Up to 5% (discretionary)", when: "Get up 5% margin for transacting or rebated for demand gen" },
                 ],
               },
               Renewal: {
                 "Preferred|Premier": [
-                  { band: "Band 1", upTo: "5%", when: "Partner of Record OR Incumbent" },
-                  { band: "Band 2", upTo: "5%", when: "Non-incumbent" },
+                  { band: "Tier 1", upTo: "5%", when: "Partner of Record OR Incumbent" },
+                  { band: "Tier 2", upTo: "5%", when: "Non-incumbent" },
                 ],
-                Registered: [{ band: "Band 3", upTo: "0%", when: "NA" }],
+                Registered: [{ band: "Tier 3", upTo: "0%", when: "NA" }],
               },
             },
             Monthly: {
               "Net New": {
                 "Preferred|Premier": [
-                  { band: "Band 1", upTo: "20%", when: "Partner originated AND Partner registered AND Recast approved" },
-                  { band: "Band 2", upTo: "10%", when: "Recast originated/registered AND Recast approved" },
+                  { band: "Tier 1", upTo: "20%", when: "Partner originated AND Partner registered AND Recast approved" },
+                  { band: "Tier 2", upTo: "10%", when: "Recast originated/registered AND Recast approved" },
                 ],
                 Registered: [
-                  { band: "Band 3", upTo: "Up to 5% (discretionary)", when: "Partner originated AND Partner registered AND Recast approved" },
+                  { band: "Tier 3", upTo: "Up to 5% (discretionary)", when: "Partner originated AND Partner registered AND Recast approved" },
                 ],
               },
               Renewal: {
                 "Preferred|Premier": [
-                  { band: "Band 1", upTo: "5%", when: "Partner of Record OR Incumbent" },
-                  { band: "Band 2", upTo: "5%", when: "Non-incumbent" },
+                  { band: "Tier 1", upTo: "5%", when: "Partner of Record OR Incumbent" },
+                  { band: "Tier 2", upTo: "5%", when: "Non-incumbent" },
                 ],
-                Registered: [{ band: "Band 3", upTo: "0%", when: "NA" }],
+                Registered: [{ band: "Tier 3", upTo: "0%", when: "NA" }],
               },
             },
           },
@@ -482,21 +482,21 @@
               { principle: "Renewal Ownership", description: "Partner of Record retains renewal rights unless customer explicitly reassigns.", intent: "Encourage customer retention and lifecycle focus." },
             ],
             bands: [
-              { band: "Band 1 – Full-Cycle Ownership", criteria: ["Partner sources and registers the lead.","Drives opportunity end-to-end (qualification → demo → close).","Requires minimal Recast sales or technical support.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "30%", example: "A Premier partner identifies an opportunity with a 1,000-user customer, performs demo, and closes deal without Recast sales involvement." },
-              { band: "Band 2 – Joint Engagement", criteria: ["Partner sources or registers opportunity.","Recast supports with presales, demo, or technical validation.","Partner co-sells with Recast sales team.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "15%", example: "Partner brings opportunity but requests Recast SE to lead demo and pricing discussion." },
-              { band: "Band 3 – Transactional / Referral", criteria: ["Partner identifies or influences opportunity but Recast leads sale.","No significant partner engagement beyond intro or transaction.","Typically applies to LARs, transactional resellers, or referral agents.","Margin discretionary, subject to sales approval."], eligible: "Registered, LAR, Referral", margin: "5% (discretionary)", example: "Large LAR adds Recast SKU to customer renewal, minimal engagement." },
+              { band: "Tier 1 – Full-Cycle Ownership", criteria: ["Partner sources and registers the lead.","Drives opportunity end-to-end (qualification → demo → close).","Requires minimal Recast sales or technical support.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "25%", example: "A Premier partner identifies an opportunity with a 1,000-user customer, performs demo, and closes deal without Recast sales involvement." },
+              { band: "Tier 2 – Joint Engagement", criteria: ["Partner sources or registers opportunity.","Recast supports with presales, demo, or technical validation.","Partner co-sells with Recast sales team.","Must be Preferred or Premier tier."], eligible: "Preferred, Premier", margin: "15%", example: "Partner brings opportunity but requests Recast SE to lead demo and pricing discussion." },
+              { band: "Tier 3 – Transactional / Referral", criteria: ["Partner identifies or influences opportunity but Recast leads sale.","No significant partner engagement beyond intro or transaction.","Typically applies to LARs, transactional resellers, or referral agents.","Margin discretionary, subject to sales approval."], eligible: "Registered, LAR, Referral", margin: "5% (discretionary)", example: "Large LAR adds Recast SKU to customer renewal, minimal engagement." },
             ],
             governance: [
               { element: "Eligibility Window", definition: "Lead & Deal registration valid for 30 days (renewable upon active pipeline evidence)." },
               { element: "Lead Pass", definition: "Partners are eligible to receive Recast-sourced leads, renewal opportunities, or services referrals only if they maintain an active business plan on file and are current on all required partner certifications." },
-              { element: "Renewal Margin", definition: "Renewal margin standardized between 5%-10% based on tier eligibility unless expansion occurs (then revert to Bands)." },
-              { element: "Band Review", definition: "Margin bands reviewed quarterly to align with GTM priorities." },
+              { element: "Renewal Margin", definition: "Renewal margin standardized between 5%-10% based on tier eligibility unless expansion occurs (then revert to Tiers)." },
+              { element: "Tier Review", definition: "Margin tiers reviewed quarterly to align with GTM priorities." },
               { element: "Escalation Path", definition: "Channel disputes escalated to VP of Partner Programs within 5 business days." },
             ],
             summary: [
-              { tier: "Premier", engagement: "Full-cycle (Band 1)", involvement: "Light-touch", range: "25–30%", notes: "Top-tier, full control of sales motion" },
-              { tier: "Preferred", engagement: "Joint sale (Band 2)", involvement: "Moderate", range: "10–15%", notes: "Co-sell and presales collaboration" },
-              { tier: "Registered / LAR", engagement: "Transactional (Band 3)", involvement: "Recast-led", range: "0–5%", notes: "Finder’s fee or referral incentive only." },
+              { tier: "Premier", engagement: "Full-cycle (Tier 1)", involvement: "Light-touch", range: "25%", notes: "Top-tier, full control of sales motion" },
+              { tier: "Preferred", engagement: "Joint sale (Tier 2)", involvement: "Moderate", range: "10–15%", notes: "Co-sell and presales collaboration" },
+              { tier: "Registered / LAR", engagement: "Transactional (Tier 3)", involvement: "Recast-led", range: "0–5%", notes: "Finder’s fee or referral incentive only." },
             ],
           },
           other: {
@@ -514,9 +514,9 @@
               "Quarterly alignment on co-sell and marketing activities"
             ],
             partners: [
-              { partnerType: "Technology Partner (ISV)", tierEligibility: "Premier", margin: "Negotiated; typically Band 2 equivalent + referral incentives", dealRegistration: "Optional", mdfAccess: "Co-marketing only", enablement: "Developer enablement, API/SDK certification" },
+              { partnerType: "Technology Partner (ISV)", tierEligibility: "Premier", margin: "Negotiated; typically Tier 2 equivalent + referral incentives", dealRegistration: "Optional", mdfAccess: "Co-marketing only", enablement: "Developer enablement, API/SDK certification" },
               { partnerType: "OEM Partner", tierEligibility: "Premier", margin: "Embedded / co-sell pricing (not margin-based)", dealRegistration: "N/A", mdfAccess: "Strategic MDF", enablement: "OEM SDK, roadmap collaboration, joint solution blueprints" },
-              { partnerType: "Distributor Partner", tierEligibility: "Premier", margin: "Transactional (Band 3 equivalent, pre-negotiated)", dealRegistration: "Required", mdfAccess: "Tiered MDF by volume", enablement: "Distributor onboarding toolkit, partner training delivery" },
+              { partnerType: "Distributor Partner", tierEligibility: "Premier", margin: "Transactional (Tier 3 equivalent, pre-negotiated)", dealRegistration: "Required", mdfAccess: "Tiered MDF by volume", enablement: "Distributor onboarding toolkit, partner training delivery" },
             ]
           }
         },
@@ -560,10 +560,10 @@
           STATE.partnerType = STATE.selectedPartnerTypes[0] || PARTNER_TYPES[0];
         }
       }
-      function setDefaultBand(type) {
-        if (type === 'Registered') return 'band3';
-        if (type === 'Preferred') return 'band2';
-        return 'band1';
+      function setDefaultTier(type) {
+        if (type === 'Registered') return 'tier3';
+        if (type === 'Preferred') return 'tier2';
+        return 'tier1';
       }
       function getPartnerData(type) {
         if (type === "Program Overview") {
@@ -871,16 +871,16 @@
         if (!isRegistered) {
           margins = [...margins]; // copy to avoid modifying original
           margins.push({
-            band: "Band 3",
+            band: "Tier 3",
             upTo: STATE.dealType === 'Renewal' ? "0%" : "Up to 5% (discretionary)",
             when: STATE.dealType === 'Renewal' ? "NA" : "Intro or PO only → Referral margin."
           });
         }
         html += '<div class="rounded-2xl bg-white p-6 shadow-md mb-6">';
-        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="table" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Bands</h3>';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="table" class="h-5 w-5 stroke-[#2563eb]"></i>Margin Tiers</h3>';
         html += '<div class="overflow-x-auto mb-6">';
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th class="px-6 py-3 text-left text-sm font-semibold">When</th></tr></thead>';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Up to</th><th class="px-6 py-3 text-left text-sm font-semibold">When</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         margins.forEach(m => {
           html += `<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${m.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${m.upTo}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${m.when}</td></tr>`;
@@ -889,15 +889,15 @@
         html += '<div class="rounded-2xl bg-white p-6 shadow-md mb-6">';
         html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="calculator" class="h-5 w-5 stroke-[#2563eb]"></i>Example Calculation</h3>';
         if (isRegistered) {
-          STATE.band = 'band3';
+          STATE.tier = 'tier3';
         }
-        const availableBands = isRegistered ? ['band3'] : (STATE.partnerTierMeta[STATE.partnerType].fullCycleEligible ? ['band1', 'band2', 'band3'] : ['band2', 'band3']);
+        const availableTiers = isRegistered ? ['tier3'] : (STATE.partnerTierMeta[STATE.partnerType].fullCycleEligible ? ['tier1', 'tier2', 'tier3'] : ['tier2', 'tier3']);
         html += '<div class="flex flex-wrap gap-4 mb-4">';
-        availableBands.forEach(band => {
+        availableTiers.forEach(tier => {
           html += `
             <label class="inline-flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="band" value="${band}" ${STATE.band === band ? 'checked' : ''} class="form-radio h-4 w-4 text-[#2563eb] focus:ring-[#2563eb]">
-              <span class="text-sm font-medium">${STATE.salesCycle.bandMeta[band].name.split(' – ')[0]}</span>
+              <input type="radio" name="tier" value="${tier}" ${STATE.tier === tier ? 'checked' : ''} class="form-radio h-4 w-4 text-[#2563eb] focus:ring-[#2563eb]">
+              <span class="text-sm font-medium">${STATE.salesCycle.tierMeta[tier].name.split(' – ')[0]}</span>
             </label>
           `;
         });
@@ -906,7 +906,7 @@
         html += '<label for="exampleACV" class="block text-sm font-medium mb-1">Example ACV ($)</label>';
         html += '<input type="number" id="exampleACV" value="' + STATE.exampleACV + '" min="0" step="1000" class="rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 transition-all duration-300 w-full max-w-xs" />';
         html += '</div>';
-        const upTo = margins.find(m => m.band.toLowerCase().replace(/\s/g, '') === STATE.band.toLowerCase().replace(/\s/g, ''))?.upTo;
+        const upTo = margins.find(m => m.band.toLowerCase().replace(/\s/g, '') === STATE.tier.toLowerCase().replace(/\s/g, ''))?.upTo;
         const marginPercentStr = upTo.replace(/[^0-9.]/g, '');
         const marginPercent = parseFloat(marginPercentStr) / 100 || 0;
         const acv = STATE.exampleACV;
@@ -966,10 +966,10 @@
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
         html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">How Margin is Earned</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">Band 3 only — referral or PO processing (no deal support required)</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Band 2 or Band 1 — must co-sell or fully own sales cycle</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Eligible for all bands — strategic role expected (source, support, expand, renew)</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">OEM pricing structure — not motion-based; no bands</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">Tier 3 only — referral or PO processing (no deal support required)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Tier 2 or Tier 1 — must co-sell or fully own sales cycle</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Eligible for all tiers — strategic role expected (source, support, expand, renew)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">OEM pricing structure — not motion-based; no tiers</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Wholesale margins; no direct sales motions; supports sub-partner enablement</td></tr>';
         html += '</tbody></table></div>';
         html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="users-round" class="h-5 w-5 stroke-[#2563eb]"></i>Engagement Expectations by Tier</h3>';
@@ -978,19 +978,19 @@
         html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Sales Role</th><th class="px-6 py-3 text-left text-sm font-semibold">Delivery Role</th><th class="px-6 py-3 text-left text-sm font-semibold">PoR Eligible?</th><th class="px-6 py-3 text-left text-sm font-semibold">Deal Protection?</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Registered</td><td class="px-6 py-4 text-sm text-gray-700">None or transactional</td><td class="px-6 py-4 text-sm text-gray-700">None</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Shared or own the sales motion</td><td class="px-6 py-4 text-sm text-gray-700">Deliver PS or manage Recast environment</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">Partial (based on Band)</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Shared or own the sales motion</td><td class="px-6 py-4 text-sm text-gray-700">Deliver PS or manage Recast environment</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">Partial (based on Tier)</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Premier</td><td class="px-6 py-4 text-sm text-gray-700">Own full-cycle or co-sell strategically</td><td class="px-6 py-4 text-sm text-gray-700">Sell, deliver, support, expand</td><td class="px-6 py-4 text-sm text-gray-700">✅</td><td class="px-6 py-4 text-sm text-gray-700">✅</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">OEM</td><td class="px-6 py-4 text-sm text-gray-700">N/A</td><td class="px-6 py-4 text-sm text-gray-700">Embeds Recast in own platform</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
         html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Distributor</td><td class="px-6 py-4 text-sm text-gray-700">Indirect support only</td><td class="px-6 py-4 text-sm text-gray-700">N/A</td><td class="px-6 py-4 text-sm text-gray-700">❌</td><td class="px-6 py-4 text-sm text-gray-700">❌</td></tr>';
         html += '</tbody></table></div>';
-        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="search" class="h-5 w-5 stroke-[#2563eb]"></i>Sourcing Types & Band Rules</h3>';
+        html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="search" class="h-5 w-5 stroke-[#2563eb]"></i>Sourcing Types & Tier Rules</h3>';
         html += '<div class="overflow-x-auto mb-6">';
         html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Sourcing Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Available To</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Band</th></tr></thead>';
+        html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Sourcing Type</th><th class="px-6 py-3 text-left text-sm font-semibold">Description</th><th class="px-6 py-3 text-left text-sm font-semibold">Available To</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin Tier</th></tr></thead>';
         html += '<tbody class="divide-y divide-[#E2E8F0]">';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Partner Sourced</td><td class="px-6 py-4 text-sm text-gray-700">Partner finds, registers, and supports close.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Band 1</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Recast Sourced / Co-Sell</td><td class="px-6 py-4 text-sm text-gray-700">Recast provides lead; partner assists in sales cycle.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Band 2</td></tr>';
-        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Referral / Transactional</td><td class="px-6 py-4 text-sm text-gray-700">Partner provides intro or PO, but no sales engagement.</td><td class="px-6 py-4 text-sm text-gray-700">Registered, Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Band 3</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Partner Sourced</td><td class="px-6 py-4 text-sm text-gray-700">Partner finds, registers, and supports close.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Tier 1</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Recast Sourced / Co-Sell</td><td class="px-6 py-4 text-sm text-gray-700">Recast provides lead; partner assists in sales cycle.</td><td class="px-6 py-4 text-sm text-gray-700">Preferred, Premier</td><td class="px-6 py-4 text-sm text-gray-700">Tier 2</td></tr>';
+        html += '<tr><td class="px-6 py-4 text-sm text-gray-700">Referral / Transactional</td><td class="px-6 py-4 text-sm text-gray-700">Partner provides intro or PO, but no sales engagement.</td><td class="px-6 py-4 text-sm text-gray-700">Registered, Preferred</td><td class="px-6 py-4 text-sm text-gray-700">Tier 3</td></tr>';
         html += '</tbody></table></div>';
         html += '<p class="text-gray-700 leading-relaxed mb-2">PoR Qualification Requires:</p>';
         html += '<ul class="space-y-3 mb-6">';
@@ -1046,10 +1046,10 @@
               html += `<div class="rounded-2xl border border-[#E2E8F0] p-4"><h4 class="font-medium mb-2">${p.principle}</h4><p class="text-sm text-gray-700 leading-relaxed mb-2">${p.description}</p><p class="text-xs text-gray-500">Intent: ${p.intent}</p></div>`;
             });
             html += '</div>';
-            html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="layers" class="h-5 w-5 stroke-[#2563eb]"></i>Bands</h3>';
+            html += '<h3 class="text-lg font-medium mb-3 flex items-center gap-2"><i data-lucide="layers" class="h-5 w-5 stroke-[#2563eb]"></i>Tiers</h3>';
             html += '<div class="overflow-x-auto">';
             html += '<table class="min-w-full divide-y divide-[#E2E8F0]">';
-            html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Band</th><th class="px-6 py-3 text-left text-sm font-semibold">Criteria</th><th class="px-6 py-3 text-left text-sm font-semibold">Eligible</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Example</th></tr></thead>';
+            html += '<thead><tr><th class="px-6 py-3 text-left text-sm font-semibold">Tier</th><th class="px-6 py-3 text-left text-sm font-semibold">Criteria</th><th class="px-6 py-3 text-left text-sm font-semibold">Eligible</th><th class="px-6 py-3 text-left text-sm font-semibold">Margin</th><th class="px-6 py-3 text-left text-sm font-semibold">Example</th></tr></thead>';
             html += '<tbody class="divide-y divide-[#E2E8F0]">';
             roeData.bands.forEach(b => {
               html += `<tr><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.band}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.criteria.join('<br>')}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.eligible}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.margin}</td><td class="px-6 py-4 text-sm text-gray-700 leading-relaxed">${b.example}</td></tr>`;
@@ -1093,33 +1093,33 @@
         });
         html += '</div></div></div>';
         html += '<div class="mb-6 rounded-2xl bg-white p-6 shadow-md">';
-        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="layers" class="h-5 w-5 stroke-[#2563eb]"></i>Band Overviews</h3>';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="layers" class="h-5 w-5 stroke-[#2563eb]"></i>Tier Overviews</h3>';
         html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
         if (isRegistered) {
-          const meta = STATE.salesCycle.bandMeta.band3;
+          const meta = STATE.salesCycle.tierMeta.tier3;
           html += `<div class="rounded-2xl ${meta.color} p-4"><h4 class="font-medium mb-2">${meta.name}</h4><p class="text-sm leading-relaxed">${meta.summary}</p><p class="text-sm font-medium mt-2">Margin: ${meta.margin}</p></div>`;
         } else {
-          Object.keys(STATE.salesCycle.bandMeta).forEach(band => {
-            const meta = STATE.salesCycle.bandMeta[band];
+          Object.keys(STATE.salesCycle.tierMeta).forEach(tier => {
+            const meta = STATE.salesCycle.tierMeta[tier];
             html += `<div class="rounded-2xl ${meta.color} p-4"><h4 class="font-medium mb-2">${meta.name}</h4><p class="text-sm leading-relaxed">${meta.summary}</p><p class="text-sm font-medium mt-2">Margin: ${meta.margin}</p></div>`;
           });
         }
         html += '</div></div>';
         html += '<div class="rounded-2xl bg-white p-6 shadow-md">';
-        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="users-round" class="h-5 w-5 stroke-[#2563eb]"></i>Ownership by Band</h3>';
+        html += '<h3 class="text-lg font-medium mb-4 flex items-center gap-2"><i data-lucide="users-round" class="h-5 w-5 stroke-[#2563eb]"></i>Ownership by Tier</h3>';
         if (isRegistered) {
-          STATE.activeBand = 'band3';
+          STATE.activeTier = 'tier3';
         } else {
           html += '<div class="flex flex-col sm:flex-row gap-2 mb-4 rounded-full border border-[#E2E8F0] p-1 bg-white">';
-          Object.keys(STATE.salesCycle.bandMeta).forEach(band => {
-            const active = STATE.activeBand === band;
-            html += `<button data-band="${band}" class="flex-1 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${active ? 'bg-[#2563eb] text-white' : 'text-gray-700 hover:bg-gray-100'} focus:outline-none">${STATE.salesCycle.bandMeta[band].name.split(' – ')[0]}</button>`;
+          Object.keys(STATE.salesCycle.tierMeta).forEach(tier => {
+            const active = STATE.activeTier === tier;
+            html += `<button data-tier="${tier}" class="flex-1 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${active ? 'bg-[#2563eb] text-white' : 'text-gray-700 hover:bg-gray-100'} focus:outline-none">${STATE.salesCycle.tierMeta[tier].name.split(' – ')[0]}</button>`;
           });
           html += '</div>';
         }
         html += '<div class="space-y-4">';
         STATE.salesCycle.rows.forEach(row => {
-          const own = STATE.salesCycle.bands[STATE.activeBand][row];
+          const own = STATE.salesCycle.tiers[STATE.activeTier][row];
           html += '<div class="rounded-2xl border border-[#E2E8F0] p-6 bg-white">';
           html += `<h4 class="font-medium text-sm mb-3">${row}</h4>`;
           html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-6">';
@@ -1143,9 +1143,9 @@
         });
         html += '</div></div>';
         html += '<div class="mt-6 text-xs text-gray-600 flex flex-wrap gap-4">';
-        html += '<span class="flex items-center gap-1"><i data-lucide="handshake" class="h-3 w-3 stroke-[#2563eb]"></i>Band 1 rewards full-cycle ownership</span>';
-        html += '<span class="flex items-center gap-1"><i data-lucide="users-round" class="h-3 w-3 stroke-[#2563eb]"></i> Band 2 is co-sell</span>';
-        html += '<span class="flex items-center gap-1"><i data-lucide="shield-check" class="h-3 w-3 stroke-[#2563eb]"></i> Band 3 is referral/transactional</span>';
+        html += '<span class="flex items-center gap-1"><i data-lucide="handshake" class="h-3 w-3 stroke-[#2563eb]"></i>Tier 1 rewards full-cycle ownership</span>';
+        html += '<span class="flex items-center gap-1"><i data-lucide="users-round" class="h-3 w-3 stroke-[#2563eb]"></i> Tier 2 is co-sell</span>';
+        html += '<span class="flex items-center gap-1"><i data-lucide="shield-check" class="h-3 w-3 stroke-[#2563eb]"></i> Tier 3 is referral/transactional</span>';
         html += '</div>';
         html += '<div class="mt-4 rounded-2xl border border-[#E2E8F0] p-6 bg-gray-50 flex gap-3 items-start">';
         html += '<i data-lucide="info" class="h-5 w-5 mt-0.5 stroke-[#2563eb]"></i>';
@@ -1455,7 +1455,7 @@
               <li>Download the template CSV.</li>
               <li>Fill required columns; one row per contact.</li>
               <li>Choose “Create Deal Registration” for qualified rows.</li>
-              <li>Channel approves within 2 business days (PoR + Band applied).</li>
+              <li>Channel approves within 2 business days (PoR + Tier applied).</li>
             </ol>
             <div class="mt-4">
               <pre class="bg-gray-50 p-3 rounded-lg text-xs overflow-auto">${sample}</pre>
@@ -1617,8 +1617,8 @@
       function addEventListeners() {
         document.getElementById('partnerType').addEventListener('change', (e) => {
           STATE.partnerType = e.target.value;
-          STATE.band = setDefaultBand(STATE.partnerType);
-          STATE.activeBand = setDefaultBand(STATE.partnerType);
+          STATE.tier = setDefaultTier(STATE.partnerType);
+          STATE.activeTier = setDefaultTier(STATE.partnerType);
           STATE.showMspOption = false; // Reset MSP toggle on type change
           if (STATE.partnerType === 'Program Overview') {
             STATE.activeTab = 'overview';
@@ -1653,9 +1653,9 @@
             render();
           });
         }
-        document.querySelectorAll('input[name="band"]').forEach(radio => {
+        document.querySelectorAll('input[name="tier"]').forEach(radio => {
           radio.addEventListener('change', (e) => {
-            STATE.band = e.target.value;
+            STATE.tier = e.target.value;
             render();
           });
         });
@@ -1834,9 +1834,9 @@
             render();
           });
         }
-        document.querySelectorAll('[data-band]').forEach(btn => {
+        document.querySelectorAll('[data-tier]').forEach(btn => {
           btn.addEventListener('click', () => {
-            STATE.activeBand = btn.dataset.band;
+            STATE.activeTier = btn.dataset.tier;
             render();
           });
         });
