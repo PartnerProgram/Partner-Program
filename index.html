@@ -54,7 +54,6 @@
         activeStep: 0,
         tier: 'tier1',
         activeTier: 'tier1',
-        roeView: 'partner',
         defaultTierByType: { Registered:'tier3', 'Value/Preferred':'tier2', 'Strategic/Premier':'tier1' },
         partnerTierMeta: {
           'Registered': {
@@ -507,7 +506,25 @@
               { tier: "Registered / LAR", engagement: "Transactional (Tier 3)", involvement: "Recast-led", range: "5% (discretionary)", notes: "Finder’s fee or referral incentive only." },
             ],
             conflicts: "In cases of overlapping claims, Recast Channel Leadership will evaluate based on deal registration timestamp, documented activity, and customer attestation.",
-            escalation: "Channel disputes escalated to VP of Partner Programs within 5 business days."
+            escalation: "Channel disputes escalated to VP of Partner Programs within 5 business days.",
+            scenarios: [
+              {
+                title: "Net-New Partner Leads",
+                description: "Simple rule: if Sales is already on it → no conflict. If Sales isn’t on it → Partner gets approved, PoR assigned, and we collaborate. Keeps pipeline clean and ownership clear — everyone knows who’s driving."
+              },
+              {
+                title: "MDF Event Leads",
+                description: "Ownership is defined before the event. Partner-led = Partner manages follow-up. Sales-led = AE or AM follows up directly. PoR only applies if the partner truly sourced the demand."
+              },
+              {
+                title: "AM Cross-Sell / Upsell",
+                description: "Account Managers can contact customers directly — even with a Partner PoR — to ensure we don’t slow down opportunities. Partner still earns Tier 2 margin and services revenue. Transparency is key: Partners stay looped in when it adds value."
+              },
+              {
+                title: "Renewals",
+                description: "If Partner holds PoR → they lead renewal; RM/CSM supports. If no PoR → RM/CSM handles renewal directly. Partner keeps renewal margin when they drive retention."
+              }
+            ]
           },
           other: {
             overview: "",
@@ -953,209 +970,22 @@
         }
         return html;
       }
-      function renderAudienceToggle() {
-        return `
-          <div class="flex gap-2 mb-6">
-            <button data-toggle="partner" class="${STATE.roeView === 'partner' ? 'bg-[#2563eb] text-white' : 'bg-gray-200 text-gray-700'} rounded-full px-6 py-2 font-medium transition-all duration-300">I’m a Partner</button>
-            <button data-toggle="sales" class="${STATE.roeView === 'sales' ? 'bg-[#2563eb] text-white' : 'bg-gray-200 text-gray-700'} rounded-full px-6 py-2 font-medium transition-all duration-300">I’m Recast Sales</button>
-          </div>
-        `;
-      }
-      function renderHeroSummary(view) {
-        const title = view === 'partner' ? 'FOR PARTNERS — HOW WE WORK WITH YOU' : 'FOR SALES — WHAT YOU NEED TO KNOW';
-        const copy = view === 'partner' ? STATE.dealRegNotes.partner : STATE.dealRegNotes.internal;
-        const summary = STATE.dealRegNotes.summary;
-        return `
-          <div class="rounded-2xl bg-gray-100 p-6 mb-6">
-            <h3 class="text-xl font-medium mb-4">${title}</h3>
-            <p class="text-gray-700 leading-relaxed whitespace-pre-line mb-6">${copy}</p>
-            <h3 class="text-xl font-medium mb-4">THE SIMPLE SUMMARY</h3>
-            <p class="text-gray-700 leading-relaxed whitespace-pre-line">${summary}</p>
-          </div>
-        `;
-      }
-      function renderScenarioCards() {
-        const cards = [
-          {
-            title: 'Partner-Led (You Run It) – 25% Margin',
-            description: [
-              'You run the entire sales cycle',
-              'Recast supports by request',
-              'AE receives full quota credit',
-              'Best when you own the customer relationship'
-            ],
-            tag: 'Tier 1 – Full-Cycle',
-            icon: 'user-check'
-          },
-          {
-            title: 'Co-Sell (We Work It Together) – 15% Margin',
-            description: [
-              'You lead discovery & validation',
-              'Recast handles licensing, pricing, close',
-              'AE receives full quota credit',
-              'Best when both teams need to collaborate'
-            ],
-            tag: 'Tier 2 – Joint Engagement',
-            icon: 'handshake'
-          },
-          {
-            title: 'Referral (Lead Pass) – 5% Margin',
-            description: [
-              'You make the introduction',
-              'Recast runs the full cycle',
-              'AE receives full quota credit',
-              'Best for low-touch or quick referrals'
-            ],
-            tag: 'Tier 3 – Transactional',
-            icon: 'arrow-right'
-          }
-        ];
-        let cardsHtml = '<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">';
-        cards.forEach(c => {
-          cardsHtml += `
-            <div class="rounded-2xl bg-white shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-              <div class="flex items-center gap-2 mb-4">
-                <i data-lucide="${c.icon}" class="h-5 w-5 stroke-[#2563eb]"></i>
-                <h3 class="text-lg font-medium">${c.title}</h3>
-              </div>
-              <ul class="space-y-2 mb-4">
-                ${c.description.map(d => `<li class="flex items-center gap-2 text-gray-700 text-sm"><i data-lucide="chevron-right" class="h-4 w-4 stroke-gray-400"></i>${d}</li>`).join('')}
-              </ul>
-              <span class="inline-block rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">${c.tag}</span>
-            </div>
-          `;
-        });
-        cardsHtml += '</div>';
-        return cardsHtml;
-      }
-      function renderLeadFlowTimeline() {
-        const steps = [
-          'You register a deal',
-          'We check Salesforce for duplicates',
-          'If Sales is already working it → Partner Manager notifies you → Sales keeps ownership',
-          'If not → Partner Manager approves and creates the opportunity',
-          'You choose Partner-Led (25%), Co-Sell (15%), or Referral (5%)'
-        ];
-        let timelineHtml = '<div class="flex overflow-x-auto gap-4 mb-6 pb-4">';
-        steps.forEach((step, i) => {
-          timelineHtml += `
-            <div class="flex-shrink-0 w-48 rounded-2xl bg-white shadow-md p-4">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-[#2563eb] text-white text-xs font-medium">${i+1}</span>
-                <p class="text-sm font-medium">${step}</p>
-              </div>
-            </div>
-          `;
-          if (i < steps.length - 1) {
-            timelineHtml += '<div class="flex items-center"><i data-lucide="chevron-right" class="h-5 w-5 stroke-gray-400"></i></div>';
-          }
-        });
-        timelineHtml += '</div>';
-        return timelineHtml;
-      }
-      function renderTierExpectations() {
-        let key;
-        switch (STATE.partnerType) {
-          case 'Registered': key = 'Registered'; break;
-          case 'Value/Preferred': key = 'Value/Preferred'; break;
-          case 'Strategic/Premier': key = 'Strategic/Premier'; break;
-          default: return '';
-        }
-        if (STATE.showMspOption && (STATE.partnerType === 'Value/Preferred' || STATE.partnerType === 'Strategic/Premier')) key = 'MSP';
-        const data = STATE.simpleROE[key];
-        if (!data) return '';
-        let html = '<div class="mb-6">';
-        html += '<h3 class="text-xl font-medium mb-4">What to Expect Based on Your Tier</h3>';
-        html += `
-          <div class="rounded-2xl bg-white shadow-md p-6">
-            <p class="text-gray-700 leading-relaxed mb-4">${data.summary}</p>
-            <h4 class="text-lg font-medium mb-2">Sourcing</h4>
-            <ul class="space-y-2">
-              ${data.sourcing.map(s => `<li><strong>${s.label}:</strong> ${s.value}</li>`).join('')}
-            </ul>
-        `;
-        if (data.bands && data.bands.length > 0) {
+      function renderROEContent() {
+        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#2563eb]"></i>Rules of Engagement</h2>';
+        html += '<div class="space-y-6">';
+        html += '<section class="rounded-2xl bg-white p-6 shadow-md">';
+        html += '<h3 class="text-lg font-medium mb-4">AMER Partner Lead & Deal Flow Scenarios</h3>';
+        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+        STATE.model.roe.scenarios.forEach(s => {
           html += `
-            <details class="mt-4">
-              <summary class="cursor-pointer font-medium flex justify-between items-center">Bands (details)<i data-lucide="chevron-down" class="h-5 w-5"></i></summary>
-              <ul class="mt-2 space-y-2">
-                ${data.bands.map(b => `<li><strong>${b.band}:</strong> ${b.when.join(', ')} - ${b.rule}</li>`).join('')}
-              </ul>
-            </details>
-          `;
-        }
-        html += '</div></div>';
-        return html;
-      }
-      function renderAccordions() {
-        const accordions = [
-          {
-            title: 'Full RoE Policy',
-            content: STATE.model.roe.principles.map(p => `<div class="mb-4"><h4 class="font-medium mb-2">${p.principle}</h4><p class="text-sm text-gray-700 mb-1">${p.description}</p><p class="text-xs text-gray-500">Intent: ${p.intent}</p></div>`).join('')
-          },
-          {
-            title: 'Margin Bands & Eligibility',
-            content: STATE.model.roe.bands.map(b => `<div class="mb-4"><h4 class="font-medium mb-2">${b.band}</h4><p class="text-sm text-gray-700 mb-1">Criteria: ${b.criteria.join('<br>')}</p><p class="text-sm text-gray-700 mb-1">Eligible: ${b.eligible}</p><p class="text-sm text-gray-700 mb-1">Margin: ${b.margin}</p><p class="text-sm text-gray-700">Example: ${b.example}</p></div>`).join('')
-          },
-          {
-            title: 'Governance Rules',
-            content: STATE.model.roe.governance.map(g => `<div class="mb-4"><h4 class="font-medium mb-2">${g.element}</h4><p class="text-sm text-gray-700">${g.definition}</p></div>`).join('')
-          },
-          {
-            title: 'Conflict Resolution & Escalation',
-            content: `<p class="text-gray-700 leading-relaxed mb-4">${STATE.model.roe.conflicts}</p><p class="text-gray-700 leading-relaxed">${STATE.model.roe.escalation}</p>`
-          },
-          {
-            title: 'MSP / ISV / Other Models',
-            content: STATE.model.other.partnerTypesDescs.map((desc, i) => `<div class="mb-4"><h4 class="font-medium mb-2">${['MSP', 'ISV', 'OEM', 'Distributor'][i]}</h4><p class="text-sm text-gray-700 whitespace-pre-line">${desc}</p></div>`).join('')
-          }
-        ];
-        let html = '<div class="space-y-4">';
-        accordions.forEach(a => {
-          html += `
-            <details class="rounded-2xl bg-white shadow-md">
-              <summary class="p-6 flex justify-between items-center cursor-pointer font-medium">
-                ${a.title}
-                <i data-lucide="chevron-down" class="h-5 w-5 stroke-gray-600"></i>
-              </summary>
-              <div class="px-6 pb-6 text-gray-700 leading-relaxed">${a.content}</div>
-            </details>
+            <div class="rounded-xl bg-gray-50 p-4">
+              <h4 class="font-medium mb-2">${s.title}</h4>
+              <p class="text-sm text-gray-700 leading-relaxed">${s.description}</p>
+            </div>
           `;
         });
         html += '</div>';
-        return html;
-      }
-      function renderGuaranteeBlock() {
-        const guarantees = [
-          'We will not work your registered deals behind your back.',
-          'We always check Salesforce first to avoid duplicate effort.',
-          'AEs always receive full quota credit for deals in their territory.'
-        ];
-        return `
-          <div class="rounded-2xl bg-blue-50 p-6 mb-6">
-            <h3 class="text-xl font-medium mb-4">What We Guarantee</h3>
-            <ul class="space-y-2">
-              ${guarantees.map(g => `<li class="flex items-center gap-2 text-gray-700"><i data-lucide="shield-check" class="h-4 w-4 stroke-[#2563eb]"></i>${g}</li>`).join('')}
-            </ul>
-          </div>
-        `;
-      }
-      function renderScenarioSelector() {
-        return `
-          <div class="mt-6">
-            <h3 class="text-xl font-medium mb-4">What are you trying to do?</h3>
-            <div class="flex flex-col md:flex-row gap-4">
-              <button class="rounded-full bg-white border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">I found a brand new opportunity</button>
-              <button class="rounded-full bg-white border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">I just want to refer a lead</button>
-              <button class="rounded-full bg-white border border-[#E2E8F0] px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">I’m managing cross-sell/upsell</button>
-            </div>
-          </div>
-        `;
-      }
-      function renderROEContent() {
-        let html = '<h2 class="text-xl font-medium mb-6 flex items-center gap-3"><i data-lucide="gavel" class="h-6 w-6 stroke-[#2563eb]"></i>Rules of Engagement</h2>';
-        html += renderAudienceToggle();
-        html += '<div class="space-y-6">';
+        html += '</section>';
         html += '<section class="rounded-2xl bg-white p-6 shadow-md">';
         html += '<h3 class="text-lg font-medium mb-4">Core Principles</h3>';
         html += '<ul class="space-y-4">';
@@ -1215,51 +1045,45 @@
               <div class="space-y-6 text-gray-700 leading-relaxed whitespace-pre-line">.1. Partner Portal Lead Registration Form – For Individual Deal Submissions
 Used when a partner salesperson submits a single deal.
 Required Fields
-·         First Name
-·         Last Name
-·         Business Email
-·         Company Name
-·         Country
-·         Partner Campaign Source (defaults to “Salesperson”)
-·         Lead Notes / BANT (optional)
- 
- 
+· First Name
+· Last Name
+· Business Email
+· Company Name
+· Country
+· Partner Campaign Source (defaults to “Salesperson”)
+· Lead Notes / BANT (optional)
 What Happens
-·         Leads are added into Salesforce
-·         Email opt out the lead or contact – select ‘Email Opt Out’ field as ‘true’
-·         They’re linked to the correct partner account and tagged with the campaign source – Add new campaign for NA Partners
-·         Leads from Premier /Strategic partners are excluded from direct outreach and routed only to the Partner team
-·         The assigned Partner or Region Manager reviews each lead (The demand Gen stage can mirror the direct process. In this example if the partner is registering the lead individually it can meet the highest criteria since they are filling it out in the portal. Ie default to MQL)
-·         If the lead meets minimum qualification requirements:
-·         It is converted into an opportunity
-·         The partner is recorded as the Partner of Record (POR)
-·         Qualification criteria for POR status are documented in the opportunity
- 
+· Leads are added into Salesforce
+· Email opt out the lead or contact – select ‘Email Opt Out’ field as ‘true’
+· They’re linked to the correct partner account and tagged with the campaign source – Add new campaign for NA Partners
+· Leads from Premier /Strategic partners are excluded from direct outreach and routed only to the Partner team
+· The assigned Partner or Region Manager reviews each lead (The demand Gen stage can mirror the direct process. In this example if the partner is registering the lead individually it can meet the highest criteria since they are filling it out in the portal. Ie default to MQL)
+· If the lead meets minimum qualification requirements:
+· It is converted into an opportunity
+· The partner is recorded as the Partner of Record (POR)
+· Qualification criteria for POR status are documented in the opportunity
 2. CSV Upload – For Lists From Campaigns or Events
 Used when partners or internal teams upload a list of leads from events like webinars or tradeshows.
 Required Columns
-·         First Name
-·         Last Name
-·         Business Email
-·         Company Name
-·         Country
-·         Partner Campaign Source (e.g., Webinar, Event)
-·         Partner Account
-·         Email Opt-out (TRUE or FALSE)
-·         (Optional: Lead Notes / BANT, Lead Owner, Lead Status, Date Created)[AA1] 
- 
+· First Name
+· Last Name
+· Business Email
+· Company Name
+· Country
+· Partner Campaign Source (e.g., Webinar, Event)
+· Partner Account
+· Email Opt-out (TRUE or FALSE)
+· (Optional: Lead Notes / BANT, Lead Owner, Lead Status, Date Created)[AA1]
 What Happens
-·         Leads are added into Salesforce
-·         They’re linked to the right partner and campaign
-·         Leads from Premier or Strategic partners are also excluded from direct outreach and sent only to the Partner team
-·         The assigned Partner or Region Manager reviews each lead
-·         If the lead meets minimum qualification requirements:
-·         It is converted into an opportunity
-·         The partner is recorded as the Partner of Record (POR)
+· Leads are added into Salesforce
+· They’re linked to the right partner and campaign
+· Leads from Premier or Strategic partners are also excluded from direct outreach and sent only to the Partner team
+· The assigned Partner or Region Manager reviews each lead
+· If the lead meets minimum qualification requirements:
+· It is converted into an opportunity
+· The partner is recorded as the Partner of Record (POR)
  [AA1]@Chelsea Eugster
- 
 Add email, opt in/opt out field.
- 
 Marketing will scrub the list.</div>
             </div>
           </div>
@@ -1934,12 +1758,6 @@ Marketing will scrub the list.</div>
             render();
           });
         }
-        document.querySelectorAll('[data-toggle]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            STATE.roeView = btn.dataset.toggle;
-            render();
-          });
-        });
         const csvSopBtn = document.getElementById('csvSopBtn');
         if (csvSopBtn) {
           csvSopBtn.addEventListener('click', () => {
